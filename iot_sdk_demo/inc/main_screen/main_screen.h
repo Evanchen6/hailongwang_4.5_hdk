@@ -45,6 +45,8 @@
 //add by chenchen
 #include "hal_keypad.h"
 
+#include "syslog.h"
+
 
 #define ScrnWidth (320)
 #define ScrnHeight (320)

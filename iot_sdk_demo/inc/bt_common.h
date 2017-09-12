@@ -32,39 +32,33 @@
  * MEDIATEK FOR SUCH MEDIATEK SOFTWARE AT ISSUE.
  */
 
-/* max supported connection number */
-#define BT_CONNECTION_MAX   10
+#ifndef __BT_COMMON_H__
+#define __BT_COMMON_H__
 
-#define BT_MAX_LINK_NUM 2
+#include "syslog.h"
 
-/* max timer count */
-#define BT_TIMER_NUM 10
+#ifdef __cplusplus
+extern "C" {
+#endif
+#include "bt_type.h"
+#include "bt_gap.h"
+#include "bt_gap_le.h"
+#include "bt_sdp.h"
 
-#define BT_TX_BUF_SIZE 256*100
-#define BT_RX_BUF_SIZE 2048*10
+extern bt_status_t fota_bt_app_event_callback(bt_msg_type_t msg, bt_status_t status, void *buff);
+extern bt_gap_le_local_config_req_ind_t *fota_bt_gap_le_get_local_config(void);
+extern bt_gap_le_bonding_info_t* fota_bt_gap_le_get_bonding_info(const bt_addr_t remote_addr);
+extern bt_status_t fota_bt_gap_le_get_pairing_config(bt_gap_le_bonding_start_ind_t *ind);
+extern const bt_gap_config_t* fota_bt_gap_get_local_configuration(void);
+extern void fota_bt_gap_get_link_key(bt_gap_link_key_notification_ind_t* key_information);
+extern void fota_save_link_key(void);
+extern void fota_load_link_key(void);
+extern bt_sdps_record_t* fota_get_spp_sdp_record();
 
-#define BT_TIMER_BUF_SIZE (BT_TIMER_NUM * BT_CONTROL_BLOCK_SIZE_OF_TIMER)
-#define BT_LE_CONNECTION_BUF_SIZE (BT_CONNECTION_MAX* BT_CONTROL_BLOCK_SIZE_OF_LE_CONNECTION)
-#define TOTAL_L2CAP_CHANNEL_NUM (6 + 5) /**<[IMPORTANT!]total num = N1 + N2 + ..., Nx is the really used channel num for link-x, each link may different*/
-#define BT_L2CAP_CHANNEL_BUF_SIZE (TOTAL_L2CAP_CHANNEL_NUM * BT_CONTROL_BLOCK_SIZE_OF_L2CAP)
 
-#define BT_RFCOMM_TOTAL_LINK_NUM 3 /**<[IMPORTANT!]total num = N, N is the acl link num that rfcomm support*/
-#define BT_RFCOMM_LINK_BUF_SIZE (BT_RFCOMM_TOTAL_LINK_NUM * BT_CONTROL_BLOCK_SIZE_OF_RFCOMM)
+#ifdef __cplusplus
+}
+#endif
 
-#define BT_HFP_TOTAL_LINK_NUM BT_MAX_LINK_NUM
-#define BT_HFP_LINK_BUF_SIZE (BT_HFP_TOTAL_LINK_NUM * BT_CONTROL_BLOCK_SIZE_OF_HFP)
+#endif /* __BT_COMMON_H__ */
 
-#define BT_AVRCP_TOTAL_LINK_NUM 2
-#define BT_AVRCP_LINK_BUF_SIZE (BT_AVRCP_TOTAL_LINK_NUM * BT_CONTROL_BLOCK_SIZE_OF_AVRCP)
-
-#define BT_A2DP_SEP_TOTAL_NUM 4
-#define BT_A2DP_SEP_BUF_SIZE (BT_A2DP_SEP_TOTAL_NUM * BT_CONTROL_BLOCK_SIZE_OF_A2DP_SEP)
-
-#define BT_A2DP_TOTAL_LINK_NUM 2
-#define BT_A2DP_LINK_BUF_SIZE (BT_A2DP_TOTAL_LINK_NUM * BT_CONTROL_BLOCK_SIZE_OF_A2DP)
-
-#define BT_SPP_TOTAL_CONNECTION_NUM  (3 + 2) /**<[IMPORTANT!]total num = N1 + N2 + ..., Nx is the really used connection num for link-x, each link may different*/
-#define BT_SPP_CONNECTION_BUF_SIZE (BT_SPP_TOTAL_CONNECTION_NUM * BT_CONTROL_BLOCK_SIZE_OF_SPP)
-
-#define BT_PBAPC_TOTAL_CONNECTION_NUM  2 /**<[IMPORTANT!]total num = N1 + N2 + ..., Nx is the really used connection num for link-x, each link may different*/
-#define BT_PBAPC_CONNECTION_BUF_SIZE (BT_PBAPC_TOTAL_CONNECTION_NUM * BT_CONTROL_BLOCK_SIZE_OF_PBAPC)

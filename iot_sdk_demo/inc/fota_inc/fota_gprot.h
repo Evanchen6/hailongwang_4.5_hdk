@@ -1,5 +1,4 @@
 /* Copyright Statement:
- *
  * (C) 2005-2016  MediaTek Inc. All rights reserved.
  *
  * This software/firmware and related documentation ("MediaTek Software") are
@@ -32,39 +31,68 @@
  * MEDIATEK FOR SUCH MEDIATEK SOFTWARE AT ISSUE.
  */
 
-/* max supported connection number */
-#define BT_CONNECTION_MAX   10
+#ifndef __FOTA_BT_NOTI_SRV__
+#define __FOTA_BT_NOTI_SRV__
 
-#define BT_MAX_LINK_NUM 2
+#include <stdint.h>
+#include "hal_flash.h"
+#include "bt_spp.h"
 
-/* max timer count */
-#define BT_TIMER_NUM 10
+/*****************************************************************************
+ * define
+ *****************************************************************************/
 
-#define BT_TX_BUF_SIZE 256*100
-#define BT_RX_BUF_SIZE 2048*10
+/* for extend command sender and receiver */
+#define FOTA_EXTCMD_UPDATE_BIN_SENDER           "fota_fbin"
+#define FOTA_EXTCMD_UPDATE_BIN_RECEIVER         "fota_fbin"
+#define FOTA_EXTCMD_GET_VERSION_SENDER          "fota_bt_ver"
+#define FOTA_EXTCMD_GET_VERSION_RECEIVER        "fota_bt_ver"
+#define FOTA_EXTCMD_CUSTOMER_COMMAND_SENDER     "fota_cust_cmd"
+#define FOTA_EXTCMD_CUSTOMER_COMMAND_RECEIVER   "fota_cust_cmd"
 
-#define BT_TIMER_BUF_SIZE (BT_TIMER_NUM * BT_CONTROL_BLOCK_SIZE_OF_TIMER)
-#define BT_LE_CONNECTION_BUF_SIZE (BT_CONNECTION_MAX* BT_CONTROL_BLOCK_SIZE_OF_LE_CONNECTION)
-#define TOTAL_L2CAP_CHANNEL_NUM (6 + 5) /**<[IMPORTANT!]total num = N1 + N2 + ..., Nx is the really used channel num for link-x, each link may different*/
-#define BT_L2CAP_CHANNEL_BUF_SIZE (TOTAL_L2CAP_CHANNEL_NUM * BT_CONTROL_BLOCK_SIZE_OF_L2CAP)
+#define FOTA_EXTCMD_GNSS_UPDATE_SENDER           "gnss_update"
+#define FOTA_EXTCMD_GNSS_UPDATE_RECEIVER         "gnss_update"
 
-#define BT_RFCOMM_TOTAL_LINK_NUM 3 /**<[IMPORTANT!]total num = N, N is the acl link num that rfcomm support*/
-#define BT_RFCOMM_LINK_BUF_SIZE (BT_RFCOMM_TOTAL_LINK_NUM * BT_CONTROL_BLOCK_SIZE_OF_RFCOMM)
 
-#define BT_HFP_TOTAL_LINK_NUM BT_MAX_LINK_NUM
-#define BT_HFP_LINK_BUF_SIZE (BT_HFP_TOTAL_LINK_NUM * BT_CONTROL_BLOCK_SIZE_OF_HFP)
+/* fota receive firmware data type */
+#define FOTA_FILE_DATA_BEGIN                    0
+#define FOTA_FILE_DATA_PACK                     1
+#define FOTA_FILE_DATA_END                      2
 
-#define BT_AVRCP_TOTAL_LINK_NUM 2
-#define BT_AVRCP_LINK_BUF_SIZE (BT_AVRCP_TOTAL_LINK_NUM * BT_CONTROL_BLOCK_SIZE_OF_AVRCP)
+/* fota error code */
+#define FOTA_PACK_END_CORRECT                   2
+#define FOTA_PACK_END_WRONG                    -4
+#define FOTA_UPDATE_SUCCESS                     3
+#define FOTA_UPDATE_COMMON_ERROR               -1
+#define FOTA_WRITE_FLASH_FAIL                  -2
+#define FOTA_UBIN_OVERSIZE                     -3
+/*****************************************************************************
+ * Typedef
+ *****************************************************************************/
+/**
+ *  memory info for store bin file on flash
+ */
+typedef struct {
+    uint32_t start_address;
+    uint32_t end_address;
+    uint32_t write_ptr;
+    uint32_t reserved_size;
+    uint32_t total_received;
+    uint32_t block_count;
+    uint32_t block_size;
+    uint32_t ubin_pack_count;
+    hal_flash_block_t block_type;
+} fota_mem_info_t;
 
-#define BT_A2DP_SEP_TOTAL_NUM 4
-#define BT_A2DP_SEP_BUF_SIZE (BT_A2DP_SEP_TOTAL_NUM * BT_CONTROL_BLOCK_SIZE_OF_A2DP_SEP)
+typedef enum {
+    FOTA_UPDATE_NONE,
+    FOTA_UPDATE_FBIN,
+    FOTA_UPDATE_GNSS,
+    FOTA_UPDATE_END
+} fota_update_enum_t;
 
-#define BT_A2DP_TOTAL_LINK_NUM 2
-#define BT_A2DP_LINK_BUF_SIZE (BT_A2DP_TOTAL_LINK_NUM * BT_CONTROL_BLOCK_SIZE_OF_A2DP)
-
-#define BT_SPP_TOTAL_CONNECTION_NUM  (3 + 2) /**<[IMPORTANT!]total num = N1 + N2 + ..., Nx is the really used connection num for link-x, each link may different*/
-#define BT_SPP_CONNECTION_BUF_SIZE (BT_SPP_TOTAL_CONNECTION_NUM * BT_CONTROL_BLOCK_SIZE_OF_SPP)
-
-#define BT_PBAPC_TOTAL_CONNECTION_NUM  2 /**<[IMPORTANT!]total num = N1 + N2 + ..., Nx is the really used connection num for link-x, each link may different*/
-#define BT_PBAPC_CONNECTION_BUF_SIZE (BT_PBAPC_TOTAL_CONNECTION_NUM * BT_CONTROL_BLOCK_SIZE_OF_PBAPC)
+/*****************************************************************************
+ * Function
+ *****************************************************************************/
+extern void fota_download_manager_init(void);
+#endif //__FOTA_BT_NOTI_SRV__

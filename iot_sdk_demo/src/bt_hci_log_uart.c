@@ -50,8 +50,10 @@
 #define L2CAP_MEDIA_TOTAL_LEN (24)      // HEAD:16, payload: frame_num 1, frame header: 5, payload len:2
 #define HCI_CONTINUE_TAG (0x10)
 
-ATTR_ZIDATA_IN_NONCACHED_RAM_4BYTE_ALIGN static unsigned char  g_hci_log_buf[2048];
-ATTR_ZIDATA_IN_NONCACHED_RAM_4BYTE_ALIGN static unsigned char  g_a2dp_omit_buf[28];
+static unsigned char g_hci_log_buf[2048];
+static unsigned char g_a2dp_omit_buf[28];
+
+/* This function is cut the A2DP HCI data packet to a small packet. It will reduce the CPU utilization of HCI log  */
 static unsigned char* hci_log_a2dp_streaming_data_omit(int32_t buf_len, unsigned char* buf, uint32_t *out_len)
 {
     if (buf_len > 26 && buf[8] == MEDIA_HEAD_MAGIC_HI && (buf[9] == MEDIA_HEAD_MAGIC_LOW_V1 || buf[9] == MEDIA_HEAD_MAGIC_LOW_V2))
@@ -87,56 +89,55 @@ static unsigned char* hci_log_a2dp_streaming_data_omit(int32_t buf_len, unsigned
     }
 }
 
+/*Transfer HCI data from BT SDK to UART. It will be transfered to PC and 
+ *translated to tools like frontline. Application also can use USB or other 
+ *way to transfer tehse HCI data. */
 static int32_t hci_log(unsigned char type, unsigned char* buf, int32_t length)
 {
-    unsigned char head[8] = {'\0'};
-    int32_t ava_len, w_len, sent_len; 
-    sent_len = 0;
+    int32_t w_len; 
     w_len = 0;
-    /*
-    printf("[HCI LOG]Type[%02X]Length[%d]Data:",type, (int)length);
+    char x;
+    int32_t i;
+
+    __disable_irq();
+
+    hal_uart_put_char(BT_HCILOG_PORT, HCI_MAGIC_HI);
+    hal_uart_put_char(BT_HCILOG_PORT, HCI_MAGIC_LO);
+    hal_uart_put_char(BT_HCILOG_PORT, type);
+    x = (length & 0xff00)>>8;
+    hal_uart_put_char(BT_HCILOG_PORT, x);
+    x = length & 0xff;
+    hal_uart_put_char(BT_HCILOG_PORT, x);
     for (i=0;i<length;i++)
     {
-        printf("%02X",buf[i]);
+        hal_uart_put_char(BT_HCILOG_PORT, buf[i]);
     }
-    
-    printf("\n");
-    */
-    //printf("hci\n");
-    __disable_irq();
-    sprintf((char*)head, "%c%c%c%c%c", HCI_MAGIC_HI, HCI_MAGIC_LO, type, (char)((length & 0xff00)>>8), (char)(length & 0xff));
-    hal_uart_send_dma(BT_HCILOG_PORT, head, 5);
 
-    while (sent_len < length)
-    {
-        ava_len = hal_uart_get_available_send_space(BT_HCILOG_PORT);
-        if (ava_len > 0)
-        {
-            w_len = (length-sent_len) < ava_len? (length-sent_len) : ava_len;
-            sent_len += hal_uart_send_dma(BT_HCILOG_PORT, buf+sent_len, w_len);
-        }
-    }
     __enable_irq();
     
     return w_len;
 }
 
+/* Called by bt_hci_log.c. This function is to send HCI command to UART*/
 int32_t hci_log_cmd(unsigned char* buf, int32_t length)
 {
     return hci_log(HCI_COMMAND, buf, length);
 }
 
+/* Called by bt_hci_log.c. This function is to send HCI eventto UART*/
 int32_t hci_log_event(unsigned char* buf, int32_t length)
 {
     memcpy(g_hci_log_buf, buf, length);
     return hci_log(HCI_EVENT, buf, length);
 }
 
+/* Called by bt_hci_log.c. This function is to send ACL data sent to controller to UART*/
 int32_t hci_log_acl_out(unsigned char* buf, int32_t length)
 {
     return hci_log(HCI_ACL_OUT, buf, length);
 }
 
+/* Called by bt_hci_log.c. This function is to send ACL data received from controller to UART*/
 int32_t hci_log_acl_in(unsigned char* buf, int32_t length)
 {
     uint32_t out_len;

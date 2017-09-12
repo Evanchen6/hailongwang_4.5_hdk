@@ -45,7 +45,7 @@
 
 #define ATCI_DEMO
 #define WATCH_APP_DEMO
-#define BT_SINK_DEMO
+//#define BT_SINK_DEMO
 #define BT_LOW_POWER_CONFIG
 #define SLEEP_MANAGER_LOW_POWER_CONFIG
 #ifdef MTK_GNSS_ENABLE

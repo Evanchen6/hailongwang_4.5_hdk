@@ -38,9 +38,16 @@
 #define BL_BASE    0x08000000
 #define BL_LENGTH  0x00010000    /* 64kB */
 
+#ifndef FOTA_FS_ENABLE
 #define CM4_BASE    0x08010000
-#define CM4_LENGTH  0x003D0000   /* 3904kB */
+#define CM4_LENGTH  0x00250000   /* 2368K */
 
+#define FOTA_RESERVED_BASE    0x08260000
+#define FOTA_RESERVED_LENGTH  0x00180000   /* 1536K */
+#else
+#define CM4_BASE    0x08010000
+#define CM4_LENGTH  0x003D0000   /* 3904K */
+#endif
 #define ROM_NVDM_BASE    0x083E0000
 #define ROM_NVDM_LENGTH  0x00010000   /* 64kB */
 

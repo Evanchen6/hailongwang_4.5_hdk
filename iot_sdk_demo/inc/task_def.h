@@ -68,6 +68,13 @@ typedef enum {
 #define XXXX_QUEUE_LENGTH  16
 */
 
+/* FOTA task definition */
+#define FOTA_TASK_NAME             "fota_task"
+#define FOTA_TASK_STACKSIZE        (1024 * 4)
+#define FOTA_TASK_PRIORITY         TASK_PRIORITY_ABOVE_NORMAL
+#define FOTA_QUEUE_LENGTH          50
+
+
 /* battery_management */
 #define BMT_TASK_NAME "BMT"
 #define BMT_TASK_STACKSIZE 4096
@@ -209,6 +216,12 @@ typedef enum {
 #define USB_TASK_PRIO TASK_PRIORITY_HIGH
 #define USB_QUEUE_LENGTH  500
 #endif
+
+/* notify service task definition */
+#define NOTIFY_SRV_TASK_NAME              "notify_service"
+#define NOTIFY_SRV_TASK_STACKSIZE         (1024*4) /*unit byte*/
+#define NOTIFY_SRV_TASK_PRIORITY          TASK_PRIORITY_NORMAL//TASK_PRIORITY_SOFT_REALTIME
+#define NOTIFY_SRV_QUEUE_LENGTH           50
 
 /*****************************************************************************
  * API Functions

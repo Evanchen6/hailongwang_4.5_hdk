@@ -23,6 +23,9 @@ FUSION_BLOOD_PRESSURE_USE = M_INHOUSE_BLOOD_PRESSURE
 # gnss
 MTK_GNSS_ENABLE = y
 
+MTK_FOTA_ENABLE                       = y
+MTK_FOTA_CM4_FS_ENABLE                = n
+
 # battery_management
 MTK_SMART_BATTERY_ENABLE = y
 
@@ -32,15 +35,15 @@ MTK_BT_AT_COMMAND_ENABLE = n
 # bt module enable
 MTK_BT_ENABLE                       = y
 MTK_BLE_ONLY_ENABLE                 = n
-MTK_BT_HFP_ENABLE                   = y
-MTK_BT_AVRCP_ENABLE                 = y
-MTK_BT_AVRCP_ENH_ENABLE             = y
-MTK_BT_A2DP_ENABLE                  = y
-MTK_BT_PBAP_ENABLE                  = y
+MTK_BT_HFP_ENABLE                   = n
+MTK_BT_AVRCP_ENABLE                 = n
+MTK_BT_AVRCP_ENH_ENABLE             = n
+MTK_BT_A2DP_ENABLE                  = n
+MTK_BT_PBAP_ENABLE                  = n
 MTK_BT_SPP_ENABLE                   = y
 
 # bt codec enable
-MTK_BT_CODEC_ENABLED = y
+MTK_BT_CODEC_ENABLED = n
 
 
 # CTP module on
@@ -49,8 +52,8 @@ MTK_CTP_ENABLE = y
 MTK_DEBUG_LEVEL = info
 
 # BT A2DP codec AAC support
-MTK_BT_A2DP_AAC_ENABLE = y
-MTK_BT_DUO_ENABLE = y
+MTK_BT_A2DP_AAC_ENABLE = n
+MTK_BT_DUO_ENABLE = n
 
 # MVG flash test support
 MTK_MVG_FLASH_TEST_ENABLE = n
@@ -76,8 +79,6 @@ MTK_SYSTEM_AT_COMMAND_ENABLE = y
 # Development board type: EVB, HDK
 MTK_DEVELOPMENT_BOARD_TYPE = HDK
 
-# SDK version
-MTK_FW_VERSION                      = SDK_VER_IOT_SDK_DEMO
 
 #SDK version query cmd
 MTK_QUERY_SDK_VERSION = y
@@ -87,10 +88,10 @@ MTK_LED_ENABLE = n
 
 
 # port service
-MTK_PORT_SERVICE_ENABLE = n
+MTK_PORT_SERVICE_ENABLE = y
 
 # atci via port service
-MTK_ATCI_VIA_PORT_SERVICE = n
+MTK_ATCI_VIA_PORT_SERVICE = y
 
 #MD5 configration
 MTK_MBEDTLS_CONFIG_FILE             = config-mtk-md5.h

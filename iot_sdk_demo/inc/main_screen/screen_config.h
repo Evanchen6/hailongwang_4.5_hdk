@@ -34,7 +34,7 @@
 
 #ifdef CONFIG_INCLUDE_HEADER
 #include "gnss_demo.h"
-#include "bt_audio.h"
+//#include "bt_audio.h"
 #include "sensor_demo.h"
 #include "ble_pxp_app.h"
 #include "wf_image.h"
@@ -43,8 +43,8 @@
 #ifdef CONFIG_INCLUD_BODY
 // add your screen here
 {show_gnss_screen, gnss_event_handler, "APP1 demo"},
-{show_bt_audio_screen, bt_audio_event_handler, "APP2 Audio"},
-{ble_pxp_show_unconnected_screen, ble_pxp_screen_event_handler, "BLE PXP"},
+//{show_bt_audio_screen, bt_audio_event_handler, "APP2 Audio"},
+//{ble_pxp_show_unconnected_screen, ble_pxp_screen_event_handler, "BLE PXP"},
 #ifdef SENSOR_DEMO
 {show_sensor_ready_to_connect_screen, sensor_event_handler, "Settings"},
 #endif
