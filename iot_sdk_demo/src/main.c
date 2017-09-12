@@ -88,6 +88,9 @@ log_create_module(bmt_demo, PRINT_LEVEL_WARNING);
 #include "usb.h"
 #endif
 
+#ifdef MTK_KEYPAD_ENABLE
+#include "keypad_custom.h"
+#endif
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/

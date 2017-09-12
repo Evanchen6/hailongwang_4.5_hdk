@@ -40,6 +40,9 @@
 #include "bsp_ctp.h"
 #include "task_def.h"
 
+//add by chenchen
+#include "hal_keypad.h"
+
 #define UI_TASK_QUEUE_SIZE 20
 #define UI_TASK_NAME "UI_DEMO"
 #define UI_TASK_STACK_SIZE 4800
@@ -54,6 +57,8 @@ typedef struct ui_task_message_struct {
 static struct {
     QueueHandle_t event_queue;
     touch_event_proc_func touch_event_callback_f;
+	//add by chenchen
+	keypad_event_proc_func keypad_event_callback_f;
     void* user_data;
 } ui_task_cntx;
 
@@ -61,6 +66,48 @@ static struct {
 static int32_t ui_send_event_from_isr(message_id_enum event_id, int32_t param1, void* param2);
 
 log_create_module(GRAPHIC_TAG, PRINT_LEVEL_INFO);
+
+//add by chenchen start 
+void demo_ui_register_keypad_event_callback(keypad_event_proc_func proc_func, void* user_data)
+{
+    GRAPHICLOG("demo_ui_register_keypad_event_callback, proc_func:%x", proc_func);
+    ui_task_cntx.keypad_event_callback_f = proc_func;
+    ui_task_cntx.user_data = user_data;
+}
+
+void user_keypad_callback (void *user_data)
+{
+     hal_keypad_event_t keypad_event;
+     hal_keypad_get_key(&keypad_event);
+}
+
+
+static void demo_ui_keypad_callback_func(void* param)
+{
+    ui_send_event_from_isr(MESSAGE_ID_KEYPAD_EVENT, 0, NULL);
+}
+
+static void keypad_event_handle()
+{
+    hal_keypad_status_t ret;
+    hal_keypad_event_t keypad_event;
+
+    
+    GRAPHICLOG("keypad_event_handle");
+
+    ret = hal_keypad_get_key(&keypad_event);
+    GRAPHICLOG("keypad_get_event_data ret:%d", ret);
+    while (ret == HAL_KEYPAD_STATUS_OK) {
+        ret = hal_keypad_get_key(&keypad_event);
+        if (ui_task_cntx.keypad_event_callback_f) {
+        GRAPHICLOG("chenchen keypad event handle, data:%d", keypad_event.key_data);
+        ui_task_cntx.keypad_event_callback_f(&keypad_event, ui_task_cntx.user_data);
+    }
+    }
+
+
+}
+//chenchen end
 
 /*****************************************************************************
  * FUNCTION
@@ -209,6 +256,9 @@ static void ui_task_msg_handler(ui_task_message_struct_t *message)
             pen_event_handle();
             break;
 #endif
+		case MESSAGE_ID_KEYPAD_EVENT:
+			keypad_event_handle();
+			break;
         default:
             common_event_handler((message_id_enum) message->message_id, (int32_t) message->param1, (void*) message->param2);
             break;
@@ -284,6 +334,16 @@ void ui_task_main(void*arg)
     ret = bsp_ctp_register_callback(demo_ui_ctp_callback_func, NULL);
     GRAPHICLOG("ctp register callback, ret:%d", ret);
 #endif
+//add by chenchen
+#ifdef MTK_KEYPAD_ENABLE
+	hal_keypad_status_t st;
+	st = keypad_custom_init();
+	GRAPHICLOG("keypad init, ret:%d", st);
+	st = hal_keypad_register_callback(demo_ui_keypad_callback_func,NULL);
+	GRAPHICLOG("keypad register callback, ret:%d", st);
+	hal_keypad_enable(); 
+#endif
+
     arg = arg;
     ui_task_cntx.event_queue = xQueueCreate(UI_TASK_QUEUE_SIZE , sizeof( ui_task_message_struct_t ) );
     GRAPHICLOG("ui_task_main");

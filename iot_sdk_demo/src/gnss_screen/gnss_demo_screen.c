@@ -49,7 +49,6 @@
 #include "task.h"
 #include "gnss_log.h"
 
-
 static struct {
     int32_t title_x;
     int32_t title_y;
@@ -387,7 +386,21 @@ static void gnss_pen_event_handler_001(touch_event_struct_t* pen_event, void* us
     }
 }
 
+//add by chenchen
+static void gnss_keypad_event_handler(hal_keypad_event_t* keypad_event,void* user_data)
+{
+	static int32_t temp_index;
 
+	LOG_E(common, "chenchen gnss_app_keypad handler %d",keypad_event->key_data);
+
+	if (keypad_event->key_data == 0xe && keypad_event->state == 0){
+                gnss_demo_app_stop();
+                gnss_demo_app_destroy(gnss_task_handle);
+                show_main_screen();
+		}
+}
+
+//end
 static int32_t gnss_update_data(gnss_sentence_info_t *input)
 {
     uint8_t *gpgga = input->GPGGA;
@@ -740,7 +753,7 @@ static void show_gnss_screen001(void)
 void show_gnss_screen(void)
 {
     gdi_font_engine_color_t color;
-    demo_ui_register_touch_event_callback(gnss_pen_event_handler_001, NULL);
+    demo_ui_register_keypad_event_callback(gnss_keypad_event_handler, NULL);
     gnss_demo_main();
     color.alpha = 255;
     color.blue = 255;

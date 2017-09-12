@@ -50,6 +50,9 @@
 #include "memory_attribute.h"
 #include "bsp_ctp.h"
 
+//add by chenchen
+#include "hal_keypad.h"
+
 #define IMG_UPDATE_HEIGHT 49
 #define IMG_UPDATE_WIDTH 320  /* Set to the MAX LCD size for dynamic adjust the LCD size*/
 /*40*4+16+24*2*/
@@ -332,12 +335,64 @@ void wf_app_init(void)
 
 }
 
+
+static void wf_app_keypad_event_handler(hal_keypad_event_t* keypad_event,void* user_data)
+{
+    static int32_t temp_index;
+/*
+	keyvalue
+	13 0xd ---enter
+	14 0xe ---back
+	17 0x11---up
+	18 0x12---down
+*/
+
+//	GRAPHICLOG("[chenchenwf_app_keypad_event_handler key state=%d, position=%d\r\n", (int)keypad_event->state, (int)keypad_event->key_data);
+	LOG_E(common, "chenchen wf_app_keypad handler %d",keypad_event->key_data);
+
+	if (keypad_event->key_data == 0xd && keypad_event->state == 0){
+		temp_index = 0;
+	} else if (keypad_event->key_data == 0xe && keypad_event->state == 0){
+		temp_index = 1;
+	} else if (keypad_event->key_data == 0x11 && keypad_event->state == 0){
+		temp_index = 2;
+	} else if (keypad_event->key_data == 0x12 && keypad_event->state == 0){
+		temp_index = 3;
+	}
+
+	switch (temp_index){
+		case -1:
+			return;
+		case -2:
+//			main_screen_scroll_to_prevoius_page();
+			break;
+		case -3:
+//			main_screen_scroll_to_next_page();
+			break;
+		case 0:
+			break;
+		default:
+            break;
+		}
+	g_wf_is_show_screen = false;
+	bsp_lcd_clear_screen(0);
+    show_main_screen();
+
+}
+
+//add by chenchen
+void wf_event_handler(message_id_enum event_id, int32_t param1, void* param2)
+{
+	LOG_E(common, "chenchen wf event handler show");
+	//wf_app_task_enable_show();
+}
 void wf_app_task_enable_show(void)
 {
     bsp_lcd_clear_screen(0);
     demo_ui_register_touch_event_callback(NULL, NULL);
+	demo_ui_register_keypad_event_callback(wf_app_keypad_event_handler, NULL);
     g_wf_is_show_screen = true;
-    g_wf_is_task_need_delete = true;
+    g_wf_is_task_need_delete = false;
     xTaskCreate(wf_app_task, WF_APP_TASK_NAME, WF_APP_TASK_STACKSIZE/(( uint32_t )sizeof( StackType_t )), NULL, WF_APP_TASK_PRIO, NULL);
 }
 

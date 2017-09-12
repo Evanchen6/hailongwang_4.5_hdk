@@ -45,6 +45,9 @@
 #include "bsp_lcd.h"
 #include "mt25x3_hdk_backlight.h"
 
+//add by chenchen
+#include "hal_keypad.h"
+
 #define CONFIG_INCLUDE_HEADER
 #include "screen_config.h"
 #undef CONFIG_INCLUDE_HEADER
@@ -54,6 +57,8 @@
 #define PERVIOUS_PAGE_STRING_NAME "previous page"
 #define NEXT_PAGE_STRING_NAME "next page"
 #define DEMO_TITLE_STRING_NAME "Demo option:"
+
+
 typedef struct list_item_struct {
     show_screen_proc_f show_screen_f;
     event_handle_func event_handle_f;
@@ -82,6 +87,7 @@ static struct {
     int32_t LCD_HEIGHT;
     int32_t has_previous_page;
     int32_t has_next_page;
+	int32_t focus_point_index;   //add by chenchen
     gdi_font_engine_color_t color;
 } main_screen_cntx;
 
@@ -101,7 +107,69 @@ static void main_screen_scroll_to_next_page(void);
 static void main_screen_event_handle(message_id_enum event_id, int32_t param1, void* param2)
 {
 }
+//add by chenchen for keypad
+static void main_screen_keypad_event_handler(hal_keypad_event_t* keypad_event,void* user_data)
+{
+	static int32_t item_down_index = -1;
+	int32_t temp_index;
+	int32_t max_item_num;
+	int32_t temp_focus;
+/*
+	keyvalue
+	13 0xd ---enter
+	14 0xe ---back
+	17 0x11---up
+	18 0x12---down
+*/
 
+	GRAPHICLOG("[chenchen main_screen_keypad_event_handler key state=%d, position=%d\r\n", (int)keypad_event->state, (int)keypad_event->key_data);
+
+	if (keypad_event->key_data == 0xd && keypad_event->state == 0){
+		temp_index = 1;
+	} else if (keypad_event->key_data == 0xe && keypad_event->state == 0){
+		temp_index = 0;
+	} else if (keypad_event->key_data == 0x11 && keypad_event->state == 0){
+		temp_focus = main_screen_cntx.focus_point_index+1;
+		max_item_num = main_screen_cntx.total_item_num;
+		main_screen_cntx.focus_point_index = temp_focus%max_item_num;
+		GRAPHICLOG("[chenchen[get key]main_screen_cntx.focus_point_index=%d,\r\n", main_screen_cntx.focus_point_index);
+		if (main_screen_cntx.focus_point_index < 0)
+			main_screen_cntx.focus_point_index = 0;
+		
+	} else if (keypad_event->key_data == 0x12 && keypad_event->state == 0){
+		temp_focus = main_screen_cntx.focus_point_index-1;
+		max_item_num = main_screen_cntx.total_item_num;
+		main_screen_cntx.focus_point_index = temp_focus%max_item_num;
+		
+		if (main_screen_cntx.focus_point_index < 0)
+			main_screen_cntx.focus_point_index = 0;
+	}
+
+	switch (temp_index){
+		case -1:
+			return;
+		case -2:
+			main_screen_scroll_to_prevoius_page();
+			break;
+		case -3:
+			main_screen_scroll_to_next_page();
+			break;
+		case 0:
+			main_screen_scroll_to_prevoius_page();
+			break;
+		case 1:
+			curr_event_handler = demo_item[main_screen_cntx.focus_point_index].event_handle_f;
+            if (demo_item[main_screen_cntx.focus_point_index].show_screen_f) {
+                demo_item[main_screen_cntx.focus_point_index].show_screen_f();
+            }
+			return;
+		default:
+            break;
+
+	}
+	main_screen_draw();
+
+}
 /*****************************************************************************
  * FUNCTION
  *  main_screen_pen_event_handler
@@ -117,6 +185,7 @@ static void main_screen_pen_event_handler(touch_event_struct_t* touch_event, voi
 {
     static int32_t item_down_index = -1;
     int32_t temp_index;
+	GRAPHICLOG("[chenchen pen_event_handler ");
 
     temp_index = main_screen_get_index(touch_event->position.x, touch_event->position.y);
     if (touch_event->type == TOUCH_EVENT_DOWN) {
@@ -132,6 +201,7 @@ static void main_screen_pen_event_handler(touch_event_struct_t* touch_event, voi
         item_down_index = -1;
         return;
     }
+	
 
     item_down_index = -1;
 
@@ -230,6 +300,7 @@ static void main_screen_cntx_init()
     main_screen_cntx.color.red = 0xFF;
     main_screen_cntx.color.green = 0xFF;
     main_screen_cntx.color.blue = 0xFF;
+	main_screen_cntx.focus_point_index = 0;   //add by chenchen
 
     string_info.string = convert_string_to_wstring((uint8_t*) demo_item[0].name);
     string_info.count = strlen((char*) demo_item[0].name);
@@ -403,11 +474,21 @@ static void main_screen_draw()
     while (num) {
         uint8_t pre_index[10];
         int32_t str_len;
-        my_itoa((int) index, (char*) pre_index,10);
-        str_len = strlen((char*) pre_index);
-        pre_index[str_len] = '.';
-        pre_index[str_len + 1] = 0;
+		//add by chenchen 
+		if (index == main_screen_cntx.focus_point_index){
+			my_itoa((int) index, (char*) pre_index,10);
+			str_len = strlen((char*) pre_index);
+			pre_index[str_len] = '.';
+			pre_index[str_len + 1] = '*';
+			pre_index[str_len + 2] = 0;
 
+		}else {
+        	my_itoa((int) index, (char*) pre_index,10);
+        	str_len = strlen((char*) pre_index);
+        	pre_index[str_len] = '.';        	
+			pre_index[str_len + 1] = 0;
+		}
+		
         param.x = x - 30 * RESIZE_RATE;
         param.y = y;
         param.string = convert_string_to_wstring((uint8_t*) pre_index);
@@ -493,8 +574,11 @@ static int32_t main_screen_get_index(int32_t x, int32_t y)
 void show_main_screen()
 {
     static int32_t is_init;
+//	static int32_t temp_index;
+	static int32_t is_wf_screen;
     curr_event_handler = main_screen_event_handle;
     demo_ui_register_touch_event_callback(main_screen_pen_event_handler, NULL);
+	demo_ui_register_keypad_event_callback(main_screen_keypad_event_handler, NULL);
 
     if (!is_init) {
         is_init = 1;
@@ -511,5 +595,13 @@ void show_main_screen()
     
     GRAPHICLOG("show_main_screen");
     main_screen_draw();
+
+	if (!is_wf_screen) {
+//	curr_event_handler = demo_item[4].event_handle_f;
+		is_wf_screen = 1;
+		if (demo_item[4].show_screen_f) {
+	     	demo_item[4].show_screen_f();
+	 	}
+	}
 }
 

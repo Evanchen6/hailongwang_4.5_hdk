@@ -96,6 +96,8 @@ ifeq ($(MTK_PORT_SERVICE_ENABLE), y)
 include $(SOURCE_DIR)/middleware/MTK/port_service/module.mk
 endif
 
+include $(SOURCE_DIR)/middleware/MTK/key_event/module.mk
+
 ifeq ($(MTK_USB_DEMO_ENABLED), y)
 # add USB CLASS files
 include $(SOURCE_DIR)/middleware/MTK/usb/module.mk
