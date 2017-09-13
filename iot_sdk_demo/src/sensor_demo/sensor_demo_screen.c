@@ -721,7 +721,7 @@ static void show_sensor_screen(void)
 void show_sensor_ready_to_connect_screen(void)
 {
     SENSOR_DEMO_LOGI("enable_all_sensors\r\n");
-    enable_all_sensors();
+    //enable_all_sensors();
 
     SENSOR_DEMO_LOGI("show_sensor_ready_to_connect_screen\r\n");
     //show_sensor_screen();
