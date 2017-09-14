@@ -21,6 +21,7 @@ MEMORY
 {
     ROM_BL(rx)            : ORIGIN = 0x08000000, LENGTH = 64K
     ROM_RTOS(rx)          : ORIGIN = 0x08010000, LENGTH = 3904K
+    ROM_FOTA_RESERVED(rx) : ORIGIN = 0x08260000, LENGTH = 1536K
     ROM_NVDM_RESERVED(rx) : ORIGIN = 0x083E0000, LENGTH = 64K
     ROM_EPO_RESERVED(rx)  : ORIGIN = 0x083F0000, LENGTH = 64K
     RAM (rwx)             : ORIGIN = 0x00000000, LENGTH = 4096K    
@@ -230,6 +231,11 @@ SECTIONS
     /* provide nvdm start and length for NVDM management */
     Image$$NVDM$$ZI$$Base = ORIGIN(ROM_NVDM_RESERVED);
     Image$$NVDM$$ZI$$Length = LENGTH(ROM_NVDM_RESERVED);
+    /* provide ubin start and length */
+    _ubin_reserved_start = ORIGIN(ROM_FOTA_RESERVED);
+    _ubin_reserved_length = LENGTH(ROM_FOTA_RESERVED);
+    Image$$FOTA$$ZI$$Base = ORIGIN(ROM_FOTA_RESERVED);	
+    Image$$FOTA$$ZI$$Length = LENGTH(ROM_FOTA_RESERVED);
     
     /* provide EPO start and length for EPO management */
     Image$$EPO$$ZI$$Base = ORIGIN(ROM_EPO_RESERVED);

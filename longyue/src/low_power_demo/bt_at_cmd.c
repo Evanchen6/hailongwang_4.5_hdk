@@ -49,9 +49,9 @@
 #include "bt_platform.h"
 
 #include "bt_init.h"
-#include "bt_sink_app_main.h"
-#include "bt_sink_srv_am_task.h"
-#include "bt_hfp_codec_internal.h"
+//include "bt_sink_app_main.h"
+//#include "bt_sink_srv_am_task.h"
+//#include "bt_hfp_codec_internal.h"
 #include "audio_middleware_api.h"
 
 typedef struct _lp_tasks_list_ {
@@ -71,9 +71,9 @@ static bool g_bt_lp_switch = false;
 
 static const lp_tasks_list_t bt_lp_list[] = {
     { bt_task,              BT_TASK_NAME,           BT_TASK_STACKSIZE/((uint32_t)sizeof( StackType_t )),     NULL,    BT_TASK_PRIORITY},
-    { bsp_bt_codec_task_main,    BT_CODEC_TASK_NAME,     BT_CODEC_TASK_STACKSIZE/(( uint32_t )sizeof( StackType_t )),    NULL,   BT_CODEC_TASK_PRIO },
-    { am_task_main,          AM_TASK_NAME,           AM_TASK_STACKSIZE/(( uint32_t )sizeof( StackType_t )),     NULL,   AM_TASK_PRIO },
-    { bt_sink_app_task_main, BT_SINK_APP_TASK_NAME,  BT_SINK_APP_TASK_STACKSIZE/(( uint32_t )sizeof( StackType_t )),    NULL,   BT_SINK_APP_TASK_PRIO },
+//    { bsp_bt_codec_task_main,    BT_CODEC_TASK_NAME,     BT_CODEC_TASK_STACKSIZE/(( uint32_t )sizeof( StackType_t )),    NULL,   BT_CODEC_TASK_PRIO },
+//    { am_task_main,          AM_TASK_NAME,           AM_TASK_STACKSIZE/(( uint32_t )sizeof( StackType_t )),     NULL,   AM_TASK_PRIO },
+ //   { bt_sink_app_task_main, BT_SINK_APP_TASK_NAME,  BT_SINK_APP_TASK_STACKSIZE/(( uint32_t )sizeof( StackType_t )),    NULL,   BT_SINK_APP_TASK_PRIO },
 };
 
 #define lp_list_count  (sizeof(bt_lp_list) / sizeof(lp_tasks_list_t))
@@ -171,7 +171,7 @@ static bool bt_atci_parse_cmd(char *string)
         if (g_bt_lp_switch == false) {
             g_bt_lp_switch = true;
             lp_task_create();
-            bt_demo_power_on(BT_MODE_AUDIO);
+//bt_demo_power_on(BT_MODE_AUDIO);
         }
         return result;
     }

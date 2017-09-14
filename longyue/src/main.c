@@ -48,15 +48,23 @@
 /* hal includes */
 #include "hal.h"
 
-
+#include "syslog.h"
+#include "memory_attribute.h"
 //#include "bt_error_solution.h"
 
 /*bt spp include */
 #include "bt_spp.h"
 #include "bt_init.h"
-
+#include "fota_gprot.h"
 #include "nvdm.h"
 #include "hal_flash.h"
+
+#include "ble_app_common.h"
+
+#ifdef FOTA_FS_ENABLE
+/* file system header */
+#include "ff.h"
+#endif
 
 #include "sensor_demo.h" /* Turn ON/OFF SENSOR_DEMO inside */
 #ifdef SENSOR_DEMO
@@ -72,6 +80,8 @@
 
 log_create_module(bmt_demo, PRINT_LEVEL_WARNING);
 #endif
+
+log_create_module(fota_dl_m, PRINT_LEVEL_INFO);
 
 #include "audio_middleware_api.h"
 
@@ -132,7 +142,7 @@ LOG_CONTROL_BLOCK_DECLARE(common);
 LOG_CONTROL_BLOCK_DECLARE(GNSS_TAG);
 LOG_CONTROL_BLOCK_DECLARE(GRAPHIC_TAG);
 LOG_CONTROL_BLOCK_DECLARE(hal);
-//LOG_CONTROL_BLOCK_DECLARE(PXP_MAIN);
+LOG_CONTROL_BLOCK_DECLARE(PXP_MAIN);
 LOG_CONTROL_BLOCK_DECLARE(RTC_ATCI);
 LOG_CONTROL_BLOCK_DECLARE(sensor);
 #ifdef MTK_SMART_BATTERY_ENABLE
@@ -159,9 +169,9 @@ log_control_block_t *syslog_control_blocks[] = {
     &LOG_CONTROL_BLOCK_SYMBOL(BTL2CAP),
     &LOG_CONTROL_BLOCK_SYMBOL(BTRFCOMM),
     &LOG_CONTROL_BLOCK_SYMBOL(BTSPP),
-    &LOG_CONTROL_BLOCK_SYMBOL(sink_srv),
-    &LOG_CONTROL_BLOCK_SYMBOL(sink_app),
-    &LOG_CONTROL_BLOCK_SYMBOL(bt_audio),
+ //   &LOG_CONTROL_BLOCK_SYMBOL(sink_srv),
+//    &LOG_CONTROL_BLOCK_SYMBOL(sink_app),
+//    &LOG_CONTROL_BLOCK_SYMBOL(bt_audio),
     &LOG_CONTROL_BLOCK_SYMBOL(common),
     &LOG_CONTROL_BLOCK_SYMBOL(GNSS_TAG),
     &LOG_CONTROL_BLOCK_SYMBOL(GRAPHIC_TAG),
@@ -209,6 +219,69 @@ static uint32_t syslog_config_load(syslog_config_t *config)
 }
 
 #endif /* MTK_DEBUG_LEVEL_NONE */
+
+int BT_XFile_EncryptionCommand()
+{
+    return 0;
+}
+
+bool bt_hci_log_enabled(void)
+{
+    return true;
+}
+
+#define VFIFO_SIZE_RX_BT (1024)
+#define VFIFO_SIZE_TX_BT (1024)
+#define VFIFO_ALERT_LENGTH_BT (20)
+
+ATTR_ZIDATA_IN_NONCACHED_RAM_4BYTE_ALIGN static uint8_t g_bt_cmd_tx_vfifo[VFIFO_SIZE_TX_BT];
+ATTR_ZIDATA_IN_NONCACHED_RAM_4BYTE_ALIGN static uint8_t g_bt_cmd_rx_vfifo[VFIFO_SIZE_RX_BT];
+
+void bt_io_uart_irq_ex(hal_uart_callback_event_t event, void *parameter)
+{
+    // BaseType_t  x_higher_priority_task_woken = pdFALSE;
+    // if (HAL_UART_EVENT_READY_TO_READ == event)
+    {
+        // xSemaphoreGiveFromISR(g_bt_io_semaphore, &x_higher_priority_task_woken);
+        // portYIELD_FROM_ISR( x_higher_priority_task_woken );
+    }
+}
+
+hal_uart_status_t bt_io_uart_init_ex(hal_uart_port_t port)
+{
+    hal_uart_status_t ret;
+    /* Configure UART PORT */
+    hal_uart_config_t uart_config = {
+        .baudrate = HAL_UART_BAUDRATE_115200,
+        .word_length = HAL_UART_WORD_LENGTH_8,
+        .stop_bit = HAL_UART_STOP_BIT_1,
+        .parity = HAL_UART_PARITY_NONE
+    };
+
+    ret = hal_uart_init(port, &uart_config);
+
+    if (HAL_UART_STATUS_OK == ret) {
+
+        hal_uart_dma_config_t   dma_config = {
+            .send_vfifo_buffer              = g_bt_cmd_tx_vfifo,
+            .send_vfifo_buffer_size         = VFIFO_SIZE_TX_BT,
+            .send_vfifo_threshold_size      = 128,
+            .receive_vfifo_buffer           = g_bt_cmd_rx_vfifo,
+            .receive_vfifo_buffer_size      = VFIFO_SIZE_RX_BT,
+            .receive_vfifo_threshold_size   = 128,
+            .receive_vfifo_alert_size       = VFIFO_ALERT_LENGTH_BT
+        };
+
+        // g_bt_io_semaphore = xSemaphoreCreateBinary();
+
+        ret = hal_uart_set_dma(port, &dma_config);
+
+        ret = hal_uart_register_callback(port, bt_io_uart_irq_ex, NULL);
+
+    }
+    return ret;
+}
+
 
 #ifdef MTK_SMART_BATTERY_ENABLE
 /**
@@ -353,6 +426,11 @@ static void syslog_port_service_init(void)
 }
 #endif
 
+#ifdef FOTA_FS_ENABLE
+/*Note : FATFS must be global .*/
+static FATFS fatfs;
+#endif
+
 /**
   * @brief  Main program
   * @param  None
@@ -360,7 +438,11 @@ static void syslog_port_service_init(void)
   */
 int main(void)
 {
-	/* Do system initialization, eg: hardware, nvdm. */
+    #ifdef FOTA_FS_ENABLE
+    FRESULT res;
+    #endif
+
+    /* Do system initialization, eg: hardware, nvdm. */
     system_init();
     sdkdemo_sleep_handle = hal_sleep_manager_set_sleep_handle("SDKDemo");
 
@@ -372,7 +454,57 @@ int main(void)
 
     /* system log initialization. */
     log_init(syslog_config_save, syslog_config_load, syslog_control_blocks);
+	
+	bt_io_uart_init_ex(HAL_UART_1);
+    nvdm_init();
+    LOG_I(fota_dl_m, "start to create task.\n");
 
+    /* As for generic HAL init APIs like: hal_uart_init(), hal_gpio_init() and hal_spi_master_init() etc,
+     * user can call them when they need, which means user can call them here or in user task at runtime.
+     */
+
+    /* user needs to create BT task to do BT initialization,
+       since BT initialization has to be done in task level.
+     */
+
+    log_config_print_switch(BTMM, DEBUG_LOG_OFF);
+    log_config_print_switch(BTHCI, DEBUG_LOG_OFF);
+    log_config_print_level(BT, PRINT_LEVEL_ERROR);
+    log_config_print_level(BTRFCOMM, PRINT_LEVEL_ERROR);
+    log_config_print_level(BTL2CAP, PRINT_LEVEL_ERROR);
+    log_config_print_level(BTSPP, PRINT_LEVEL_ERROR);
+    log_config_print_level(NOTIFY, PRINT_LEVEL_ERROR);
+    log_config_print_level(NOTIFY_SRV, PRINT_LEVEL_ERROR);
+	bt_create_task();
+#ifdef FOTA_FS_ENABLE
+    /*mount file system.*/
+    /*when the opt is 1, mount the file system immediately.*/
+    res = f_mount(&(fatfs), _T("0:"), 1);
+    if (FR_OK != res) {
+        LOG_E(fota_dl_m,"Failed to mount the partition, error=%d\n\r",res);
+    }
+    else {
+        LOG_I(fota_dl_m,"mount file system successfully\n");
+    }
+#endif
+
+    /* user may create own tasks here.
+     * EX:
+     *    xTaskCreate(UserTask, USER_TASK_NAME, USER_TASK_STACKSIZE/sizeof(StackType_t), NULL, USER_TASK_PRIO, NULL);
+     *
+     *    UserTask is user's task entry function, which may be defined in another C file to do application job.
+     *    USER_TASK_NAME, USER_TASK_STACKSIZE and USER_TASK_PRIO should be defined in task_def.h. User needs to
+     *    refer to example in task_def.h, then makes own task MACROs defined.
+     */
+    LOG_I(fota_dl_m, "create fota task before.\r\n");
+
+    fota_download_manager_init();
+    ble_app_common_init();
+    //xTaskCreate(atci_def_task, ATCI_TASK_NAME, ATCI_TASK_STACKSIZE /((uint32_t)sizeof(StackType_t)), NULL, ATCI_TASK_PRIO, NULL);
+    
+    LOG_I(fota_dl_m, "start to scheduler.\r\n");
+
+	
 #if defined (MTK_PORT_SERVICE_ENABLE)
     /* Reduce bt-spp log to make syslog over bt-spp work. */
     //log_config_print_level(bt_spp, PRINT_LEVEL_WARNING);
@@ -390,7 +522,7 @@ int main(void)
 		/* disable sleep defaultly */
     audio_middleware_init();
 
-    bt_demo_init();
+ //   bt_demo_init();
 
 #ifdef SENSOR_DEMO
     sensor_manager_init();

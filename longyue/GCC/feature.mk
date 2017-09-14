@@ -23,6 +23,9 @@ FUSION_BLOOD_PRESSURE_USE = M_INHOUSE_BLOOD_PRESSURE
 # gnss
 MTK_GNSS_ENABLE = y
 
+MTK_FOTA_ENABLE                       = y
+MTK_FOTA_CM4_FS_ENABLE                = n
+
 # battery_management
 MTK_SMART_BATTERY_ENABLE = y
 
@@ -32,15 +35,15 @@ MTK_BT_AT_COMMAND_ENABLE = n
 # bt module enable
 MTK_BT_ENABLE                       = y
 MTK_BLE_ONLY_ENABLE                 = n
-MTK_BT_HFP_ENABLE                   = y
-MTK_BT_AVRCP_ENABLE                 = y
-MTK_BT_AVRCP_ENH_ENABLE             = y
-MTK_BT_A2DP_ENABLE                  = y
-MTK_BT_PBAP_ENABLE                  = y
+MTK_BT_HFP_ENABLE                   = n
+MTK_BT_AVRCP_ENABLE                 = n
+MTK_BT_AVRCP_ENH_ENABLE             = n
+MTK_BT_A2DP_ENABLE                  = n
+MTK_BT_PBAP_ENABLE                  = n
 MTK_BT_SPP_ENABLE                   = y
 
 # bt codec enable
-MTK_BT_CODEC_ENABLED = y
+MTK_BT_CODEC_ENABLED = n
 
 
 # CTP module on
@@ -49,8 +52,8 @@ MTK_CTP_ENABLE = y
 MTK_DEBUG_LEVEL = info
 
 # BT A2DP codec AAC support
-MTK_BT_A2DP_AAC_ENABLE = y
-MTK_BT_DUO_ENABLE = y
+MTK_BT_A2DP_AAC_ENABLE = n
+MTK_BT_DUO_ENABLE = n
 
 # MVG flash test support
 MTK_MVG_FLASH_TEST_ENABLE = n

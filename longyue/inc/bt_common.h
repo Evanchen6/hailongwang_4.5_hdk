@@ -32,37 +32,33 @@
  * MEDIATEK FOR SUCH MEDIATEK SOFTWARE AT ISSUE.
  */
 
-#ifndef __MEMORY_MAP_H__
-#define __MEMORY_MAP_H__
+#ifndef __BT_COMMON_H__
+#define __BT_COMMON_H__
 
-#define BL_BASE    0x08000000
-#define BL_LENGTH  0x00010000    /* 64kB */
+#include "syslog.h"
 
-#ifndef FOTA_FS_ENABLE
-#define CM4_BASE    0x08010000
-#define CM4_LENGTH  0x00250000   /* 2368K */
-
-#define FOTA_RESERVED_BASE    0x08260000
-#define FOTA_RESERVED_LENGTH  0x00180000   /* 1536K */
-#else
-#define CM4_BASE    0x08010000
-#define CM4_LENGTH  0x003D0000   /* 3904K */
+#ifdef __cplusplus
+extern "C" {
 #endif
-#define ROM_NVDM_BASE    0x083E0000
-#define ROM_NVDM_LENGTH  0x00010000   /* 64kB */
+#include "bt_type.h"
+#include "bt_gap.h"
+#include "bt_gap_le.h"
+#include "bt_sdp.h"
 
-#define ROM_EPO_BASE    0x083F0000
-#define ROM_EPO_LENGTH  0x00010000   /* 64kB */
+extern bt_status_t fota_bt_app_event_callback(bt_msg_type_t msg, bt_status_t status, void *buff);
+extern bt_gap_le_local_config_req_ind_t *fota_bt_gap_le_get_local_config(void);
+extern bt_gap_le_bonding_info_t* fota_bt_gap_le_get_bonding_info(const bt_addr_t remote_addr);
+extern bt_status_t fota_bt_gap_le_get_pairing_config(bt_gap_le_bonding_start_ind_t *ind);
+extern const bt_gap_config_t* fota_bt_gap_get_local_configuration(void);
+extern void fota_bt_gap_get_link_key(bt_gap_link_key_notification_ind_t* key_information);
+extern void fota_save_link_key(void);
+extern void fota_load_link_key(void);
+extern bt_sdps_record_t* fota_get_spp_sdp_record();
 
 
-#define RAM_BASE    0x00000000
-#define RAM_LENGTH  0x00400000   /* 4096kB */
-
-#define VRAM_BASE    0x10000000
-#define VRAM_LENGTH  0x00400000   /* 4096kB */
-
-#define TCM_BASE      0x04008000
-#define TCM_LENGTH    0x00020000  /* 128kB */
-
-
+#ifdef __cplusplus
+}
 #endif
+
+#endif /* __BT_COMMON_H__ */
+

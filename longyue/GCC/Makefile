@@ -108,6 +108,14 @@ endif
 include $(SOURCE_DIR)/middleware/MTK/gnss/module.mk
 include gnss_screen.mk
 
+# fota files
+include $(SOURCE_DIR)/middleware/MTK/fota/module.mk
+
+# Main APP files
+APP_PATH        = $(patsubst $(SDK_PATH)/%,%,$(abspath $(dir $(PWD))))
+include $(SOURCE_DIR)/$(APP_PATH)/module.mk
+
+
 # fatfs files
 ifeq ($(MTK_FATFS_ENABLE), y)
 include $(SOURCE_DIR)/middleware/third_party/fatfs/module.mk
@@ -148,7 +156,10 @@ CFLAGS += -DBT_DEBUG
 # Bluetooth module
 include $(SOURCE_DIR)/middleware/MTK/bluetooth/module.mk
 
-# Bluetooth callback manager
+# Include bt notification service
+include $(SOURCE_DIR)/middleware/MTK/bt_notify/module.mk
+
+# bt callback manager service
 include $(SOURCE_DIR)/middleware/MTK/bt_callback_manager/module.mk
 
 # BT Sink module
@@ -157,8 +168,8 @@ include $(SOURCE_DIR)/middleware/MTK/bt_sink/module.mk
 # Main APP files
 APP_PATH        = $(patsubst $(SDK_PATH)/%,%,$(abspath $(dir $(PWD))))
 APP_PATH_SRC = project/mt2523_hdk/apps/longyue/src
-APP_PATH_SRC_BT_AUDIO = project/mt2523_hdk/apps/longyue/src/bt_audio
-APP_PATH_SRC_PXP = project/mt2523_hdk/apps/longyue/src/pxp_screen
+#APP_PATH_SRC_BT_AUDIO = project/mt2523_hdk/apps/longyue/src/bt_audio
+#APP_PATH_SRC_PXP = project/mt2523_hdk/apps/longyue/src/pxp_screen
 APP_PATH_SRC_DISP = project/mt2523_hdk/apps/longyue/src/display_demo
 APP_PATH_SRC_WF = $(APP_PATH_SRC)/watch_face
 APP_PATH_SRC_HOGP = $(APP_PATH_SRC)/hogp
@@ -173,22 +184,22 @@ APP_FILES = $(APP_PATH_SRC)/main.c \
             $(APP_PATH_SRC)/FontRes.c
 
 # BT audio app
-include $(SOURCE_DIR)/project/mt2523_hdk/apps/longyue/src/bt_audio/sink/module.mk
-APP_FILES += $(APP_PATH_SRC_BT_AUDIO)/bt_audio.c
+#include $(SOURCE_DIR)/project/mt2523_hdk/apps/longyue/src/bt_audio/sink/module.mk
+#APP_FILES += $(APP_PATH_SRC_BT_AUDIO)/bt_audio.c
 
-APP_FILES += $(APP_PATH_SRC_PXP)/ble_gatt_common.c \
-             $(APP_PATH_SRC_PXP)/ble_gatt_connect.c \
-             $(APP_PATH_SRC_PXP)/ble_gatt_service.c \
-             $(APP_PATH_SRC_PXP)/ble_gatt_srv.c \
-             $(APP_PATH_SRC_PXP)/ble_gatt_utils.c \
-             $(APP_PATH_SRC_PXP)/ble_lls.c \
-             $(APP_PATH_SRC_PXP)/ble_pxp_app.c \
-             $(APP_PATH_SRC_PXP)/ble_pxp_main.c
+#APP_FILES += $(APP_PATH_SRC_PXP)/ble_gatt_common.c \
+#            $(APP_PATH_SRC_PXP)/ble_gatt_connect.c \
+#             $(APP_PATH_SRC_PXP)/ble_gatt_service.c \
+#             $(APP_PATH_SRC_PXP)/ble_gatt_srv.c \
+#             $(APP_PATH_SRC_PXP)/ble_gatt_utils.c \
+#             $(APP_PATH_SRC_PXP)/ble_lls.c \
+#             $(APP_PATH_SRC_PXP)/ble_pxp_app.c \
+#             $(APP_PATH_SRC_PXP)/ble_pxp_main.c
 
 APP_FILES += $(APP_PATH_SRC_WF)/watch_face_app.c \
              $(APP_PATH_SRC_WF)/wf_image.c
 
-APP_FILES += $(APP_PATH_SRC_HOGP)/ble_hogp.c
+#APP_FILES += $(APP_PATH_SRC_HOGP)/ble_hogp.c
 
 
 #Battery relate file
@@ -210,6 +221,10 @@ C_FILES += $(MVG_SRC)/src/mvg/flash_mtd_sf_ut.c
 endif
 
 C_FILES += $(APP_FILES)
+C_FILES += $(APP_PATH_SRC)/gatt_service.c
+C_FILES += $(APP_PATH_SRC)/bt_common.c
+C_FILES += $(APP_PATH_SRC)/bt_init.c
+C_FILES += $(APP_PATH_SRC)/ble_app_common.c
 
 
 # add startup file to build
@@ -247,9 +262,11 @@ endif
 # include path
 CFLAGS += -I$(SOURCE_DIR)/$(APP_PATH)/inc -I$(SOURCE_DIR)/driver/CMSIS/Include -I$(SOURCE_DIR)/$(APP_PATH)/inc/watch_face
 CFLAGS += -I$(SOURCE_DIR)/driver/CMSIS/Device/MTK/mt2523/Include
-CFLAGS += -I$(SOURCE_DIR)/project/mt2523_hdk/apps/longyue/inc/pxp_screen
-CFLAGS += -I$(SOURCE_DIR)/project/mt2523_hdk/apps/longyue/inc/bt_audio
-CFLAGS += -I$(SOURCE_DIR)/project/mt2523_hdk/apps/longyue/inc/hogp
+CFLAGS += -I$(SOURCE_DIR)/$(APP_PATH)/inc/fota_inc
+CFLAGS += -I$(SOURCE_DIR)/$(APP_PATH)/inc/pxp_screen
+#CFLAGS += -I$(SOURCE_DIR)/project/mt2523_hdk/apps/longyue/inc/pxp_screen
+#CFLAGS += -I$(SOURCE_DIR)/project/mt2523_hdk/apps/longyue/inc/bt_audio
+#CFLAGS += -I$(SOURCE_DIR)/project/mt2523_hdk/apps/longyue/inc/hogp
 CFLAGS += -I$(SOURCE_DIR)/driver/chip/mt2523/include
 CFLAGS += -I$(SOURCE_DIR)/driver/chip/inc
 CFLAGS += -I$(SOURCE_DIR)/middleware/MTK/sensor_subsys/inc
