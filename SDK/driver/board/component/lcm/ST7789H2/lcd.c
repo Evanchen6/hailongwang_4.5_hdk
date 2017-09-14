@@ -57,7 +57,7 @@ uint32_t ranesis_delay;
 static lcm_config_para_t ST7789H2_para =
 {
     .type = LCM_INTERFACE_TYPE_DBI,
-    .backlight_type = BACKLIGHT_TYPE_ISINK,
+    .backlight_type = BACKLIGHT_TYPE_DISPLAY_PWM,
     .main_command_address = LCD_SERIAL0_A0_LOW_ADDR,
 	.main_data_address = LCD_SERIAL0_A0_HIGH_ADDR,
 	.main_lcd_output = LCM_16BIT_16_BPP_RGB565_1,
