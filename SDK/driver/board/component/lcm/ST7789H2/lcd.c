@@ -176,7 +176,7 @@ void LCD_Init_ST7789H2(uint16_t bkground)
     hal_gpt_delay_ms(120);
 
     LCD_CtrlWrite_ST7789H2(0x36);
-    LCD_DataWrite_ST7789H2(0x00);// C0 40 60
+    LCD_DataWrite_ST7789H2(0x08);// C0 40 60
 
     LCD_CtrlWrite_ST7789H2(0x35);
     LCD_DataWrite_ST7789H2(0x00); //te on
