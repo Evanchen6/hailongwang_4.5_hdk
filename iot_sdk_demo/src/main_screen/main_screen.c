@@ -56,7 +56,7 @@
 #define DEMO_ITEM_NAME_MAX_LEN 50
 #define PERVIOUS_PAGE_STRING_NAME "previous page"
 #define NEXT_PAGE_STRING_NAME "next page"
-#define DEMO_TITLE_STRING_NAME "Demo option:"
+#define DEMO_TITLE_STRING_NAME "Main menu:"
 
 
 typedef struct list_item_struct {
@@ -100,7 +100,9 @@ ATTR_RWDATA_IN_NONCACHED_RAM_4BYTE_ALIGN unsigned char frame_buffer[ScrnWidth*Sc
 
 
 static int32_t main_screen_get_index(int32_t x, int32_t y);
-static void main_screen_draw(void);
+//static void main_screen_draw(void);
+static void tui_main_screen_draw(void);
+
 static void main_screen_scroll_to_prevoius_page(void);
 static void main_screen_scroll_to_next_page(void);
 
@@ -134,7 +136,7 @@ static void main_screen_keypad_event_handler(hal_keypad_event_t* keypad_event,vo
 		main_screen_cntx.focus_point_index = temp_focus%max_item_num;
 		GRAPHICLOG("[chenchen[get key]main_screen_cntx.focus_point_index=%d,\r\n", main_screen_cntx.focus_point_index);
 		if (main_screen_cntx.focus_point_index < 0)
-			main_screen_cntx.focus_point_index = 0;
+			main_screen_cntx.focus_point_index = main_screen_cntx.total_item_num -1;
 		
 	} else if (keypad_event->key_data == 0x12 && keypad_event->state == 0){
 		temp_focus = main_screen_cntx.focus_point_index-1;
@@ -142,7 +144,7 @@ static void main_screen_keypad_event_handler(hal_keypad_event_t* keypad_event,vo
 		main_screen_cntx.focus_point_index = temp_focus%max_item_num;
 		
 		if (main_screen_cntx.focus_point_index < 0)
-			main_screen_cntx.focus_point_index = 0;
+			main_screen_cntx.focus_point_index = main_screen_cntx.total_item_num -1;
 	}
 
 	switch (temp_index){
@@ -155,8 +157,9 @@ static void main_screen_keypad_event_handler(hal_keypad_event_t* keypad_event,vo
 			main_screen_scroll_to_next_page();
 			break;
 		case 0:
-			main_screen_scroll_to_prevoius_page();
+
 			break;
+
 		case 1:
 			curr_event_handler = demo_item[main_screen_cntx.focus_point_index].event_handle_f;
             if (demo_item[main_screen_cntx.focus_point_index].show_screen_f) {
@@ -167,7 +170,8 @@ static void main_screen_keypad_event_handler(hal_keypad_event_t* keypad_event,vo
             break;
 
 	}
-	main_screen_draw();
+//	main_screen_draw();
+	tui_main_screen_draw();
 
 }
 /*****************************************************************************
@@ -221,7 +225,7 @@ static void main_screen_pen_event_handler(touch_event_struct_t* touch_event, voi
             }
             return;
     }
-    main_screen_draw();
+//    main_screen_draw();
 }
 
 /*****************************************************************************
@@ -289,8 +293,8 @@ static void main_screen_cntx_init()
     
     main_screen_cntx.LCD_WIDTH = 240 * RESIZE_RATE;
     main_screen_cntx.LCD_HEIGHT = 240 * RESIZE_RATE;
-    main_screen_cntx.top_gap = 50 * RESIZE_RATE;
-    main_screen_cntx.left_gap = 40 * RESIZE_RATE;
+    main_screen_cntx.top_gap = 100 * RESIZE_RATE;
+    main_screen_cntx.left_gap = 80 * RESIZE_RATE;
     main_screen_cntx.right_gap = 3 * RESIZE_RATE;
     main_screen_cntx.bottom_gap = 3 * RESIZE_RATE;
     main_screen_cntx.line_gap = 15 * RESIZE_RATE;
@@ -431,6 +435,32 @@ static char* my_itoa(int num,char* str,int radix)
     return str;
 }
 
+static void tui_main_screen_draw()
+{
+    int32_t index = main_screen_cntx.start_item;
+    int32_t num = main_screen_cntx.curr_item_num;
+    int32_t x,y;
+	static int32_t is_fisrt_show;
+    gdi_font_engine_display_string_info_t param;
+
+	x = main_screen_cntx.left_gap;
+	y = main_screen_cntx.top_gap;
+	gdi_draw_filled_rectangle(0,0,240 * RESIZE_RATE - 1,240 * RESIZE_RATE - 1,0);
+
+	gdi_image_draw_by_id(10, 100, main_screen_cntx.focus_point_index+41);
+
+
+	param.x = x;
+	param.y = y;
+	param.string = (uint8_t*) demo_item[main_screen_cntx.focus_point_index].name;
+	param.length = 4;
+	param.baseline_height = -1;
+	gdi_font_engine_display_string(&param);
+
+
+	gdi_lcd_update_screen(0, 0, LCD_CURR_WIDTH - 1, LCD_CURR_HEIGHT - 1);
+
+}
 
 /*****************************************************************************
  * FUNCTION
@@ -481,6 +511,8 @@ static void main_screen_draw()
 			pre_index[str_len] = '.';
 			pre_index[str_len + 1] = '*';
 			pre_index[str_len + 2] = 0;
+
+			gdi_image_draw_by_id(10, 100, main_screen_cntx.focus_point_index+41);
 
 		}else {
         	my_itoa((int) index, (char*) pre_index,10);
@@ -584,24 +616,27 @@ void show_main_screen()
         is_init = 1;
         bsp_lcd_init(0xF800);
         bsp_backlight_init();
+		bsp_backlight_init_display_pwm();
         bsp_lcd_get_parameter(LCM_IOCTRL_QUERY__LCM_HEIGHT, &LCD_CURR_HEIGHT);
         bsp_lcd_get_parameter(LCM_IOCTRL_QUERY__LCM_WIDTH, &LCD_CURR_WIDTH);
     }
-    gdi_font_engine_set_font_size(GDI_FONT_ENGINE_FONT_MEDIUM);
+    gdi_font_engine_set_font_size(GDI_FONT_ENGINE_FONT_LARGE);
 
     main_screen_cntx_init();
     
     gdi_font_engine_set_text_color(main_screen_cntx.color);
     
     GRAPHICLOG("show_main_screen");
-    main_screen_draw();
+//    main_screen_draw();
+	tui_main_screen_draw();
 
 	if (!is_wf_screen) {
 //	curr_event_handler = demo_item[4].event_handle_f;
 		is_wf_screen = 1;
-		if (demo_item[4].show_screen_f) {
-	     	demo_item[4].show_screen_f();
+		if (demo_item[3].show_screen_f) {
+	     	demo_item[3].show_screen_f();
 	 	}
 	}
+
 }
 

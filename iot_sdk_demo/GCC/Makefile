@@ -69,6 +69,8 @@ OUTPATH = $(PWD)/Build
 include $(SOURCE_DIR)/kernel/rtos/FreeRTOS/module.mk
 
 include main_screen.mk
+include traing_type.mk
+include about_screen.mk
 # gdi module
 include $(SOURCE_DIR)/middleware/MTK/gdi/module.mk
 
@@ -173,6 +175,7 @@ APP_PATH_SRC = project/mt2523_hdk/apps/iot_sdk_demo/src
 APP_PATH_SRC_DISP = project/mt2523_hdk/apps/iot_sdk_demo/src/display_demo
 APP_PATH_SRC_WF = $(APP_PATH_SRC)/watch_face
 APP_PATH_SRC_HOGP = $(APP_PATH_SRC)/hogp
+APP_PATH_SRC_TT = $(APP_PATH_SRC)/traing_type
 
 APP_FILES = $(APP_PATH_SRC)/main.c \
             $(APP_PATH_SRC)/regions_init.c \
@@ -181,6 +184,9 @@ APP_FILES = $(APP_PATH_SRC)/main.c \
             $(APP_PATH_SRC)/task_def.c \
             $(APP_PATH_SRC)/system_mt2523.c \
             $(APP_PATH_SRC)/bt_init.c \
+            $(APP_PATH_SRC)/custom_image_data_resource.c \
+            $(APP_PATH_SRC)/custom_image_map.c \
+            $(APP_PATH_SRC)/custom_image_resource.c \
             $(APP_PATH_SRC)/FontRes.c
 
 # BT audio app

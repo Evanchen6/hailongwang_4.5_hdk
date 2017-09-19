@@ -54,7 +54,7 @@
 #include "memory_attribute.h"
 #include "bsp_lcd.h"
 #include "mt25x3_hdk_backlight.h"
-#include "fota_demo.h"
+#include "about_screen.h"
 
 #include "syslog.h"
 #include <stdarg.h>
@@ -93,56 +93,56 @@ static struct {
   gdi_color_t font_color;
   uint32_t width;
   uint32_t height;
-} fota_screen_cntx;
+} about_screen_cntx;
 
-void show_fota_screen(void);
+void show_about_screen(void);
 
-void fota_event_handler(message_id_enum event_id, int32_t param1, void* param2)
+void about_screen_event_handler(message_id_enum event_id, int32_t param1, void* param2)
 {
 
 }
-static void fota_screen_cntx_init()
+static void about_screen_cntx_init()
 {
-    if ((fota_screen_cntx.height == 0) && (fota_screen_cntx.width==0)) {
+    if ((about_screen_cntx.height == 0) && (about_screen_cntx.width==0)) {
 
-        bsp_lcd_get_parameter(LCM_IOCTRL_QUERY__LCM_HEIGHT, &(fota_screen_cntx.height));
-        bsp_lcd_get_parameter(LCM_IOCTRL_QUERY__LCM_WIDTH, &(fota_screen_cntx.width));
-//        LOG_I("width(%d), height(%d).\r\n", fota_screen_cntx.width, fota_screen_cntx.height);
+        bsp_lcd_get_parameter(LCM_IOCTRL_QUERY__LCM_HEIGHT, &(about_screen_cntx.height));
+        bsp_lcd_get_parameter(LCM_IOCTRL_QUERY__LCM_WIDTH, &(about_screen_cntx.width));
+//        LOG_I("width(%d), height(%d).\r\n", about_screen_cntx.width, about_screen_cntx.height);
 
-        fota_screen_cntx.bg_color = 0;
-        fota_screen_cntx.font_color = 0xFFFF;
+        about_screen_cntx.bg_color = 0;
+        about_screen_cntx.font_color = 0xFFFF;
         /* first */
-        fota_screen_cntx.fota_title_x = 5;
-        fota_screen_cntx.fota_title_y = 6;
+        about_screen_cntx.fota_title_x = 5;
+        about_screen_cntx.fota_title_y = 6;
 
         /* middle */
-        fota_screen_cntx.hr_title_x = LEFT_GAP;
-        fota_screen_cntx.hr_title_y = ITEM_HEIGHT*2 + fota_screen_cntx.fota_title_y;
-        fota_screen_cntx.hrv_title_x = LEFT_GAP;
-        fota_screen_cntx.hrv_title_y = ITEM_HEIGHT + fota_screen_cntx.hr_title_y;
-        fota_screen_cntx.hrv_value_x = LEFT_GAP;
-        fota_screen_cntx.hrv_value_y = ITEM_HEIGHT + fota_screen_cntx.hrv_title_y;
+        about_screen_cntx.hr_title_x = LEFT_GAP;
+        about_screen_cntx.hr_title_y = ITEM_HEIGHT*2 + about_screen_cntx.fota_title_y;
+        about_screen_cntx.hrv_title_x = LEFT_GAP;
+        about_screen_cntx.hrv_title_y = ITEM_HEIGHT + about_screen_cntx.hr_title_y;
+        about_screen_cntx.hrv_value_x = LEFT_GAP;
+        about_screen_cntx.hrv_value_y = ITEM_HEIGHT + about_screen_cntx.hrv_title_y;
 
         /* end */
-        fota_screen_cntx.bt_name_x = LEFT_GAP;
-        fota_screen_cntx.bt_name_y = fota_screen_cntx.height - 6 - (ITEM_HEIGHT*3);
-        fota_screen_cntx.bt_status_x = LEFT_GAP;
-        fota_screen_cntx.bt_status_y = ITEM_HEIGHT*2 + fota_screen_cntx.bt_name_y;
-        fota_screen_cntx.back_x1 = fota_screen_cntx.width-80;
-        fota_screen_cntx.back_y1 = ITEM_HEIGHT*2 + fota_screen_cntx.bt_name_y;
-        fota_screen_cntx.back_x2 = fota_screen_cntx.width-1;
-        fota_screen_cntx.back_y2 = fota_screen_cntx.height-1;
+        about_screen_cntx.bt_name_x = LEFT_GAP;
+        about_screen_cntx.bt_name_y = about_screen_cntx.height - 6 - (ITEM_HEIGHT*3);
+        about_screen_cntx.bt_status_x = LEFT_GAP;
+        about_screen_cntx.bt_status_y = ITEM_HEIGHT*2 + about_screen_cntx.bt_name_y;
+        about_screen_cntx.back_x1 = about_screen_cntx.width-80;
+        about_screen_cntx.back_y1 = ITEM_HEIGHT*2 + about_screen_cntx.bt_name_y;
+        about_screen_cntx.back_x2 = about_screen_cntx.width-1;
+        about_screen_cntx.back_y2 = about_screen_cntx.height-1;
 
-		fota_screen_cntx.focus_point_index = 0;
-		fota_screen_cntx.start_item = 0;
-		fota_screen_cntx.one_screen_item_num = 2;
-		fota_screen_cntx.total_item_num = 2;
-	fota_screen_cntx.curr_item_num = 2;
+		about_screen_cntx.focus_point_index = 0;
+		about_screen_cntx.start_item = 0;
+		about_screen_cntx.one_screen_item_num = 2;
+		about_screen_cntx.total_item_num = 2;
+		about_screen_cntx.curr_item_num = 2;
     }
 
 }
 
-static uint8_t* fota_convert_string_to_wstring(char* string)
+static uint8_t* about_convert_string_to_wstring(char* string)
 {
     static uint8_t wstring[50];
     int32_t index = 0;
@@ -158,19 +158,17 @@ static uint8_t* fota_convert_string_to_wstring(char* string)
     return wstring;
 }
 
-void show_fota_screen(void)
+void show_about_screen(void)
 {
-//	int32_t index = sensor_screen_cntx.start_item;
-//   int32_t num = sensor_screen_cntx.curr_item_num;
     int32_t x,y;
 
 	x = 40 * RESIZE_RATE;
 	y = 50 * RESIZE_RATE;
 
-	fota_screen_cntx_init();
+	about_screen_cntx_init();
 	
-	gdi_font_engine_display_string_info_t fota_string_info = {0};
-    gdi_draw_filled_rectangle(0,0,fota_screen_cntx.width-1,fota_screen_cntx.height-1, fota_screen_cntx.bg_color);
+	gdi_font_engine_display_string_info_t about_string_info = {0};
+    gdi_draw_filled_rectangle(0,0,about_screen_cntx.width-1,about_screen_cntx.height-1, about_screen_cntx.bg_color);
 
     gdi_font_engine_size_t font = GDI_FONT_ENGINE_FONT_MEDIUM;
     gdi_font_engine_color_t text_color = {0, 255, 255, 255};//white color
@@ -178,12 +176,13 @@ void show_fota_screen(void)
     gdi_font_engine_set_font_size(font);
     gdi_font_engine_set_text_color(text_color);
 
-    fota_string_info.baseline_height = -1;
-    fota_string_info.x = fota_screen_cntx.fota_title_x;
-    fota_string_info.y = fota_screen_cntx.fota_title_y;
-    fota_string_info.string = fota_convert_string_to_wstring("FOTA..");
-    fota_string_info.length = strlen("FOTA..");
-    gdi_font_engine_display_string(&fota_string_info);
+    about_string_info.baseline_height = -1;
+    about_string_info.x = about_screen_cntx.fota_title_x;
+    about_string_info.y = about_screen_cntx.fota_title_y;
+    about_string_info.string = about_convert_string_to_wstring("information..");
+    about_string_info.length = strlen("information..");
+    gdi_font_engine_display_string(&about_string_info);
 
-	gdi_lcd_update_screen(0,0,fota_screen_cntx.width-1,fota_screen_cntx.height-1);
+	gdi_lcd_update_screen(0,0,about_screen_cntx.width-1,about_screen_cntx.height-1);
 }
+

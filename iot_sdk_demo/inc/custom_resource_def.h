@@ -32,38 +32,66 @@
  * MEDIATEK FOR SUCH MEDIATEK SOFTWARE AT ISSUE.
  */
 
-#ifdef CONFIG_INCLUDE_HEADER
-#include "gnss_demo.h"
-#include "traing_type.h"
-//#include "bt_audio.h"
-#include "sensor_demo.h"
-#include "ble_pxp_app.h"
-#include "wf_image.h"
-#include "about_screen.h"
-#endif
 
-#ifdef CONFIG_INCLUD_BODY
-// add your screen here
-{show_traing_type_screen, traing_type_event_handler, {0xAD,0x8B,0xC3,0x7E,0x7B,0x7C,0x8B,0x57,0x00}},
-{show_gnss_screen, gnss_event_handler, {0xFB,0x7C,0xDF,0x7E,0x00}},
-//{show_bt_audio_screen, bt_audio_event_handler, "APP2 Audio"},
-//{ble_pxp_show_unconnected_screen, ble_pxp_screen_event_handler, "BLE PXP"},
-#ifdef SENSOR_DEMO
-{show_sensor_ready_to_connect_screen, sensor_event_handler, {0xBE,0x8B,0x6E,0x7F,0x00}},
-#endif
-{wf_app_task_enable_show, wf_event_handler, {0xF6,0x65,0xF4,0x95,0x3E,0x66,0x3A,0x79,0x00}},
-{show_about_screen, about_screen_event_handler, {0x73,0x51,0x8E,0x4E,0x00}},
+#ifndef CUSTOM_RESOURCE_DEF_H
+#define CUSTOM_RESOURCE_DEF_H
 
 
-#endif
 
-#ifdef CONFIG_MESSAGE_ID_ENUM
-// define your own message bellowing here
-//GNSS message
-MESSAGE_ID_GNSS_POSITION,
-MESSAGE_ID_GNSS_NMEA,
-MESSAGE_ID_BT_AUDIO,
-MESSAGE_ID_WATCH_FACE,
 
-#endif
+/******************** Image resource IDs - begin ********************/
+typedef enum
+{
+    IMAGE_ID_BATTERY_EMPTY_BMP = 3 + 1, /* BASE_ID + 1 */
+    IMAGE_ID_BATTERY_FULL_BMP,
+    IMAGE_ID_BATTERY_NUMBER_0_BMP,
+    IMAGE_ID_BATTERY_NUMBER_1_BMP,
+    IMAGE_ID_BATTERY_NUMBER_2_BMP,
+    IMAGE_ID_BATTERY_NUMBER_3_BMP,
+    IMAGE_ID_BATTERY_NUMBER_4_BMP,
+    IMAGE_ID_BATTERY_NUMBER_5_BMP,
+    IMAGE_ID_BATTERY_NUMBER_6_BMP,
+    IMAGE_ID_BATTERY_NUMBER_7_BMP,
+    IMAGE_ID_BATTERY_NUMBER_8_BMP,
+    IMAGE_ID_BATTERY_NUMBER_9_BMP,
+    IMAGE_ID_BATTERY_NUMBER_PERCENT_BMP,
+    IMAGE_ID_IDLE_ALARM_BMP,
+    IMAGE_ID_IDLE_GPS_BMP,
+    IMAGE_ID_IDLE_HEART_BMP,
+    IMAGE_ID_IDLE_TIME_NUMBER_HOUR_0_BMP,
+    IMAGE_ID_IDLE_TIME_NUMBER_HOUR_1_BMP,
+    IMAGE_ID_IDLE_TIME_NUMBER_HOUR_2_BMP,
+    IMAGE_ID_IDLE_TIME_NUMBER_HOUR_3_BMP,
+    IMAGE_ID_IDLE_TIME_NUMBER_HOUR_4_BMP,
+    IMAGE_ID_IDLE_TIME_NUMBER_HOUR_5_BMP,
+    IMAGE_ID_IDLE_TIME_NUMBER_HOUR_6_BMP,
+    IMAGE_ID_IDLE_TIME_NUMBER_HOUR_7_BMP,
+    IMAGE_ID_IDLE_TIME_NUMBER_HOUR_8_BMP,
+    IMAGE_ID_IDLE_TIME_NUMBER_HOUR_9_BMP,
+    IMAGE_ID_IDLE_TIME_NUMBER_MINUTE_0_BMP,
+    IMAGE_ID_IDLE_TIME_NUMBER_MINUTE_1_BMP,
+    IMAGE_ID_IDLE_TIME_NUMBER_MINUTE_2_BMP,
+    IMAGE_ID_IDLE_TIME_NUMBER_MINUTE_3_BMP,
+    IMAGE_ID_IDLE_TIME_NUMBER_MINUTE_4_BMP,
+    IMAGE_ID_IDLE_TIME_NUMBER_MINUTE_5_BMP,
+    IMAGE_ID_IDLE_TIME_NUMBER_MINUTE_6_BMP,
+    IMAGE_ID_IDLE_TIME_NUMBER_MINUTE_7_BMP,
+    IMAGE_ID_IDLE_TIME_NUMBER_MINUTE_8_BMP,
+    IMAGE_ID_IDLE_TIME_NUMBER_MINUTE_9_BMP,
+    IMAGE_ID_LINE_BMP,
+    IMAGE_ID_LIST_HISTORY_BMP,
+    IMAGE_ID_LIST_PERSON_BMP,
+    IMAGE_ID_LIST_SETTING_BMP,
+    IMAGE_ID_LIST_TYPE_BMP,
+    IMAGE_ID_MENU_BG_BMP,
+    IMAGE_ID_MENU_DOWN_BMP,
+    IMAGE_ID_MENU_TITLE_BMP,
+    IMAGE_ID_MENU_UP_BMP,
+    IMAGE_ID_POP_UP_BMP,
+    IMAGE_ID_POP_UP_BG_BMP,
+    CUSTOM_RESOURCE_IMG_MAX
+}custom_resource_img_enum;
+/******************** Image resource IDs - finish ********************/
 
+
+#endif /* CUSTOM_RESOURCE_DEF_H */

@@ -32,38 +32,15 @@
  * MEDIATEK FOR SUCH MEDIATEK SOFTWARE AT ISSUE.
  */
 
-#ifdef CONFIG_INCLUDE_HEADER
-#include "gnss_demo.h"
-#include "traing_type.h"
-//#include "bt_audio.h"
-#include "sensor_demo.h"
-#include "ble_pxp_app.h"
-#include "wf_image.h"
-#include "about_screen.h"
-#endif
-
-#ifdef CONFIG_INCLUD_BODY
-// add your screen here
-{show_traing_type_screen, traing_type_event_handler, {0xAD,0x8B,0xC3,0x7E,0x7B,0x7C,0x8B,0x57,0x00}},
-{show_gnss_screen, gnss_event_handler, {0xFB,0x7C,0xDF,0x7E,0x00}},
-//{show_bt_audio_screen, bt_audio_event_handler, "APP2 Audio"},
-//{ble_pxp_show_unconnected_screen, ble_pxp_screen_event_handler, "BLE PXP"},
-#ifdef SENSOR_DEMO
-{show_sensor_ready_to_connect_screen, sensor_event_handler, {0xBE,0x8B,0x6E,0x7F,0x00}},
-#endif
-{wf_app_task_enable_show, wf_event_handler, {0xF6,0x65,0xF4,0x95,0x3E,0x66,0x3A,0x79,0x00}},
-{show_about_screen, about_screen_event_handler, {0x73,0x51,0x8E,0x4E,0x00}},
+ #ifndef __TRAING_TYPE_H__
+#define __TRAING_TYPE_H__
 
 
-#endif
 
-#ifdef CONFIG_MESSAGE_ID_ENUM
-// define your own message bellowing here
-//GNSS message
-MESSAGE_ID_GNSS_POSITION,
-MESSAGE_ID_GNSS_NMEA,
-MESSAGE_ID_BT_AUDIO,
-MESSAGE_ID_WATCH_FACE,
+void show_traing_type_screen(void);
+void traing_type_event_handler(message_id_enum event_id, int32_t param1, void* param2);
+
+
 
 #endif
 

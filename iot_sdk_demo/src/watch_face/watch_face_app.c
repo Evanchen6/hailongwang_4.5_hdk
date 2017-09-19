@@ -52,6 +52,18 @@
 
 //add by chenchen
 #include "hal_keypad.h"
+#include "gdi_font_engine.h"
+#include "gdi.h"
+
+#define LCD_WIDTH   (240)
+#define LCD_HEIGHT (240)
+
+#include "custom_image_data_resource.h"
+#include "custom_resource_def.h"
+
+extern gdi_resource_custom_image_t	gdi_resource_custom_image_names[];
+extern gdi_resource_custom_image_map_t gdi_resource_custom_image_id_map[];
+
 
 #define IMG_UPDATE_HEIGHT 49
 #define IMG_UPDATE_WIDTH 320  /* Set to the MAX LCD size for dynamic adjust the LCD size*/
@@ -375,7 +387,7 @@ static void wf_app_keypad_event_handler(hal_keypad_event_t* keypad_event,void* u
             break;
 		}
 	g_wf_is_show_screen = false;
-	bsp_lcd_clear_screen(0);
+//	bsp_lcd_clear_screen(0);
     show_main_screen();
 
 }
@@ -386,10 +398,33 @@ void wf_event_handler(message_id_enum event_id, int32_t param1, void* param2)
 	LOG_E(common, "chenchen wf event handler show");
 	//wf_app_task_enable_show();
 }
+
+static void wf_show_test_image(void)
+{
+	static uint8_t layer_buffer[LCD_WIDTH * LCD_HEIGHT * 2];
+	if (g_wf_is_show_screen){
+		gdi_init(LCD_WIDTH, LCD_HEIGHT, GDI_COLOR_FORMAT_16, layer_buffer);
+		gdi_draw_filled_rectangle(0, 0, LCD_WIDTH, LCD_HEIGHT, gdi_get_color_from_argb(0, 0, 0, 0)); // Clear the screen to black.
+	
+		gdi_image_draw_by_id(90, 20, IMAGE_ID_BATTERY_FULL_BMP);
+		gdi_image_draw_by_id(130, 21, IMAGE_ID_BATTERY_NUMBER_9_BMP);
+		gdi_image_draw_by_id(140, 21, IMAGE_ID_BATTERY_NUMBER_9_BMP);
+		gdi_image_draw_by_id(150, 21, IMAGE_ID_BATTERY_NUMBER_PERCENT_BMP);
+		gdi_image_draw_by_id(90, 200, IMAGE_ID_IDLE_ALARM_BMP);
+		gdi_image_draw_by_id(140, 200, IMAGE_ID_IDLE_GPS_BMP);
+//	gdi_image_draw_by_id(50, 50, gdi_resource_custom_image_id_map[46].image_number);
+//	gdi_image_draw_by_id(100, 100, gdi_resource_custom_image_id_map[47].image_number);
+//	gdi_image_draw_by_id(150, 150, gdi_resource_custom_image_id_map[8].image_number);
+//	gdi_image_draw_by_id(200, 200, gdi_resource_custom_image_id_map[4].image_number);
+
+		gdi_lcd_update_screen(0, 0, LCD_WIDTH, LCD_HEIGHT);
+		}
+}
+
 void wf_app_task_enable_show(void)
 {
     bsp_lcd_clear_screen(0);
-    demo_ui_register_touch_event_callback(NULL, NULL);
+//    demo_ui_register_touch_event_callback(NULL, NULL);
 	demo_ui_register_keypad_event_callback(wf_app_keypad_event_handler, NULL);
     g_wf_is_show_screen = true;
     g_wf_is_task_need_delete = false;
@@ -419,6 +454,7 @@ void wf_app_task(void *arg)
 				    hal_sleep_manager_unlock_sleep(sdkdemo_sleep_handle);
                     g_wf_is_task_need_delete  =  false;
                 }
+				wf_show_test_image();
                 hal_rtc_get_time(&time);
                 wf_app_update_time(&time);
             }

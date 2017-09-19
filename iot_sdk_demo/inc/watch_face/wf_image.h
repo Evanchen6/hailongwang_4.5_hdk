@@ -66,10 +66,10 @@ extern uint8_t IMG2_1BIT_240X240[240*240];
 
 
 void wf_app_init(void);
-extern void wf_app_task_enable_show(void);
+void wf_app_task_enable_show(void);
 
 //add by chenchen
-extern void wf_event_handler(message_id_enum event_id, int32_t param1, void* param2);
+void wf_event_handler(message_id_enum event_id, int32_t param1, void* param2);
 
 
 
