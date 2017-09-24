@@ -221,16 +221,24 @@ static void traing_screen_draw()
     int32_t index = traing_type_screen_cntx.start_item;
     int32_t num = traing_type_screen_cntx.curr_item_num;
     int32_t x,y;
+	gdi_font_engine_size_t font;
 
 	x = 40 * RESIZE_RATE;
 	y = 50 * RESIZE_RATE;
 	gdi_font_engine_display_string_info_t traing_string_info = {0};
     gdi_draw_filled_rectangle(0,0,traing_type_screen_cntx.width-1,traing_type_screen_cntx.height-1, traing_type_screen_cntx.bg_color);
 
-    gdi_font_engine_size_t font = GDI_FONT_ENGINE_FONT_MEDIUM;
-    gdi_font_engine_color_t text_color = {0, 255, 255, 255};//white color
+	gdi_font_engine_get_font_size(&font);
+	if (font != GDI_FONT_ENGINE_FONT_MEDIUM) {
+		GRAPHICLOG("[chenchen font size=%d,\r\n", font);
+		font = GDI_FONT_ENGINE_FONT_MEDIUM;
+	}
+	gdi_font_engine_set_font_size(font);
+	gdi_font_engine_get_font_size(&font);
+	GRAPHICLOG("[chenchen 2nd font size=%d,\r\n", font);
 
-    gdi_font_engine_set_font_size(font);
+    gdi_font_engine_color_t text_color = {0, 0, 255, 255};//white color
+
     gdi_font_engine_set_text_color(text_color);
 
 
@@ -259,11 +267,18 @@ static void traing_screen_draw()
         traing_string_info.baseline_height = -1;
         gdi_font_engine_display_string(&traing_string_info);
 
-
+/*
         traing_string_info.x = x;
         traing_string_info.y = y;
         traing_string_info.string = traing_type_convert_string_to_wstring((char*)demo_traing_item[index].name);
         traing_string_info.length = strlen((char*) demo_traing_item[index].name);
+        traing_string_info.baseline_height = -1;
+        gdi_font_engine_display_string(&traing_string_info);
+*/
+		traing_string_info.x = x;
+        traing_string_info.y = y;
+        traing_string_info.string = (uint8_t*)demo_traing_item[index].name;
+        traing_string_info.length = 4;
         traing_string_info.baseline_height = -1;
         gdi_font_engine_display_string(&traing_string_info);
                                 

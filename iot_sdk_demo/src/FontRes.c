@@ -36,6 +36,8 @@
 
 #include "L_English_small.h"
 #include "L_Chinesec_small.h"
+#include "L_Chinesec_medium.h"
+#include "L_Chinesec_large.h"
 
 const sCustFontData * const g_small_font_data_array[] = {
 &English_small,
@@ -44,12 +46,12 @@ const sCustFontData * const g_small_font_data_array[] = {
 
 const sCustFontData * const g_medium_font_data_array[] = {
 &English_small,
-&Chinesec_small
+&Chinesec_medium
 }; 
 
 const sCustFontData * const g_large_font_data_array[] = {
 &English_small,
-&Chinesec_small
+&Chinesec_large
 }; 
 
 const font_group_struct g_fontfamily[MAX_FONT_SIZE] = {

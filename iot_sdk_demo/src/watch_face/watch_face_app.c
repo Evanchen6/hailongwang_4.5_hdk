@@ -54,6 +54,8 @@
 #include "hal_keypad.h"
 #include "gdi_font_engine.h"
 #include "gdi.h"
+#include "battery_management.h"
+
 
 #define LCD_WIDTH   (240)
 #define LCD_HEIGHT (240)
@@ -399,23 +401,86 @@ void wf_event_handler(message_id_enum event_id, int32_t param1, void* param2)
 	//wf_app_task_enable_show();
 }
 
+static uint16_t main_get_battery_img_number(uint16_t num)
+{
+    uint16_t img_ptr;
+    switch (num) {
+        case 0:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_0_BMP;
+        	   break;
+        case 1:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_1_BMP;
+        	   break;
+        case 2:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_2_BMP;
+        	   break;
+        case 3:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_3_BMP;
+        	   break;
+        case 4:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_4_BMP;
+        	   break;
+        case 5:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_5_BMP;
+        	   break;
+        case 6:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_6_BMP;
+        	   break;
+        case 7:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_7_BMP;
+        	   break;
+        case 8:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_8_BMP;
+        	   break;
+        case 9:
+        	   img_ptr =  IMAGE_ID_BATTERY_NUMBER_9_BMP;
+        	   break;
+        case 0xff:
+        	   img_ptr  = IMAGE_ID_BATTERY_NUMBER_0_BMP;
+        	   break;
+        default:
+                   //LOG_I(common, "wrong big number");
+                   img_ptr = IMAGE_ID_BATTERY_NUMBER_0_BMP;
+        	   break;
+    }
+    return img_ptr;
+
+}
+
+
 static void wf_show_test_image(void)
 {
+	int16_t bat_num1,bat_num2;
+	int32_t capacity;
 	static uint8_t layer_buffer[LCD_WIDTH * LCD_HEIGHT * 2];
 	if (g_wf_is_show_screen){
 		gdi_init(LCD_WIDTH, LCD_HEIGHT, GDI_COLOR_FORMAT_16, layer_buffer);
 		gdi_draw_filled_rectangle(0, 0, LCD_WIDTH, LCD_HEIGHT, gdi_get_color_from_argb(0, 0, 0, 0)); // Clear the screen to black.
 	
-		gdi_image_draw_by_id(90, 20, IMAGE_ID_BATTERY_FULL_BMP);
-		gdi_image_draw_by_id(130, 21, IMAGE_ID_BATTERY_NUMBER_9_BMP);
-		gdi_image_draw_by_id(140, 21, IMAGE_ID_BATTERY_NUMBER_9_BMP);
-		gdi_image_draw_by_id(150, 21, IMAGE_ID_BATTERY_NUMBER_PERCENT_BMP);
+
+		capacity = battery_management_get_battery_property(BATTERY_PROPERTY_CAPACITY);
+		if (capacity == 100) {
+			gdi_image_draw_by_id(90, 20, IMAGE_ID_BATTERY_FULL_BMP);
+			gdi_image_draw_by_id(130, 21, IMAGE_ID_BATTERY_NUMBER_1_BMP);
+			gdi_image_draw_by_id(140, 21, IMAGE_ID_BATTERY_NUMBER_0_BMP);
+			gdi_image_draw_by_id(150, 21, IMAGE_ID_BATTERY_NUMBER_0_BMP);
+			gdi_image_draw_by_id(160, 21, IMAGE_ID_BATTERY_NUMBER_PERCENT_BMP);
+		
+		} else {
+			bat_num1 = capacity / 10;
+			bat_num2 = capacity % 10;
+			bat_num1 = main_get_battery_img_number(bat_num1);
+			bat_num2 = main_get_battery_img_number(bat_num2);
+		
+			gdi_image_draw_by_id(90, 20, IMAGE_ID_BATTERY_FULL_BMP);
+			gdi_image_draw_by_id(130, 21, bat_num1);
+			gdi_image_draw_by_id(140, 21, bat_num2);
+			gdi_image_draw_by_id(150, 21, IMAGE_ID_BATTERY_NUMBER_PERCENT_BMP);
+		}
+
+
 		gdi_image_draw_by_id(90, 200, IMAGE_ID_IDLE_ALARM_BMP);
 		gdi_image_draw_by_id(140, 200, IMAGE_ID_IDLE_GPS_BMP);
-//	gdi_image_draw_by_id(50, 50, gdi_resource_custom_image_id_map[46].image_number);
-//	gdi_image_draw_by_id(100, 100, gdi_resource_custom_image_id_map[47].image_number);
-//	gdi_image_draw_by_id(150, 150, gdi_resource_custom_image_id_map[8].image_number);
-//	gdi_image_draw_by_id(200, 200, gdi_resource_custom_image_id_map[4].image_number);
 
 		gdi_lcd_update_screen(0, 0, LCD_WIDTH, LCD_HEIGHT);
 		}

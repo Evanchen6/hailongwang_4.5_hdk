@@ -46,7 +46,11 @@
 #include "mt25x3_hdk_backlight.h"
 
 //add by chenchen
+#include "custom_image_data_resource.h"
+#include "custom_resource_def.h"
+
 #include "hal_keypad.h"
+#include "battery_management.h"
 
 #define CONFIG_INCLUDE_HEADER
 #include "screen_config.h"
@@ -435,20 +439,155 @@ static char* my_itoa(int num,char* str,int radix)
     return str;
 }
 
+
+static uint16_t main_get_battery_img_number(uint16_t num)
+{
+    uint16_t img_ptr;
+    switch (num) {
+        case 0:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_0_BMP;
+        	   break;
+        case 1:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_1_BMP;
+        	   break;
+        case 2:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_2_BMP;
+        	   break;
+        case 3:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_3_BMP;
+        	   break;
+        case 4:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_4_BMP;
+        	   break;
+        case 5:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_5_BMP;
+        	   break;
+        case 6:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_6_BMP;
+        	   break;
+        case 7:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_7_BMP;
+        	   break;
+        case 8:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_8_BMP;
+        	   break;
+        case 9:
+        	   img_ptr =  IMAGE_ID_BATTERY_NUMBER_9_BMP;
+        	   break;
+        case 0xff:
+        	   img_ptr  = IMAGE_ID_BATTERY_NUMBER_0_BMP;
+        	   break;
+        default:
+                   //LOG_I(common, "wrong big number");
+                   img_ptr = IMAGE_ID_BATTERY_NUMBER_0_BMP;
+        	   break;
+    }
+    return img_ptr;
+
+}
+
+static void get_battery_information(void)
+{
+    int32_t capacity, charger_current, charger_status, charger_type, battery_temperature, battery_volt, capacity_level;
+
+    capacity = battery_management_get_battery_property(BATTERY_PROPERTY_CAPACITY);
+    capacity_level = battery_management_get_battery_property(BATTERY_PROPERTY_CAPACITY_LEVEL);
+    charger_current = battery_management_get_battery_property(BATTERY_PROPERTY_CHARGING_CURRENT);
+    charger_status = battery_management_get_battery_property(BATTERY_PROPERTY_CHARGER_EXIST);
+    charger_type = battery_management_get_battery_property(BATTERY_PROPERTY_CHARGER_TYPE);
+    battery_temperature = battery_management_get_battery_property(BATTERY_PROPERTY_TEMPERATURE);
+    battery_volt = battery_management_get_battery_property(BATTERY_PROPERTY_VOLTAGE);
+
+	GRAPHICLOG("[chenchen battery capacity %d capacity_level %d charger_current %d charger_status %d charger_type %d\r\n", capacity,capacity_level,charger_current,charger_status,charger_type);
+
+}
 static void tui_main_screen_draw()
 {
     int32_t index = main_screen_cntx.start_item;
     int32_t num = main_screen_cntx.curr_item_num;
+	int32_t pre;
+	int32_t next;
     int32_t x,y;
+	int16_t bat_num1,bat_num2;
+	int32_t capacity;
 	static int32_t is_fisrt_show;
     gdi_font_engine_display_string_info_t param;
 
 	x = main_screen_cntx.left_gap;
 	y = main_screen_cntx.top_gap;
+
+	if ((main_screen_cntx.focus_point_index != 0) && (main_screen_cntx.focus_point_index != main_screen_cntx.total_item_num - 1)){
+		pre = main_screen_cntx.focus_point_index - 1;
+		next = main_screen_cntx.focus_point_index + 1;
+	} else if (main_screen_cntx.focus_point_index == 0) {
+		pre = main_screen_cntx.total_item_num - 1;
+		next = main_screen_cntx.focus_point_index + 1;
+	} else if (main_screen_cntx.focus_point_index == main_screen_cntx.total_item_num - 1) {
+		pre = main_screen_cntx.focus_point_index - 1;
+		next = main_screen_cntx.start_item;
+	}
+
+	gdi_font_engine_set_font_size(GDI_FONT_ENGINE_FONT_SMALL);
+	
 	gdi_draw_filled_rectangle(0,0,240 * RESIZE_RATE - 1,240 * RESIZE_RATE - 1,0);
 
-	gdi_image_draw_by_id(10, 100, main_screen_cntx.focus_point_index+41);
+//battary status 
+//	get_battery_information();
+	capacity = battery_management_get_battery_property(BATTERY_PROPERTY_CAPACITY);
+	if (capacity == 100) {
+		gdi_image_draw_by_id(10, 20, IMAGE_ID_BATTERY_FULL_BMP);
+		gdi_image_draw_by_id(50, 21, IMAGE_ID_BATTERY_NUMBER_1_BMP);
+		gdi_image_draw_by_id(60, 21, IMAGE_ID_BATTERY_NUMBER_0_BMP);
+		gdi_image_draw_by_id(70, 21, IMAGE_ID_BATTERY_NUMBER_0_BMP);
+		gdi_image_draw_by_id(80, 21, IMAGE_ID_BATTERY_NUMBER_PERCENT_BMP);
 
+	} else {
+		bat_num1 = capacity / 10;
+		bat_num2 = capacity % 10;
+		bat_num1 = main_get_battery_img_number(bat_num1);
+		bat_num2 = main_get_battery_img_number(bat_num2);
+	
+		gdi_image_draw_by_id(10, 20, IMAGE_ID_BATTERY_FULL_BMP);
+		gdi_image_draw_by_id(50, 21, bat_num1);
+		gdi_image_draw_by_id(60, 21, bat_num2);
+		gdi_image_draw_by_id(70, 21, IMAGE_ID_BATTERY_NUMBER_PERCENT_BMP);
+	}
+	
+	gdi_image_draw_by_id(10, 111, main_screen_cntx.focus_point_index+41);
+	gdi_image_draw_by_id(30, 90, IMAGE_ID_LINE_BMP);
+	gdi_image_draw_by_id(30, 200, IMAGE_ID_LINE_BMP);
+
+
+    gdi_font_engine_color_t text_color = {0, 255, 255, 255};//white color
+    gdi_font_engine_set_text_color(text_color);
+
+
+	param.x = x;
+	param.y = y - 70;
+	param.string = (uint8_t*) demo_item[pre].name;
+	param.length = 4;
+	param.baseline_height = -1;
+	gdi_font_engine_display_string(&param);
+
+	gdi_lcd_update_screen(0, 0, LCD_CURR_WIDTH - 1, y - 40);
+	
+
+    gdi_font_engine_color_t text_color1 = {0, 255, 255, 255};//white color
+    gdi_font_engine_set_text_color(text_color1);
+
+
+	param.x = x;
+	param.y = y + 70;
+	param.string = (uint8_t*) demo_item[next].name;
+	param.length = 4;
+	param.baseline_height = -1;
+	gdi_font_engine_display_string(&param);
+	
+	gdi_lcd_update_screen(0, y + 41, LCD_CURR_WIDTH - 1, LCD_CURR_HEIGHT - 1);
+
+	gdi_font_engine_set_font_size(GDI_FONT_ENGINE_FONT_LARGE);
+    gdi_font_engine_color_t text_color2 = {0, 0, 0, 255};
+    gdi_font_engine_set_text_color(text_color2);	
 
 	param.x = x;
 	param.y = y;
@@ -458,7 +597,7 @@ static void tui_main_screen_draw()
 	gdi_font_engine_display_string(&param);
 
 
-	gdi_lcd_update_screen(0, 0, LCD_CURR_WIDTH - 1, LCD_CURR_HEIGHT - 1);
+	gdi_lcd_update_screen(0, y - 39, LCD_CURR_WIDTH - 1, y+ 40);
 
 }
 
@@ -620,11 +759,14 @@ void show_main_screen()
         bsp_lcd_get_parameter(LCM_IOCTRL_QUERY__LCM_HEIGHT, &LCD_CURR_HEIGHT);
         bsp_lcd_get_parameter(LCM_IOCTRL_QUERY__LCM_WIDTH, &LCD_CURR_WIDTH);
     }
+
+//	bsp_lcd_exit_idle();
+//	bsp_backlight_init();
     gdi_font_engine_set_font_size(GDI_FONT_ENGINE_FONT_LARGE);
 
     main_screen_cntx_init();
     
-    gdi_font_engine_set_text_color(main_screen_cntx.color);
+//    gdi_font_engine_set_text_color(main_screen_cntx.color);
     
     GRAPHICLOG("show_main_screen");
 //    main_screen_draw();
