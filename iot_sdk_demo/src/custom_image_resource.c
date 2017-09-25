@@ -32,13 +32,14 @@
  * MEDIATEK FOR SUCH MEDIATEK SOFTWARE AT ISSUE.
  */
 #include "gdi_resource_internal.h"
-const uint16_t  gdi_resource_current_max_image_number=48;
+const uint16_t  gdi_resource_current_max_image_number=49;
 #include "custom_image_data_resource.h"
 
 const gdi_resource_custom_image_t	gdi_resource_custom_image_names[]={
 {(uint8_t*)&____________DEFAULT_RESOURCE__EMPTYIMAGE_BMP},
 {(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__BATTERY_EMPTY_BMP},
 {(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__BATTERY_FULL_BMP},
+{(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__BATTERY_FULL_24_TESTBMP_BMP},
 {(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__BATTERY_NUMBER_0_BMP},
 {(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__BATTERY_NUMBER_1_BMP},
 {(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__BATTERY_NUMBER_2_BMP},

@@ -362,7 +362,7 @@ static void wf_app_keypad_event_handler(hal_keypad_event_t* keypad_event,void* u
 */
 
 //	GRAPHICLOG("[chenchenwf_app_keypad_event_handler key state=%d, position=%d\r\n", (int)keypad_event->state, (int)keypad_event->key_data);
-	LOG_E(common, "chenchen wf_app_keypad handler %d",keypad_event->key_data);
+	LOG_I(common, "chenchen wf_app_keypad handler %d",keypad_event->key_data);
 
 	if (keypad_event->key_data == 0xd && keypad_event->state == 0){
 		temp_index = 0;

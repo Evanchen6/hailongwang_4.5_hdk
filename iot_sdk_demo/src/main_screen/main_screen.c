@@ -297,7 +297,7 @@ static void main_screen_cntx_init()
     
     main_screen_cntx.LCD_WIDTH = 240 * RESIZE_RATE;
     main_screen_cntx.LCD_HEIGHT = 240 * RESIZE_RATE;
-    main_screen_cntx.top_gap = 100 * RESIZE_RATE;
+    main_screen_cntx.top_gap = 130 * RESIZE_RATE;
     main_screen_cntx.left_gap = 80 * RESIZE_RATE;
     main_screen_cntx.right_gap = 3 * RESIZE_RATE;
     main_screen_cntx.bottom_gap = 3 * RESIZE_RATE;
@@ -535,11 +535,11 @@ static void tui_main_screen_draw()
 //	get_battery_information();
 	capacity = battery_management_get_battery_property(BATTERY_PROPERTY_CAPACITY);
 	if (capacity == 100) {
-		gdi_image_draw_by_id(10, 20, IMAGE_ID_BATTERY_FULL_BMP);
-		gdi_image_draw_by_id(50, 21, IMAGE_ID_BATTERY_NUMBER_1_BMP);
-		gdi_image_draw_by_id(60, 21, IMAGE_ID_BATTERY_NUMBER_0_BMP);
-		gdi_image_draw_by_id(70, 21, IMAGE_ID_BATTERY_NUMBER_0_BMP);
-		gdi_image_draw_by_id(80, 21, IMAGE_ID_BATTERY_NUMBER_PERCENT_BMP);
+		gdi_image_draw_by_id(11, 7, IMAGE_ID_BATTERY_FULL_BMP);
+		gdi_image_draw_by_id(51, 8, IMAGE_ID_BATTERY_NUMBER_1_BMP);
+		gdi_image_draw_by_id(61, 8, IMAGE_ID_BATTERY_NUMBER_0_BMP);
+		gdi_image_draw_by_id(71, 8, IMAGE_ID_BATTERY_NUMBER_0_BMP);
+		gdi_image_draw_by_id(81, 8, IMAGE_ID_BATTERY_NUMBER_PERCENT_BMP);
 
 	} else {
 		bat_num1 = capacity / 10;
@@ -547,15 +547,15 @@ static void tui_main_screen_draw()
 		bat_num1 = main_get_battery_img_number(bat_num1);
 		bat_num2 = main_get_battery_img_number(bat_num2);
 	
-		gdi_image_draw_by_id(10, 20, IMAGE_ID_BATTERY_FULL_BMP);
-		gdi_image_draw_by_id(50, 21, bat_num1);
-		gdi_image_draw_by_id(60, 21, bat_num2);
-		gdi_image_draw_by_id(70, 21, IMAGE_ID_BATTERY_NUMBER_PERCENT_BMP);
+		gdi_image_draw_by_id(11, 7, IMAGE_ID_BATTERY_FULL_BMP);
+		gdi_image_draw_by_id(51, 8, bat_num1);
+		gdi_image_draw_by_id(61, 8, bat_num2);
+		gdi_image_draw_by_id(71, 8, IMAGE_ID_BATTERY_NUMBER_PERCENT_BMP);
 	}
 	
-	gdi_image_draw_by_id(10, 111, main_screen_cntx.focus_point_index+41);
-	gdi_image_draw_by_id(30, 90, IMAGE_ID_LINE_BMP);
-	gdi_image_draw_by_id(30, 200, IMAGE_ID_LINE_BMP);
+	gdi_image_draw_by_id(8, 97, main_screen_cntx.focus_point_index+42);
+	gdi_image_draw_by_id(8, 74, IMAGE_ID_LINE_BMP);
+	gdi_image_draw_by_id(8, 188, IMAGE_ID_LINE_BMP);
 
 
     gdi_font_engine_color_t text_color = {0, 255, 255, 255};//white color
@@ -563,7 +563,7 @@ static void tui_main_screen_draw()
 
 
 	param.x = x;
-	param.y = y - 70;
+	param.y = y - 90;
 	param.string = (uint8_t*) demo_item[pre].name;
 	param.length = 4;
 	param.baseline_height = -1;
@@ -577,7 +577,7 @@ static void tui_main_screen_draw()
 
 
 	param.x = x;
-	param.y = y + 70;
+	param.y = y + 73;
 	param.string = (uint8_t*) demo_item[next].name;
 	param.length = 4;
 	param.baseline_height = -1;
@@ -590,7 +590,7 @@ static void tui_main_screen_draw()
     gdi_font_engine_set_text_color(text_color2);	
 
 	param.x = x;
-	param.y = y;
+	param.y = y - 17;
 	param.string = (uint8_t*) demo_item[main_screen_cntx.focus_point_index].name;
 	param.length = 4;
 	param.baseline_height = -1;

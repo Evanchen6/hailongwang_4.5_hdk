@@ -36,6 +36,7 @@
 extern const uint8_t ____________DEFAULT_RESOURCE__EMPTYIMAGE_BMP[] ;
 extern const uint8_t ________________CUSTOM_RESOURCE__IMAGES__BATTERY_EMPTY_BMP[] ;
 extern const uint8_t ________________CUSTOM_RESOURCE__IMAGES__BATTERY_FULL_BMP[] ;
+extern const uint8_t ________________CUSTOM_RESOURCE__IMAGES__BATTERY_FULL_24_TESTBMP_BMP[] ;
 extern const uint8_t ________________CUSTOM_RESOURCE__IMAGES__BATTERY_NUMBER_0_BMP[] ;
 extern const uint8_t ________________CUSTOM_RESOURCE__IMAGES__BATTERY_NUMBER_1_BMP[] ;
 extern const uint8_t ________________CUSTOM_RESOURCE__IMAGES__BATTERY_NUMBER_2_BMP[] ;
