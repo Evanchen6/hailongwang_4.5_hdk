@@ -133,7 +133,7 @@ static void main_screen_keypad_event_handler(hal_keypad_event_t* keypad_event,vo
 	if (keypad_event->key_data == 0xd && keypad_event->state == 0){
 		temp_index = 1;
 	} else if (keypad_event->key_data == 0xe && keypad_event->state == 0){
-		temp_index = 0;
+		temp_index = -1;
 	} else if (keypad_event->key_data == 0x11 && keypad_event->state == 0){
 		temp_focus = main_screen_cntx.focus_point_index+1;
 		max_item_num = main_screen_cntx.total_item_num;
@@ -152,17 +152,18 @@ static void main_screen_keypad_event_handler(hal_keypad_event_t* keypad_event,vo
 	}
 
 	switch (temp_index){
-		case -1:
-			return;
 		case -2:
 			main_screen_scroll_to_prevoius_page();
 			break;
 		case -3:
 			main_screen_scroll_to_next_page();
 			break;
-		case 0:
+		case -1:
+			if (demo_item[3].show_screen_f) {
+				demo_item[3].show_screen_f();
+			}
 
-			break;
+			return;
 
 		case 1:
 			curr_event_handler = demo_item[main_screen_cntx.focus_point_index].event_handle_f;
@@ -748,7 +749,7 @@ void show_main_screen()
 //	static int32_t temp_index;
 	static int32_t is_wf_screen;
     curr_event_handler = main_screen_event_handle;
-    demo_ui_register_touch_event_callback(main_screen_pen_event_handler, NULL);
+//    demo_ui_register_touch_event_callback(main_screen_pen_event_handler, NULL);
 	demo_ui_register_keypad_event_callback(main_screen_keypad_event_handler, NULL);
 
     if (!is_init) {
@@ -766,8 +767,6 @@ void show_main_screen()
 
     main_screen_cntx_init();
     
-//    gdi_font_engine_set_text_color(main_screen_cntx.color);
-    
     GRAPHICLOG("show_main_screen");
 //    main_screen_draw();
 	tui_main_screen_draw();
@@ -777,6 +776,7 @@ void show_main_screen()
 		is_wf_screen = 1;
 		if (demo_item[3].show_screen_f) {
 	     	demo_item[3].show_screen_f();
+			GRAPHICLOG("show_main_wf");
 	 	}
 	}
 

@@ -55,6 +55,7 @@
 #include "gdi_font_engine.h"
 #include "gdi.h"
 #include "battery_management.h"
+#include "timers.h"
 
 
 #define LCD_WIDTH   (240)
@@ -84,6 +85,8 @@ static bool g_wf_is_show_screen;
 static bool g_wf_is_task_need_delete;
 ATTR_RWDATA_IN_NONCACHED_RAM_4BYTE_ALIGN uint8_t g_wf_time_update_area_img[IMG_UPDATE_HEIGHT * IMG_UPDATE_WIDTH/8];
 static uint8_t g_wf_witdh_offset;
+
+TimerHandle_t vPopupTimer;
 
 
 uint32_t g_wf_index_color_table[16] = 
@@ -349,6 +352,52 @@ void wf_app_init(void)
 
 }
 
+void vPopupTimerCallback( TimerHandle_t xTimer )
+{
+	g_wf_is_show_screen = true;
+	LOG_I(common, "chenchen vPopupTimerCallback true ");
+	pop_timer_stop();
+}
+
+void pop_timer_stop(void)
+{
+    xTimerStop(vPopupTimer, 0);
+
+}
+
+
+void pop_timer_init(uint32_t time)
+{
+    vPopupTimer = xTimerCreate( "vPopupTimer",           // Just a text name, not used by the kernel.
+                                      ( time*1000 / portTICK_PERIOD_MS), // The timer period in ticks.
+                                      pdTRUE,                    // The timer is a one-shot timer.
+                                      0,                          // The id is not used by the callback so can take any value.
+                                      vPopupTimerCallback     // The callback function that switches the LCD back-light off.
+                                   );
+
+	xTimerStart(vPopupTimer, 0);
+}
+
+
+
+static void wf_show_pop_image(void)
+{
+	static uint8_t layer_buffer[LCD_WIDTH * LCD_HEIGHT * 2];
+	
+	if (g_wf_is_show_screen){
+		gdi_init(LCD_WIDTH, LCD_HEIGHT, GDI_COLOR_FORMAT_16, layer_buffer);
+		gdi_draw_filled_rectangle(0, 0, 320 - 1, 320 - 1, gdi_get_color_from_argb(0, 0, 0, 0)); // Clear the screen to black.
+
+
+		gdi_image_draw_by_id(15, 39, IMAGE_ID_POP_UP_BG_BMP);
+//		gdi_image_draw_by_id(140, 200, IMAGE_ID_IDLE_GPS_BMP);
+
+		gdi_lcd_update_screen(0, 30, 320 - 1, 205);
+		g_wf_is_show_screen = false;
+	}
+
+}
+
 
 static void wf_app_keypad_event_handler(hal_keypad_event_t* keypad_event,void* user_data)
 {
@@ -363,34 +412,49 @@ static void wf_app_keypad_event_handler(hal_keypad_event_t* keypad_event,void* u
 
 //	GRAPHICLOG("[chenchenwf_app_keypad_event_handler key state=%d, position=%d\r\n", (int)keypad_event->state, (int)keypad_event->key_data);
 	LOG_I(common, "chenchen wf_app_keypad handler %d",keypad_event->key_data);
-
-	if (keypad_event->key_data == 0xd && keypad_event->state == 0){
-		temp_index = 0;
-	} else if (keypad_event->key_data == 0xe && keypad_event->state == 0){
-		temp_index = 1;
-	} else if (keypad_event->key_data == 0x11 && keypad_event->state == 0){
-		temp_index = 2;
-	} else if (keypad_event->key_data == 0x12 && keypad_event->state == 0){
-		temp_index = 3;
+	temp_index = 0;
+	if (keypad_event->state == 1){
+		return;
+	} else {
+		if (keypad_event->key_data == 0xd && keypad_event->state == 0){
+			temp_index = 1;
+		} else if (keypad_event->key_data == 0xe && keypad_event->state == 0){
+			temp_index = 2;
+		} else if (keypad_event->key_data == 0x11 && keypad_event->state == 0){
+			temp_index = 3;
+		} else if (keypad_event->key_data == 0x12 && keypad_event->state == 0){
+			temp_index = 4;
+		}
 	}
-
+	
 	switch (temp_index){
-		case -1:
+		case 1:
+			g_wf_is_show_screen = false;
+			show_main_screen();
 			return;
-		case -2:
-//			main_screen_scroll_to_prevoius_page();
+		case 2:
+			g_wf_is_show_screen = false;
+			show_main_screen();
+
+			return;
+		case 3:
+			wf_show_pop_image();
+			pop_timer_init(5);
+
 			break;
-		case -3:
-//			main_screen_scroll_to_next_page();
-			break;
-		case 0:
+		case 4:
+			wf_show_pop_image();
+			pop_timer_init(5);
+
 			break;
 		default:
             break;
 		}
-	g_wf_is_show_screen = false;
+//	g_wf_is_show_screen = false;
 //	bsp_lcd_clear_screen(0);
-    show_main_screen();
+//    show_main_screen();
+
+
 
 }
 

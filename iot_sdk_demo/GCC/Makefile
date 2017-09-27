@@ -71,6 +71,7 @@ include $(SOURCE_DIR)/kernel/rtos/FreeRTOS/module.mk
 include main_screen.mk
 include traing_type.mk
 include about_screen.mk
+include settings.mk
 # gdi module
 include $(SOURCE_DIR)/middleware/MTK/gdi/module.mk
 
