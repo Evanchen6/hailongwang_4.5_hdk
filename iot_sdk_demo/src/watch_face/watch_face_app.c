@@ -368,13 +368,16 @@ void pop_timer_stop(void)
 
 void pop_timer_init(uint32_t time)
 {
-    vPopupTimer = xTimerCreate( "vPopupTimer",           // Just a text name, not used by the kernel.
+    if (vPopupTimer && (xTimerIsTimerActive(vPopupTimer) != pdFALSE)) {
+        xTimerStop(vPopupTimer, 0);
+    } else {
+		vPopupTimer = xTimerCreate( "vPopupTimer",           // Just a text name, not used by the kernel.
                                       ( time*1000 / portTICK_PERIOD_MS), // The timer period in ticks.
-                                      pdTRUE,                    // The timer is a one-shot timer.
+                                      pdFALSE,                    // The timer is a one-shot timer.
                                       0,                          // The id is not used by the callback so can take any value.
                                       vPopupTimerCallback     // The callback function that switches the LCD back-light off.
                                    );
-
+    }
 	xTimerStart(vPopupTimer, 0);
 }
 
@@ -430,10 +433,12 @@ static void wf_app_keypad_event_handler(hal_keypad_event_t* keypad_event,void* u
 	switch (temp_index){
 		case 1:
 			g_wf_is_show_screen = false;
+			pop_timer_stop();
 			show_main_screen();
 			return;
 		case 2:
 			g_wf_is_show_screen = false;
+			pop_timer_stop();
 			show_main_screen();
 
 			return;
@@ -464,6 +469,93 @@ void wf_event_handler(message_id_enum event_id, int32_t param1, void* param2)
 	LOG_E(common, "chenchen wf event handler show");
 	//wf_app_task_enable_show();
 }
+
+static uint16_t wf_get_hour_time_img_number(uint16_t num)
+{
+	uint16_t img_ptr;
+    switch (num) {
+        case 0:
+        	   img_ptr = IMAGE_ID_IDLE_TIME_NUMBER_HOUR_0_BMP;
+        	   break;
+        case 1:
+        	   img_ptr = IMAGE_ID_IDLE_TIME_NUMBER_HOUR_1_BMP;
+        	   break;
+        case 2:
+        	   img_ptr = IMAGE_ID_IDLE_TIME_NUMBER_HOUR_2_BMP;
+        	   break;
+        case 3:
+        	   img_ptr = IMAGE_ID_IDLE_TIME_NUMBER_HOUR_3_BMP;
+        	   break;
+        case 4:
+        	   img_ptr = IMAGE_ID_IDLE_TIME_NUMBER_HOUR_4_BMP;
+        	   break;
+        case 5:
+        	   img_ptr = IMAGE_ID_IDLE_TIME_NUMBER_HOUR_5_BMP;
+        	   break;
+        case 6:
+        	   img_ptr = IMAGE_ID_IDLE_TIME_NUMBER_HOUR_6_BMP;
+        	   break;
+        case 7:
+        	   img_ptr = IMAGE_ID_IDLE_TIME_NUMBER_HOUR_7_BMP;
+        	   break;
+        case 8:
+        	   img_ptr = IMAGE_ID_IDLE_TIME_NUMBER_HOUR_8_BMP;
+        	   break;
+        case 9:
+        	   img_ptr = IMAGE_ID_IDLE_TIME_NUMBER_HOUR_9_BMP;
+        	   break;
+        default:
+                   //LOG_I(common, "wrong big number");
+               img_ptr = IMAGE_ID_IDLE_TIME_NUMBER_HOUR_0_BMP;
+        	   break;
+    }
+    return img_ptr;
+
+}
+
+static uint16_t wf_get_minute_time_img_number(uint16_t num)
+{
+	uint16_t img_ptr;
+    switch (num) {
+        case 0:
+        	   img_ptr = IMAGE_ID_IDLE_TIME_NUMBER_MINUTE_0_BMP;
+        	   break;
+        case 1:
+        	   img_ptr = IMAGE_ID_IDLE_TIME_NUMBER_MINUTE_1_BMP;
+        	   break;
+        case 2:
+        	   img_ptr = IMAGE_ID_IDLE_TIME_NUMBER_MINUTE_2_BMP;
+        	   break;
+        case 3:
+        	   img_ptr = IMAGE_ID_IDLE_TIME_NUMBER_MINUTE_3_BMP;
+        	   break;
+        case 4:
+        	   img_ptr = IMAGE_ID_IDLE_TIME_NUMBER_MINUTE_4_BMP;
+        	   break;
+        case 5:
+        	   img_ptr = IMAGE_ID_IDLE_TIME_NUMBER_MINUTE_5_BMP;
+        	   break;
+        case 6:
+        	   img_ptr = IMAGE_ID_IDLE_TIME_NUMBER_MINUTE_6_BMP;
+        	   break;
+        case 7:
+        	   img_ptr = IMAGE_ID_IDLE_TIME_NUMBER_MINUTE_7_BMP;
+        	   break;
+        case 8:
+        	   img_ptr = IMAGE_ID_IDLE_TIME_NUMBER_MINUTE_8_BMP;
+        	   break;
+        case 9:
+        	   img_ptr = IMAGE_ID_IDLE_TIME_NUMBER_MINUTE_9_BMP;
+        	   break;
+        default:
+                   //LOG_I(common, "wrong big number");
+               img_ptr = IMAGE_ID_IDLE_TIME_NUMBER_MINUTE_0_BMP;
+        	   break;
+    }
+    return img_ptr;
+
+}
+
 
 static uint16_t main_get_battery_img_number(uint16_t num)
 {
@@ -583,7 +675,7 @@ void wf_app_task(void *arg)
 				    hal_sleep_manager_unlock_sleep(sdkdemo_sleep_handle);
                     g_wf_is_task_need_delete  =  false;
                 }
-				wf_show_test_image();
+			//	wf_show_test_image();
                 hal_rtc_get_time(&time);
                 wf_app_update_time(&time);
             }
@@ -602,7 +694,14 @@ static void wf_app_update_time(hal_rtc_time_t *curr_time)
     uint8_t *img_ptr;
     uint32_t lcd_height = wf_app_get_lcd_size(WF_APP_LCD_TYPE_HEIGHT);
     uint32_t lcd_width = wf_app_get_lcd_size(WF_APP_LCD_TYPE_WIDTH);
+	static uint8_t layer_time_buffer[LCD_WIDTH * LCD_HEIGHT * 2];
+	uint16_t temp_img;
+    uint16_t temp_num;
+	int16_t bat_num1,bat_num2;
+	int32_t capacity;
+	static uint8_t layer_buffer[LCD_WIDTH * LCD_HEIGHT * 2];
     //LOG_I(common, "app task to draw screen %d", g_wf_is_show_screen);
+/* iot_demo watch face
     if (g_wf_is_show_screen) {
 
     	  lcd_para_wf.target_start_x = 0;
@@ -635,6 +734,61 @@ static void wf_app_update_time(hal_rtc_time_t *curr_time)
     	  bsp_lcd_config_layer(&lcm_para_wf);
     	  bsp_lcd_update_screen(lcd_para_wf.target_start_x, lcd_para_wf.target_start_y, lcd_para_wf.target_end_x, lcd_para_wf.target_end_y);
     }
+*/
+	if (g_wf_is_show_screen) {
+//		gdi_init(LCD_WIDTH, LCD_HEIGHT, GDI_COLOR_FORMAT_16, layer_time_buffer);
+//		gdi_draw_filled_rectangle(0, 40, LCD_WIDTH, 199, gdi_get_color_from_argb(0, 0, 0, 0)); // Clear the screen to black.
+
+		gdi_init(LCD_WIDTH, LCD_HEIGHT, GDI_COLOR_FORMAT_16, layer_buffer);
+		gdi_draw_filled_rectangle(0, 0, LCD_WIDTH, LCD_HEIGHT, gdi_get_color_from_argb(0, 0, 0, 0)); // Clear the screen to black.
+
+		temp_num = curr_time->rtc_hour/10;
+		temp_img = wf_get_hour_time_img_number(temp_num);
+		gdi_image_draw_by_id(25, 95, temp_img);
+
+		temp_num = curr_time->rtc_hour%10;
+		temp_img = wf_get_hour_time_img_number(temp_num);
+		gdi_image_draw_by_id(75, 95, temp_img);		
+
+		temp_num = curr_time->rtc_min/10;
+		temp_img = wf_get_minute_time_img_number(temp_num);
+		gdi_image_draw_by_id(130, 95, temp_img);
+
+		temp_num = curr_time->rtc_min%10;
+		temp_img = wf_get_minute_time_img_number(temp_num);
+		gdi_image_draw_by_id(180, 95, temp_img);
+
+
+		capacity = battery_management_get_battery_property(BATTERY_PROPERTY_CAPACITY);
+		if (capacity == 100) {
+			gdi_image_draw_by_id(90, 20, IMAGE_ID_BATTERY_FULL_BMP);
+			gdi_image_draw_by_id(130, 21, IMAGE_ID_BATTERY_NUMBER_1_BMP);
+			gdi_image_draw_by_id(140, 21, IMAGE_ID_BATTERY_NUMBER_0_BMP);
+			gdi_image_draw_by_id(150, 21, IMAGE_ID_BATTERY_NUMBER_0_BMP);
+			gdi_image_draw_by_id(160, 21, IMAGE_ID_BATTERY_NUMBER_PERCENT_BMP);
+		
+		} else {
+			bat_num1 = capacity / 10;
+			bat_num2 = capacity % 10;
+			bat_num1 = main_get_battery_img_number(bat_num1);
+			bat_num2 = main_get_battery_img_number(bat_num2);
+		
+			gdi_image_draw_by_id(90, 20, IMAGE_ID_BATTERY_FULL_BMP);
+			gdi_image_draw_by_id(130, 21, bat_num1);
+			gdi_image_draw_by_id(140, 21, bat_num2);
+			gdi_image_draw_by_id(150, 21, IMAGE_ID_BATTERY_NUMBER_PERCENT_BMP);
+		}
+
+
+		gdi_image_draw_by_id(90, 200, IMAGE_ID_IDLE_ALARM_BMP);
+		gdi_image_draw_by_id(140, 200, IMAGE_ID_IDLE_GPS_BMP);
+
+		gdi_lcd_update_screen(0, 0, LCD_WIDTH, LCD_HEIGHT);
+
+		//gdi_lcd_update_screen(0, 40, LCD_WIDTH, 199);
+
+	}
+
 }
 
 
