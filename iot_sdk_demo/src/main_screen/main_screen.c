@@ -37,6 +37,7 @@
 #include <string.h>
 #include "stdio.h"
 #include "stdlib.h"
+#include "FreeRTOS.h"
 #include "gdi.h"
 #include "gdi_font_engine.h"
 #include "main_screen.h"
@@ -48,6 +49,7 @@
 //add by chenchen
 #include "custom_image_data_resource.h"
 #include "custom_resource_def.h"
+#include "timers.h"
 
 #include "hal_keypad.h"
 #include "battery_management.h"
@@ -61,6 +63,8 @@
 #define PERVIOUS_PAGE_STRING_NAME "previous page"
 #define NEXT_PAGE_STRING_NAME "next page"
 #define DEMO_TITLE_STRING_NAME "Main menu:"
+
+TimerHandle_t vWatchfaceTimer = NULL;
 
 
 typedef struct list_item_struct {
@@ -113,6 +117,32 @@ static void main_screen_scroll_to_next_page(void);
 static void main_screen_event_handle(message_id_enum event_id, int32_t param1, void* param2)
 {
 }
+
+void vWatchfaceTimerCallback( TimerHandle_t xTimer )
+{
+	if (demo_item[3].show_screen_f) {
+		demo_item[3].show_screen_f();
+		GRAPHICLOG("show_main_wf");
+	}
+
+}
+
+void show_watchface_timer_init(uint32_t time)
+{
+    if (vWatchfaceTimer && (xTimerIsTimerActive(vWatchfaceTimer) != pdFALSE)) {
+        xTimerStop(vWatchfaceTimer, 0);
+    } else {
+		vWatchfaceTimer = xTimerCreate( "vWatchfaceTimer",           // Just a text name, not used by the kernel.
+                                      ( time*1000 / portTICK_PERIOD_MS), // The timer period in ticks.
+                                      pdFALSE,                    // The timer is a one-shot timer.
+                                      0,                          // The id is not used by the callback so can take any value.
+                                      vWatchfaceTimerCallback     // The callback function that switches the LCD back-light off.
+                                   );
+    }
+	xTimerStart(vWatchfaceTimer, 0);
+}
+
+
 //add by chenchen for keypad
 static void main_screen_keypad_event_handler(hal_keypad_event_t* keypad_event,void* user_data)
 {
@@ -129,6 +159,10 @@ static void main_screen_keypad_event_handler(hal_keypad_event_t* keypad_event,vo
 */
 
 	GRAPHICLOG("[chenchen main_screen_keypad_event_handler key state=%d, position=%d\r\n", (int)keypad_event->state, (int)keypad_event->key_data);
+	if( xTimerReset( vWatchfaceTimer, 100 ) != pdPASS ) {
+		LOG_I(common, "chenchen main show wf_xTimerReset fail");
+	}
+
 
 	if (keypad_event->key_data == 0xd && keypad_event->state == 0){
 		temp_index = 1;
@@ -487,6 +521,20 @@ static uint16_t main_get_battery_img_number(uint16_t num)
 
 }
 
+static uint16_t main_get_battery_show_img(uint16_t num)
+{
+	uint16_t img_ptr;
+	if (num <= 25 && num > 0) {
+		img_ptr = IMAGE_ID_BATTERY_25_BMP;
+	} else if (num <=50 && num > 25) {
+		img_ptr = IMAGE_ID_BATTERY_50_BMP;
+	} else if (num <= 99 && num > 50) {
+		img_ptr = IMAGE_ID_BATTERY_75_BMP;
+	}
+	return img_ptr;
+}
+
+
 static void get_battery_information(void)
 {
     int32_t capacity, charger_current, charger_status, charger_type, battery_temperature, battery_volt, capacity_level;
@@ -509,7 +557,7 @@ static void tui_main_screen_draw()
 	int32_t pre;
 	int32_t next;
     int32_t x,y;
-	int16_t bat_num1,bat_num2;
+	int16_t bat_num1,bat_num2,bat_img;
 	int32_t capacity;
 	static int32_t is_fisrt_show;
     gdi_font_engine_display_string_info_t param;
@@ -542,19 +590,23 @@ static void tui_main_screen_draw()
 		gdi_image_draw_by_id(71, 8, IMAGE_ID_BATTERY_NUMBER_0_BMP);
 		gdi_image_draw_by_id(81, 8, IMAGE_ID_BATTERY_NUMBER_PERCENT_BMP);
 
+	} else if (capacity == 0) {
+		gdi_image_draw_by_id(11, 7, IMAGE_ID_BATTERY_EMPTY_BMP);
+
 	} else {
 		bat_num1 = capacity / 10;
 		bat_num2 = capacity % 10;
 		bat_num1 = main_get_battery_img_number(bat_num1);
 		bat_num2 = main_get_battery_img_number(bat_num2);
-	
-		gdi_image_draw_by_id(11, 7, IMAGE_ID_BATTERY_FULL_BMP);
+		bat_img = main_get_battery_show_img(capacity);
+
+		gdi_image_draw_by_id(11, 7, bat_img);
 		gdi_image_draw_by_id(51, 8, bat_num1);
 		gdi_image_draw_by_id(61, 8, bat_num2);
 		gdi_image_draw_by_id(71, 8, IMAGE_ID_BATTERY_NUMBER_PERCENT_BMP);
 	}
 	
-	gdi_image_draw_by_id(8, 97, main_screen_cntx.focus_point_index+42);
+	gdi_image_draw_by_id(8, 97, main_screen_cntx.focus_point_index+46);
 	gdi_image_draw_by_id(8, 74, IMAGE_ID_LINE_BMP);
 	gdi_image_draw_by_id(8, 188, IMAGE_ID_LINE_BMP);
 
@@ -761,8 +813,7 @@ void show_main_screen()
         bsp_lcd_get_parameter(LCM_IOCTRL_QUERY__LCM_WIDTH, &LCD_CURR_WIDTH);
     }
 
-//	bsp_lcd_exit_idle();
-//	bsp_backlight_init();
+
     gdi_font_engine_set_font_size(GDI_FONT_ENGINE_FONT_LARGE);
 
     main_screen_cntx_init();
@@ -770,7 +821,9 @@ void show_main_screen()
     GRAPHICLOG("show_main_screen");
 //    main_screen_draw();
 	tui_main_screen_draw();
+	show_watchface_timer_init(10);
 
+/*
 	if (!is_wf_screen) {
 //	curr_event_handler = demo_item[4].event_handle_f;
 		is_wf_screen = 1;
@@ -779,6 +832,6 @@ void show_main_screen()
 			GRAPHICLOG("show_main_wf");
 	 	}
 	}
-
+*/
 }
 

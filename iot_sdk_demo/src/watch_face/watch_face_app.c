@@ -56,6 +56,8 @@
 #include "gdi.h"
 #include "battery_management.h"
 #include "timers.h"
+#include "hal_display_pwm.h"
+#include "hal_display_pwm_internal.h"
 
 
 #define LCD_WIDTH   (240)
@@ -66,6 +68,8 @@
 
 extern gdi_resource_custom_image_t	gdi_resource_custom_image_names[];
 extern gdi_resource_custom_image_map_t gdi_resource_custom_image_id_map[];
+
+extern uint8_t sdkdemo_sleep_handle;
 
 
 #define IMG_UPDATE_HEIGHT 49
@@ -83,11 +87,13 @@ typedef enum{
 static QueueHandle_t g_wtf_queue_handle;
 static bool g_wf_is_show_screen;
 static bool g_wf_is_task_need_delete;
+static bool g_wf_is_lcd_need_init;
+
 ATTR_RWDATA_IN_NONCACHED_RAM_4BYTE_ALIGN uint8_t g_wf_time_update_area_img[IMG_UPDATE_HEIGHT * IMG_UPDATE_WIDTH/8];
 static uint8_t g_wf_witdh_offset;
 
 TimerHandle_t vPopupTimer;
-
+TimerHandle_t vBacklightTimer = NULL;
 
 uint32_t g_wf_index_color_table[16] = 
 {
@@ -352,6 +358,45 @@ void wf_app_init(void)
 
 }
 
+void vBacklightTimerCallback( TimerHandle_t xTimer )
+{
+//	bsp_backlight_deinit();
+    hal_display_pwm_deinit();
+	hal_display_pwm_init(HAL_DISPLAY_PWM_CLOCK_26MHZ);
+	hal_display_pwm_set_duty(0);
+	bsp_lcd_enter_idle();
+	/* If the macro is enabled, Watch face app will power off CTP to reduce leakage. 
+	 * User can close it for watch face app. */
+
+	//task_def_delete_wo_curr_task();
+	hal_sleep_manager_unlock_sleep(sdkdemo_sleep_handle);
+
+}
+
+void backlight_timer_stop(void)
+{
+	if (vBacklightTimer)
+	xTimerStop(vBacklightTimer, 0);
+
+}
+
+void backlight_timer_init(uint32_t time)
+{
+    if (vBacklightTimer && (xTimerIsTimerActive(vBacklightTimer) != pdFALSE)) {
+        xTimerStop(vBacklightTimer, 0);
+    } else {
+		vBacklightTimer = xTimerCreate( "vBacklightTimer",           // Just a text name, not used by the kernel.
+                                      ( time*1000 / portTICK_PERIOD_MS), // The timer period in ticks.
+                                      pdFALSE,                    // The timer is a one-shot timer.
+                                      0,                          // The id is not used by the callback so can take any value.
+                                      vBacklightTimerCallback     // The callback function that switches the LCD back-light off.
+                                   );
+    }
+	xTimerStart(vBacklightTimer, 0);
+}
+
+
+
 void vPopupTimerCallback( TimerHandle_t xTimer )
 {
 	g_wf_is_show_screen = true;
@@ -392,7 +437,7 @@ static void wf_show_pop_image(void)
 		gdi_draw_filled_rectangle(0, 0, 320 - 1, 320 - 1, gdi_get_color_from_argb(0, 0, 0, 0)); // Clear the screen to black.
 
 
-		gdi_image_draw_by_id(15, 39, IMAGE_ID_POP_UP_BG_BMP);
+		gdi_image_draw_by_id(15, 39, IMAGE_ID_POP_UP_BMP);
 //		gdi_image_draw_by_id(140, 200, IMAGE_ID_IDLE_GPS_BMP);
 
 		gdi_lcd_update_screen(0, 30, 320 - 1, 205);
@@ -401,6 +446,19 @@ static void wf_show_pop_image(void)
 
 }
 
+static void wf_need_lcd_init(void)
+{
+	//if (g_wf_is_lcd_need_init == true) {
+	hal_sleep_manager_lock_sleep(sdkdemo_sleep_handle);
+
+	hal_display_pwm_deinit();
+	hal_display_pwm_init(HAL_DISPLAY_PWM_CLOCK_26MHZ);
+	hal_display_pwm_set_duty(20);
+	bsp_lcd_exit_idle();
+	//bsp_backlight_init();
+	//	g_wf_is_lcd_need_init = false;
+	//}
+}
 
 static void wf_app_keypad_event_handler(hal_keypad_event_t* keypad_event,void* user_data)
 {
@@ -415,6 +473,11 @@ static void wf_app_keypad_event_handler(hal_keypad_event_t* keypad_event,void* u
 
 //	GRAPHICLOG("[chenchenwf_app_keypad_event_handler key state=%d, position=%d\r\n", (int)keypad_event->state, (int)keypad_event->key_data);
 	LOG_I(common, "chenchen wf_app_keypad handler %d",keypad_event->key_data);
+	wf_need_lcd_init();
+	if( xTimerReset( vBacklightTimer, 100 ) != pdPASS ) {
+		LOG_I(common, "chenchen wf_xTimerReset fail");
+	}
+
 	temp_index = 0;
 	if (keypad_event->state == 1){
 		return;
@@ -434,11 +497,13 @@ static void wf_app_keypad_event_handler(hal_keypad_event_t* keypad_event,void* u
 		case 1:
 			g_wf_is_show_screen = false;
 			pop_timer_stop();
+			//backlight_timer_stop();
 			show_main_screen();
 			return;
 		case 2:
 			g_wf_is_show_screen = false;
 			pop_timer_stop();
+			//backlight_timer_stop();
 			show_main_screen();
 
 			return;
@@ -603,10 +668,22 @@ static uint16_t main_get_battery_img_number(uint16_t num)
 
 }
 
+static uint16_t main_get_battery_show_img(uint16_t num)
+{
+	uint16_t img_ptr;
+	if (num <= 25 && num > 0) {
+		img_ptr = IMAGE_ID_BATTERY_25_BMP;
+	} else if (num <=50 && num > 25) {
+		img_ptr = IMAGE_ID_BATTERY_50_BMP;
+	} else if (num <= 99 && num > 50) {
+		img_ptr = IMAGE_ID_BATTERY_75_BMP;
+	}
+	return img_ptr;
+}
 
 static void wf_show_test_image(void)
 {
-	int16_t bat_num1,bat_num2;
+	int16_t bat_num1,bat_num2,bat_img;
 	int32_t capacity;
 	static uint8_t layer_buffer[LCD_WIDTH * LCD_HEIGHT * 2];
 	if (g_wf_is_show_screen){
@@ -622,13 +699,16 @@ static void wf_show_test_image(void)
 			gdi_image_draw_by_id(150, 21, IMAGE_ID_BATTERY_NUMBER_0_BMP);
 			gdi_image_draw_by_id(160, 21, IMAGE_ID_BATTERY_NUMBER_PERCENT_BMP);
 		
+		} else if (capacity == 0) {
+			gdi_image_draw_by_id(90, 20, IMAGE_ID_BATTERY_EMPTY_BMP);
 		} else {
 			bat_num1 = capacity / 10;
 			bat_num2 = capacity % 10;
 			bat_num1 = main_get_battery_img_number(bat_num1);
 			bat_num2 = main_get_battery_img_number(bat_num2);
+			bat_img = main_get_battery_show_img(capacity);
 		
-			gdi_image_draw_by_id(90, 20, IMAGE_ID_BATTERY_FULL_BMP);
+			gdi_image_draw_by_id(90, 20, bat_img);
 			gdi_image_draw_by_id(130, 21, bat_num1);
 			gdi_image_draw_by_id(140, 21, bat_num2);
 			gdi_image_draw_by_id(150, 21, IMAGE_ID_BATTERY_NUMBER_PERCENT_BMP);
@@ -645,14 +725,14 @@ static void wf_show_test_image(void)
 void wf_app_task_enable_show(void)
 {
     bsp_lcd_clear_screen(0);
-//    demo_ui_register_touch_event_callback(NULL, NULL);
 	demo_ui_register_keypad_event_callback(wf_app_keypad_event_handler, NULL);
     g_wf_is_show_screen = true;
-    g_wf_is_task_need_delete = false;
+    g_wf_is_task_need_delete = true;
+	g_wf_is_lcd_need_init = false;
     xTaskCreate(wf_app_task, WF_APP_TASK_NAME, WF_APP_TASK_STACKSIZE/(( uint32_t )sizeof( StackType_t )), NULL, WF_APP_TASK_PRIO, NULL);
 }
 
-extern uint8_t sdkdemo_sleep_handle;
+//extern uint8_t sdkdemo_sleep_handle;
 
 void wf_app_task(void *arg)
 {
@@ -664,6 +744,7 @@ void wf_app_task(void *arg)
                //LOG_I(common,"app task receive event %d", event);
             if (event == WF_EVENT_RTC) {
                 if (g_wf_is_task_need_delete == true) {
+#if 0
 					bsp_backlight_deinit();
                     bsp_lcd_enter_idle();
 /* If the macro is enabled, Watch face app will power off CTP to reduce leakage. 
@@ -671,9 +752,13 @@ void wf_app_task(void *arg)
 #ifdef MTK_CTP_ENABLE
                     bsp_ctp_power_on(false);
 #endif
-                    task_def_delete_wo_curr_task();
+                    //task_def_delete_wo_curr_task();
 				    hal_sleep_manager_unlock_sleep(sdkdemo_sleep_handle);
+#endif
+					backlight_timer_init(10);
+
                     g_wf_is_task_need_delete  =  false;
+					//g_wf_is_lcd_need_init = true;
                 }
 			//	wf_show_test_image();
                 hal_rtc_get_time(&time);
@@ -697,7 +782,7 @@ static void wf_app_update_time(hal_rtc_time_t *curr_time)
 	static uint8_t layer_time_buffer[LCD_WIDTH * LCD_HEIGHT * 2];
 	uint16_t temp_img;
     uint16_t temp_num;
-	int16_t bat_num1,bat_num2;
+	int16_t bat_num1,bat_num2,bat_img;
 	int32_t capacity;
 	static uint8_t layer_buffer[LCD_WIDTH * LCD_HEIGHT * 2];
     //LOG_I(common, "app task to draw screen %d", g_wf_is_show_screen);
@@ -744,19 +829,21 @@ static void wf_app_update_time(hal_rtc_time_t *curr_time)
 
 		temp_num = curr_time->rtc_hour/10;
 		temp_img = wf_get_hour_time_img_number(temp_num);
-		gdi_image_draw_by_id(25, 95, temp_img);
+		gdi_image_draw_by_id(15, 95, temp_img);
 
 		temp_num = curr_time->rtc_hour%10;
 		temp_img = wf_get_hour_time_img_number(temp_num);
-		gdi_image_draw_by_id(75, 95, temp_img);		
+		gdi_image_draw_by_id(65, 95, temp_img);
+		
+		gdi_image_draw_by_id(120, 95, IMAGE_ID_IDLE_TIME_NUMBER_COLON_BMP);		
 
 		temp_num = curr_time->rtc_min/10;
 		temp_img = wf_get_minute_time_img_number(temp_num);
-		gdi_image_draw_by_id(130, 95, temp_img);
+		gdi_image_draw_by_id(134, 95, temp_img);
 
 		temp_num = curr_time->rtc_min%10;
 		temp_img = wf_get_minute_time_img_number(temp_num);
-		gdi_image_draw_by_id(180, 95, temp_img);
+		gdi_image_draw_by_id(184, 95, temp_img);
 
 
 		capacity = battery_management_get_battery_property(BATTERY_PROPERTY_CAPACITY);
@@ -767,17 +854,21 @@ static void wf_app_update_time(hal_rtc_time_t *curr_time)
 			gdi_image_draw_by_id(150, 21, IMAGE_ID_BATTERY_NUMBER_0_BMP);
 			gdi_image_draw_by_id(160, 21, IMAGE_ID_BATTERY_NUMBER_PERCENT_BMP);
 		
+		} else if (capacity == 0) {
+			gdi_image_draw_by_id(90, 20, IMAGE_ID_BATTERY_EMPTY_BMP);
 		} else {
 			bat_num1 = capacity / 10;
 			bat_num2 = capacity % 10;
 			bat_num1 = main_get_battery_img_number(bat_num1);
 			bat_num2 = main_get_battery_img_number(bat_num2);
+			bat_img = main_get_battery_show_img(capacity);
 		
-			gdi_image_draw_by_id(90, 20, IMAGE_ID_BATTERY_FULL_BMP);
+			gdi_image_draw_by_id(90, 20, bat_img);
 			gdi_image_draw_by_id(130, 21, bat_num1);
 			gdi_image_draw_by_id(140, 21, bat_num2);
 			gdi_image_draw_by_id(150, 21, IMAGE_ID_BATTERY_NUMBER_PERCENT_BMP);
 		}
+
 
 
 		gdi_image_draw_by_id(90, 200, IMAGE_ID_IDLE_ALARM_BMP);

@@ -34,6 +34,9 @@
 #include "gdi_resource_internal.h"
 
 extern const uint8_t ____________DEFAULT_RESOURCE__EMPTYIMAGE_BMP[] ;
+extern const uint8_t ________________CUSTOM_RESOURCE__IMAGES__BATTERY_25_BMP[] ;
+extern const uint8_t ________________CUSTOM_RESOURCE__IMAGES__BATTERY_50_BMP[] ;
+extern const uint8_t ________________CUSTOM_RESOURCE__IMAGES__BATTERY_75_BMP[] ;
 extern const uint8_t ________________CUSTOM_RESOURCE__IMAGES__BATTERY_EMPTY_BMP[] ;
 extern const uint8_t ________________CUSTOM_RESOURCE__IMAGES__BATTERY_FULL_BMP[] ;
 extern const uint8_t ________________CUSTOM_RESOURCE__IMAGES__BATTERY_FULL_24_TESTBMP_BMP[] ;
@@ -51,6 +54,7 @@ extern const uint8_t ________________CUSTOM_RESOURCE__IMAGES__BATTERY_NUMBER_PER
 extern const uint8_t ________________CUSTOM_RESOURCE__IMAGES__IDLE_ALARM_BMP[] ;
 extern const uint8_t ________________CUSTOM_RESOURCE__IMAGES__IDLE_GPS_BMP[] ;
 extern const uint8_t ________________CUSTOM_RESOURCE__IMAGES__IDLE_HEART_BMP[] ;
+extern const uint8_t ________________CUSTOM_RESOURCE__IMAGES__IDLE_TIME_NUMBER_COLON_BMP[] ;
 extern const uint8_t ________________CUSTOM_RESOURCE__IMAGES__IDLE_TIME_NUMBER_HOUR_0_BMP[] ;
 extern const uint8_t ________________CUSTOM_RESOURCE__IMAGES__IDLE_TIME_NUMBER_HOUR_1_BMP[] ;
 extern const uint8_t ________________CUSTOM_RESOURCE__IMAGES__IDLE_TIME_NUMBER_HOUR_2_BMP[] ;

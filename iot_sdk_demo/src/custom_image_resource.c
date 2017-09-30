@@ -32,11 +32,14 @@
  * MEDIATEK FOR SUCH MEDIATEK SOFTWARE AT ISSUE.
  */
 #include "gdi_resource_internal.h"
-const uint16_t  gdi_resource_current_max_image_number=49;
+const uint16_t  gdi_resource_current_max_image_number=53;
 #include "custom_image_data_resource.h"
 
 const gdi_resource_custom_image_t	gdi_resource_custom_image_names[]={
 {(uint8_t*)&____________DEFAULT_RESOURCE__EMPTYIMAGE_BMP},
+{(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__BATTERY_25_BMP},
+{(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__BATTERY_50_BMP},
+{(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__BATTERY_75_BMP},
 {(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__BATTERY_EMPTY_BMP},
 {(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__BATTERY_FULL_BMP},
 {(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__BATTERY_FULL_24_TESTBMP_BMP},
@@ -54,6 +57,7 @@ const gdi_resource_custom_image_t	gdi_resource_custom_image_names[]={
 {(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__IDLE_ALARM_BMP},
 {(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__IDLE_GPS_BMP},
 {(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__IDLE_HEART_BMP},
+{(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__IDLE_TIME_NUMBER_COLON_BMP},
 {(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__IDLE_TIME_NUMBER_HOUR_0_BMP},
 {(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__IDLE_TIME_NUMBER_HOUR_1_BMP},
 {(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__IDLE_TIME_NUMBER_HOUR_2_BMP},
