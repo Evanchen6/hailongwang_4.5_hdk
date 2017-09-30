@@ -92,7 +92,7 @@ static bool g_wf_is_lcd_need_init;
 ATTR_RWDATA_IN_NONCACHED_RAM_4BYTE_ALIGN uint8_t g_wf_time_update_area_img[IMG_UPDATE_HEIGHT * IMG_UPDATE_WIDTH/8];
 static uint8_t g_wf_witdh_offset;
 
-TimerHandle_t vPopupTimer;
+TimerHandle_t vPopupTimer = NULL;
 TimerHandle_t vBacklightTimer = NULL;
 
 uint32_t g_wf_index_color_table[16] = 
@@ -375,9 +375,9 @@ void vBacklightTimerCallback( TimerHandle_t xTimer )
 
 void backlight_timer_stop(void)
 {
-	if (vBacklightTimer)
-	xTimerStop(vBacklightTimer, 0);
-
+	if (vBacklightTimer && (xTimerIsTimerActive(vBacklightTimer) != pdFALSE)){
+		xTimerStop(vBacklightTimer, 0);
+	}
 }
 
 void backlight_timer_init(uint32_t time)
@@ -406,8 +406,9 @@ void vPopupTimerCallback( TimerHandle_t xTimer )
 
 void pop_timer_stop(void)
 {
-    xTimerStop(vPopupTimer, 0);
-
+    if (vPopupTimer && (xTimerIsTimerActive(vPopupTimer) != pdFALSE)){
+		xTimerStop(vPopupTimer, 0);
+    }
 }
 
 

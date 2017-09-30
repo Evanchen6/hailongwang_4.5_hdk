@@ -50,6 +50,8 @@
 #include "custom_image_data_resource.h"
 #include "custom_resource_def.h"
 #include "timers.h"
+#include "hal_display_pwm.h"
+#include "hal_display_pwm_internal.h"
 
 #include "hal_keypad.h"
 #include "battery_management.h"
@@ -65,6 +67,7 @@
 #define DEMO_TITLE_STRING_NAME "Main menu:"
 
 TimerHandle_t vWatchfaceTimer = NULL;
+extern uint8_t sdkdemo_sleep_handle;
 
 
 typedef struct list_item_struct {
@@ -142,6 +145,18 @@ void show_watchface_timer_init(uint32_t time)
 	xTimerStart(vWatchfaceTimer, 0);
 }
 
+static void main_need_lcd_init(void)
+{
+
+	hal_sleep_manager_lock_sleep(sdkdemo_sleep_handle);
+
+	hal_display_pwm_deinit();
+	hal_display_pwm_init(HAL_DISPLAY_PWM_CLOCK_26MHZ);
+	hal_display_pwm_set_duty(20);
+	bsp_lcd_exit_idle();
+
+}
+
 
 //add by chenchen for keypad
 static void main_screen_keypad_event_handler(hal_keypad_event_t* keypad_event,void* user_data)
@@ -157,6 +172,7 @@ static void main_screen_keypad_event_handler(hal_keypad_event_t* keypad_event,vo
 	17 0x11---up
 	18 0x12---down
 */
+	main_need_lcd_init();
 
 	GRAPHICLOG("[chenchen main_screen_keypad_event_handler key state=%d, position=%d\r\n", (int)keypad_event->state, (int)keypad_event->key_data);
 	if( xTimerReset( vWatchfaceTimer, 100 ) != pdPASS ) {
