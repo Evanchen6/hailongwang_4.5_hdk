@@ -37,6 +37,14 @@
 
 #include "main_screen.h"
 
+//add by chenchen
+//#include "subsensor_acc.h"
+//#include "subsensor_mag.h"
+
+//typedef void (*show_sensor_screen_proc_f)(void);
+//typedef void (*event_sensor_handle_func)(message_id_enum event_id, int32_t param1, void* param2);
+
+
 /* sensor data update */
 void update_hr_data(int32_t bpm);
 void update_hrv_data(int32_t sddn,int32_t lf,int32_t hf,int32_t lfhf);

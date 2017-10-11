@@ -32,47 +32,71 @@
  * MEDIATEK FOR SUCH MEDIATEK SOFTWARE AT ISSUE.
  */
 
-/*User self log api, to avoid wake log task*/
 
-#ifndef __WF_IMAGE_H__
-#define __WF_IMAGE_H__
-
-//add by chenchen
-#include "main_screen.h"
-
-
-extern uint8_t small_number_0[24*29];
-extern uint8_t small_number_1[24*29];
-extern uint8_t small_number_2[24*29];
-extern uint8_t small_number_3[24*29];
-extern uint8_t small_number_4[24*29];
-extern uint8_t small_number_5[24*29];
-extern uint8_t small_number_6[24*29];
-extern uint8_t small_number_7[24*29];
-extern uint8_t small_number_8[24*29];
-extern uint8_t small_number_9[24*29];
-extern uint8_t big_number_0[40*49];
-extern uint8_t big_number_1[40*49];
-extern uint8_t big_number_2[40*49];
-extern uint8_t big_number_3[40*49];
-extern uint8_t big_number_4[40*49];
-extern uint8_t big_number_5[40*49];
-extern uint8_t big_number_6[40*49];
-extern uint8_t big_number_7[40*49];
-extern uint8_t big_number_8[40*49];
-extern uint8_t big_number_9[40*49];
-extern uint8_t big_number_colon[16*49];
-extern uint8_t IMG2_1BIT_240X240[240*240];
-
-
-void wf_app_init(void);
-void wf_app_task_enable_show(void);
-
-
-//add by chenchen
-void wf_event_handler(message_id_enum event_id, int32_t param1, void* param2);
-
-#endif
+#ifndef CUSTOM_RESOURCE_DEF_H
+#define CUSTOM_RESOURCE_DEF_H
 
 
 
+
+/******************** Image resource IDs - begin ********************/
+typedef enum
+{
+    IMAGE_ID_BATTERY_25_BMP = 3 + 1, /* BASE_ID + 1 */
+    IMAGE_ID_BATTERY_50_BMP,
+    IMAGE_ID_BATTERY_75_BMP,
+    IMAGE_ID_BATTERY_EMPTY_BMP,
+    IMAGE_ID_BATTERY_FULL_BMP,
+    IMAGE_ID_BATTERY_FULL_24_TESTBMP_BMP,
+    IMAGE_ID_BATTERY_NUMBER_0_BMP,
+    IMAGE_ID_BATTERY_NUMBER_1_BMP,
+    IMAGE_ID_BATTERY_NUMBER_2_BMP,
+    IMAGE_ID_BATTERY_NUMBER_3_BMP,
+    IMAGE_ID_BATTERY_NUMBER_4_BMP,
+    IMAGE_ID_BATTERY_NUMBER_5_BMP,
+    IMAGE_ID_BATTERY_NUMBER_6_BMP,
+    IMAGE_ID_BATTERY_NUMBER_7_BMP,
+    IMAGE_ID_BATTERY_NUMBER_8_BMP,
+    IMAGE_ID_BATTERY_NUMBER_9_BMP,
+    IMAGE_ID_BATTERY_NUMBER_PERCENT_BMP,
+    IMAGE_ID_IDLE_ALARM_BMP,
+    IMAGE_ID_IDLE_GPS_BMP,
+    IMAGE_ID_IDLE_HEART_BMP,
+    IMAGE_ID_IDLE_TIME_NUMBER_COLON_BMP,
+    IMAGE_ID_IDLE_TIME_NUMBER_HOUR_0_BMP,
+    IMAGE_ID_IDLE_TIME_NUMBER_HOUR_1_BMP,
+    IMAGE_ID_IDLE_TIME_NUMBER_HOUR_2_BMP,
+    IMAGE_ID_IDLE_TIME_NUMBER_HOUR_3_BMP,
+    IMAGE_ID_IDLE_TIME_NUMBER_HOUR_4_BMP,
+    IMAGE_ID_IDLE_TIME_NUMBER_HOUR_5_BMP,
+    IMAGE_ID_IDLE_TIME_NUMBER_HOUR_6_BMP,
+    IMAGE_ID_IDLE_TIME_NUMBER_HOUR_7_BMP,
+    IMAGE_ID_IDLE_TIME_NUMBER_HOUR_8_BMP,
+    IMAGE_ID_IDLE_TIME_NUMBER_HOUR_9_BMP,
+    IMAGE_ID_IDLE_TIME_NUMBER_MINUTE_0_BMP,
+    IMAGE_ID_IDLE_TIME_NUMBER_MINUTE_1_BMP,
+    IMAGE_ID_IDLE_TIME_NUMBER_MINUTE_2_BMP,
+    IMAGE_ID_IDLE_TIME_NUMBER_MINUTE_3_BMP,
+    IMAGE_ID_IDLE_TIME_NUMBER_MINUTE_4_BMP,
+    IMAGE_ID_IDLE_TIME_NUMBER_MINUTE_5_BMP,
+    IMAGE_ID_IDLE_TIME_NUMBER_MINUTE_6_BMP,
+    IMAGE_ID_IDLE_TIME_NUMBER_MINUTE_7_BMP,
+    IMAGE_ID_IDLE_TIME_NUMBER_MINUTE_8_BMP,
+    IMAGE_ID_IDLE_TIME_NUMBER_MINUTE_9_BMP,
+    IMAGE_ID_LINE_BMP,
+    IMAGE_ID_LIST_HISTORY_BMP,
+    IMAGE_ID_LIST_PERSON_BMP,
+    IMAGE_ID_LIST_SETTING_BMP,
+    IMAGE_ID_LIST_TYPE_BMP,
+    IMAGE_ID_MENU_BG_BMP,
+    IMAGE_ID_MENU_DOWN_BMP,
+    IMAGE_ID_MENU_TITLE_BMP,
+    IMAGE_ID_MENU_UP_BMP,
+    IMAGE_ID_POP_UP_BMP,
+    IMAGE_ID_POP_UP_BG_BMP,
+    CUSTOM_RESOURCE_IMG_MAX
+}custom_resource_img_enum;
+/******************** Image resource IDs - finish ********************/
+
+
+#endif /* CUSTOM_RESOURCE_DEF_H */

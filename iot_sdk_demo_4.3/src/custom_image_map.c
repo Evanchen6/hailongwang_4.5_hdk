@@ -31,48 +31,72 @@
  * OR REFUND ANY SOFTWARE LICENSE FEES OR SERVICE CHARGE PAID BY RECEIVER TO
  * MEDIATEK FOR SUCH MEDIATEK SOFTWARE AT ISSUE.
  */
+#include "gdi_resource_internal.h"
 
-/*User self log api, to avoid wake log task*/
+uint16_t gdi_resource_current_max_image_id=53;
+const gdi_resource_custom_image_map_t gdi_resource_custom_image_id_map[]={
+	{0},
+	{1},
+	{2},
+	{3},
+	{4},
+	{5},
+	{6},
+	{7},
+	{8},
+	{9},
+	{10},
+	{11},
+	{12},
+	{13},
+	{14},
+	{15},
+	{16},
+	{17},
+	{18},
+	{19},
+	{20},
+	{21},
+	{22},
+	{23},
+	{24},
+	{25},
+	{26},
+	{27},
+	{28},
+	{29},
+	{30},
+	{31},
+	{32},
+	{33},
+	{34},
+	{35},
+	{36},
+	{37},
+	{38},
+	{39},
+	{40},
+	{41},
+	{42},
+	{43},
+	{44},
+	{45},
+	{46},
+	{47},
+	{48},
+	{49},
+	{50},
+	{51},
+	{52},
+};
 
-#ifndef __WF_IMAGE_H__
-#define __WF_IMAGE_H__
-
-//add by chenchen
-#include "main_screen.h"
 
 
-extern uint8_t small_number_0[24*29];
-extern uint8_t small_number_1[24*29];
-extern uint8_t small_number_2[24*29];
-extern uint8_t small_number_3[24*29];
-extern uint8_t small_number_4[24*29];
-extern uint8_t small_number_5[24*29];
-extern uint8_t small_number_6[24*29];
-extern uint8_t small_number_7[24*29];
-extern uint8_t small_number_8[24*29];
-extern uint8_t small_number_9[24*29];
-extern uint8_t big_number_0[40*49];
-extern uint8_t big_number_1[40*49];
-extern uint8_t big_number_2[40*49];
-extern uint8_t big_number_3[40*49];
-extern uint8_t big_number_4[40*49];
-extern uint8_t big_number_5[40*49];
-extern uint8_t big_number_6[40*49];
-extern uint8_t big_number_7[40*49];
-extern uint8_t big_number_8[40*49];
-extern uint8_t big_number_9[40*49];
-extern uint8_t big_number_colon[16*49];
-extern uint8_t IMG2_1BIT_240X240[240*240];
-
-
-void wf_app_init(void);
-void wf_app_task_enable_show(void);
-
-
-//add by chenchen
-void wf_event_handler(message_id_enum event_id, int32_t param1, void* param2);
-
-#endif
+const uint16_t gdi_resource_current_max_search_image_id=2;
+const gdi_resource_custom_image_search_map_t gdi_resource_image_id_search_map[]={
+	{1,1,0},
+	{4,55,1},
+};
 
 
 

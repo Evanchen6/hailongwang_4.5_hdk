@@ -88,10 +88,10 @@ MTK_LED_ENABLE = n
 
 
 # port service
-MTK_PORT_SERVICE_ENABLE = n
+MTK_PORT_SERVICE_ENABLE = y
 
 # atci via port service
-MTK_ATCI_VIA_PORT_SERVICE = n
+MTK_ATCI_VIA_PORT_SERVICE = y
 
 #MD5 configration
 MTK_MBEDTLS_CONFIG_FILE             = config-mtk-md5.h

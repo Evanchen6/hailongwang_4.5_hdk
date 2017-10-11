@@ -419,235 +419,74 @@ hal_uart_status_t bt_io_uart_init_ex(hal_uart_port_t port)
     return ret;
 }
 
+#if 0
+// Callback function. This function should be registered with #hal_keypad_register_callback().
+void user_keypad_callback (void *user_data)
+{
+     hal_keypad_event_t keypad_event;
+     hal_keypad_get_key(&keypad_event);
+}
+#endif
+
 static volatile uint32_t lora_receive_notice = 0;
 static volatile uint32_t lora_send_notice = 0;
 static char lora_rx_vfifo_buffer[512] __attribute__ ((section(".noncached_zidata")));
 static char lora_tx_vfifo_buffer[512] __attribute__ ((section(".noncached_zidata")));
 
-QueueHandle_t lora_rx_queue;
-#define START_BIT   0x55AA
-
-typedef struct{
-	uint16_t length;
-	uint8_t type;
-	uint8_t data[17];
-} spp_message_ex_t;
-
-typedef struct{
-	uint16_t start;
-	uint16_t addr;
-	uint32_t keycode;
-	spp_message_ex_t spp_message;
-	uint16_t crccode;
-} lora_message_t;
-
-typedef enum {
-    MSG_ID_LORA_RX_QUEUE = 0,
-
-    MSG_ID_LORA_END
-} lora_msg_id_t;
-
-
-typedef struct {
-    lora_msg_id_t msg_id;
-    uint8_t* msg_data;
-} lora_general_msg_t;
-
-typedef enum{
-	SINGLE_READ = 0x01,
-	SINGLE_WRITE,
-	MULTIPLY_READ,
-	MULTIPLY_WRITE,
-	CHANNEL_CHANGE
-} command_type_t;
-
-typedef enum{
-	BT_ID = 0,    //蓝牙ID，唯一
-	MEMBER_ID,    //佩戴人ID
-	MEMBER_NAME,    //佩戴人姓名
-	MEMBER_GENDER,    //佩戴人性别
-	MEMBER_AGE,    //佩戴人年龄
-	MEMBER_WEIGHT,    //佩戴人体重
-	RANGE_NORMAL_PPG,    //正常心率范围
-	RANGE_NORMAL_BLOOD_OXYGEN,    //正常血氧范围
-	RANGE_NORMAL_EKG,     //正常血压范围
-	EKG_PARAMETER,    //血压特征参数
-	STANDARD_TIME,    //时间
-	RUNNNING_STATUS,    //运行状态
-	CALORIES_BURNED,    //当日累计消耗卡路里
-	LAST_ERROR_INFO,    //末次故障信息
-	LAST_WARNNING_INFO,    //末次告警信息
-	LAST_POSITION_TIME,    //末次位置及时间
-	LAST_VITAL_SIGNS_INFO,    //末次生命体征信息
-	GPS_SWITCH,    //GPS开关控制
-	GPS_FREQ,    //GPS采样频率
-	GYRO_MODE,    //GYRO工作模式
-	VITAL_SIGNS_SWITCH,    //生命体征芯片开关控制
-	VITAL_SIGNS_FREQ,    //生命体征芯片采样频率
-	VITAL_SIGNS_COUNTER,     //生命体征芯片单次采样原始值数目
-	COMMUNICATION_AUTHENTICATION_CODE,    //单播认证码（明文）
-	COMMUNICATION_SECRET_KEY,    //通信密钥
-	BT_SWTICH,    //蓝牙开关控制
-	BT_AUTHENTICATION_CODE,    //蓝牙认证码
-	LORA_SWTICH,    //LORA开关控制
-	LORA_MODE,    //LORA工作模式
-	LORA_WORK_FREQ,    //LORA工作频率
-	LORA_FREQ_PARAMETER,    //LORA扩频参数
-	LORA_ADDR,    //LORA短地址
-	LORA_OVERTIME,    //LORA单播超时
-	WIFI_SWTICH,    //WIFI开关控制
-	WIFI_NET_ID,    //WIFI网络ID
-	WIFI_NET_PASSWORD,    //WIFI网络口令
-	MAGNETOMETER_SWITCH,    //磁力计开关控制
-	CHEAT_PROOF_SWITCH,    //防作弊开关控制
-	CLASS_ID,     //科目代码
-	TIME_WARM_UP,    //热身时间
-	TIME_TRAIN_START,    //训练开始时间
-	TIME_TRAIN_END,    //训练完成时间
-	TIME_RESTORE,    //体征恢复时间
-	LEVEL_ACHIEVEMENT,    //成绩等级
-	CLASS_ACHIEVEMENT,    //课目成绩
-	DISTANCE_TOTAL,    //课目累计位移米数
-	CLASS_CALORIES_BURNED_TOTAL,    //课目累计消耗卡路里
-	HISTORY_ERROR_COUNTER,    //历史故障数组缓存元素个数
-	HISTORY_NON_RETURN_ERROR_COUNTER,     //历史故障数组缓存未回传元素个数
-	HISTORY_CLASS_COUNTER,    //历史组训课目数组元素个数
-	HISTORY_NON_RETURN_CLASS_COUNTER,     //历史组训课目数组未回传元素个数
-	HISTORY_WARNNING_COUNTER,    //历史告警数组元素个数
-	HISTORY_NON_RETURN_WARNNING_COUNTER,    //历史告警数组未回传元素个数
-	HISTORY_TRAJECTORY_COUNTRER,    //历史轨迹点数组元素个数
-	HISTORY_NON_RETURN_TRAJECTORY_COUNTRER,     //历史轨迹点数组未回传元素个数
-	HISTORY_VITAL_SIGNS_COUNTRER,    //历史生命体征数组元素个数
-	HISTORY_NON_RETURN_VITAL_SIGNS_COUNTRER,    //历史生命体征数组未回传元素个数
-	HISTORY_PPG_COUNTRER,    //历史生命体征原始PPG数组元素个数
-	HISTORY_NON_RETURN_PPG_COUNTRER    //历史生命体征原始PPG数组未回传元素个数
-}device_param_t;
-
-static void lora_uart_irq(hal_uart_callback_event_t status, void *user_data)
+static void lora_uart_callback(hal_uart_callback_event_t status, void *user_data)
 {
-	lora_general_msg_t msg_queue_item;
-	
-	if(HAL_UART_EVENT_READY_TO_READ == status){
-		msg_queue_item.msg_id = MSG_ID_LORA_RX_QUEUE;
-		msg_queue_item.msg_data = NULL;		
-		xQueueSendFromISR(lora_rx_queue, (void*)&msg_queue_item, 0);
-		log_hal_info("[hailong]xQueueSendFromISR\n");
-	}
+   if(status == HAL_UART_EVENT_READY_TO_WRITE)
+       lora_send_notice = 1;
+   else if(status == HAL_UART_EVENT_READY_TO_READ)
+       lora_receive_notice = 1;
 }
 
-bool LORA_ADDR_CHECK(uint16_t addr){
-	return true;
-}
-
-bool LORA_KEYCODE_CHECK(uint32_t keycode){
-	return true;
-}
-
-bool LORA_CRC_CHECK(spp_message_ex_t spp_message){
-	return true;
-}
-
-void single_param_read(uint8_t data)
-{
-
-}
-
-void single_param_write()
-{
-
-}
-
-void multiply_param_read()
-{
-
-}
-
-
-void multiply_param_write()
-{
-
-}
-
-void channel_change()
-{
-
-}
-
-void spp_event_handler(spp_message_ex_t spp_message)
-{
-	switch(spp_message.type){
-		case SINGLE_READ:
-		{
-			int i;
-			for(i = 0; i < spp_message.length-1; i++){
-				single_param_read(spp_message.data[i]);
-			}
-		}
-		break;
-		case SINGLE_WRITE:
-		{
-			single_param_write();
-		}
-		break;
-		case MULTIPLY_READ:
-		{
-			multiply_param_read();
-		}
-		break;
-		case MULTIPLY_WRITE:
-		{
-			multiply_param_write();
-		}
-		break;
-		case CHANNEL_CHANGE:
-		{
-			channel_change();
-		}
-	}
-}
-
-void lora_event_handler(uint16_t start, uint16_t addr, uint32_t keycode, spp_message_ex_t spp_message, uint16_t crccode)
-{
-	if(start != START_BIT){
-		return;
-	}
-
-	if(!LORA_ADDR_CHECK(addr)){
-		return;
-	}
-	
-	if(!LORA_KEYCODE_CHECK(keycode)){
-		return;
-	}
-	
-	if(!LORA_CRC_CHECK(spp_message)){
-		return;
-	}
-	
-	spp_event_handler(spp_message);
-}
 
 void lora_task(void *arg)
 {
-	lora_message_t message;
-	lora_general_msg_t msg_queue_item;
-	int left = sizeof(lora_message_t);
+	PMIC_VR_CONTROL(PMIC_VMC, PMIC_VR_CTL_ENABLE);//LORA power supply enable
+	vTaskDelay(500 / portTICK_RATE_MS);
+
+	hal_uart_dma_config_t lora_dma_config;
+	lora_dma_config.receive_vfifo_alert_size = 50;
+	lora_dma_config.receive_vfifo_buffer = lora_rx_vfifo_buffer;
+	lora_dma_config.receive_vfifo_buffer_size = 512;
+	lora_dma_config.receive_vfifo_threshold_size = 128;
+	lora_dma_config.send_vfifo_buffer = lora_tx_vfifo_buffer;
+	lora_dma_config.send_vfifo_buffer_size = 512;
+	lora_dma_config.send_vfifo_threshold_size = 51;
+	hal_uart_set_dma(HAL_UART_1, &lora_dma_config);
+	hal_uart_register_callback(HAL_UART_1, lora_uart_callback, NULL);
+
+	char lora_buffer[64];
+	char *lora_pbuf;
+	uint32_t lora_left, lora_snd_cnt, lora_rcv_cnt;
+
+	char test[] = {0x55, 0xAA, 0x33, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x00, 0x02, 0x01, 0x03, 0x01, 0xFF, 0xFF};
+	lora_snd_cnt = hal_uart_send_dma(HAL_UART_1, test, sizeof(test));
 	
-	lora_rx_queue = xQueueCreate(10, sizeof(lora_general_msg_t));
-	if(lora_rx_queue == NULL ) {
-        return;
-    }
-	
+	lora_left = 64;
+	lora_pbuf = lora_buffer;
 	while(1){
-		log_hal_info("[hailong]xQueueReceive\n");
-		xQueueReceive(lora_rx_queue, (void *)&msg_queue_item, portMAX_DELAY);
-		if(msg_queue_item.msg_id == MSG_ID_LORA_RX_QUEUE){
-			memset((void*) &message, 0, sizeof(lora_message_t));
-			hal_uart_receive_dma(HAL_UART_1, &message, left);
-			log_hal_info("[hailong]%s", message.spp_message.data);
-			lora_event_handler(message.start, message.addr, message.keycode, message.spp_message, message.crccode);
-            memset((void*) &message, 0, sizeof(lora_message_t));
-		}
+		lora_rcv_cnt = hal_uart_receive_dma(HAL_UART_1, lora_pbuf, lora_left);
+		log_hal_info("[hailong] %d\n", lora_rcv_cnt);
+		log_hal_info("[hailong] %x\n", *lora_pbuf);
+		lora_left -= lora_rcv_cnt;
+		lora_pbuf += lora_rcv_cnt;
+		if(lora_left == 0)
+			break;
+		while(!lora_receive_notice);
+		lora_receive_notice = 0;
+	}
+		
+	while(1){
+		lora_snd_cnt = hal_uart_send_dma(HAL_UART_1, lora_pbuf, lora_left);
+		lora_left -= lora_snd_cnt;
+		lora_pbuf += lora_snd_cnt;
+		if(lora_left == 0)
+			break;
+		while(!lora_send_notice);
+			lora_send_notice = 0;
 	}
 }
 
@@ -665,17 +504,6 @@ void lora_uart_init()
     lora_uart_config.stop_bit = HAL_UART_STOP_BIT_1;
     lora_uart_config.word_length = HAL_UART_WORD_LENGTH_8;
 	hal_uart_init(HAL_UART_1, &lora_uart_config);
-	
-	hal_uart_dma_config_t lora_dma_config;
-	lora_dma_config.receive_vfifo_alert_size = 50;
-	lora_dma_config.receive_vfifo_buffer = lora_rx_vfifo_buffer;
-	lora_dma_config.receive_vfifo_buffer_size = 512;
-	lora_dma_config.receive_vfifo_threshold_size = 128;
-	lora_dma_config.send_vfifo_buffer = lora_tx_vfifo_buffer;
-	lora_dma_config.send_vfifo_buffer_size = 512;
-	lora_dma_config.send_vfifo_threshold_size = 51;
-	hal_uart_set_dma(HAL_UART_1, &lora_dma_config);
-	hal_uart_register_callback(HAL_UART_1, lora_uart_irq, NULL);
 }
 
 /**
@@ -715,6 +543,17 @@ int main(void)
     usb_boot_init();
 #endif
 
+#if 0
+#ifdef MTK_KEYPAD_ENABLE
+	keypad_custom_init();
+
+	if ( HAL_KEYPAD_STATUS_OK != hal_keypad_register_callback(user_keypad_callback,(void *)user_data)) {
+
+	}
+	hal_keypad_enable(); 
+#endif
+#endif
+
 #ifdef MTK_SMART_BATTERY_ENABLE
     battery_message_create_task();
 #endif
@@ -732,7 +571,6 @@ int main(void)
 	//-- by yanhui add for SPP
 
 	//add lora task start
-	PMIC_VR_CONTROL(PMIC_VMC, PMIC_VR_CTL_ENABLE);//LORA power supply enable
 	lora_uart_init();
 	lora_creat_task();
 	//add lora task end

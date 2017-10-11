@@ -37,6 +37,7 @@
 #include <string.h>
 #include "stdio.h"
 #include "stdlib.h"
+#include "FreeRTOS.h"
 #include "gdi.h"
 #include "gdi_font_engine.h"
 #include "main_screen.h"
@@ -46,7 +47,15 @@
 #include "mt25x3_hdk_backlight.h"
 
 //add by chenchen
+#include "custom_image_data_resource.h"
+#include "custom_resource_def.h"
+#include "timers.h"
+#include "hal_display_pwm.h"
+#include "hal_display_pwm_internal.h"
+
+//add by chenchen
 #include "hal_keypad.h"
+#include "battery_management.h"
 
 #define CONFIG_INCLUDE_HEADER
 #include "screen_config.h"
@@ -56,8 +65,10 @@
 #define DEMO_ITEM_NAME_MAX_LEN 50
 #define PERVIOUS_PAGE_STRING_NAME "previous page"
 #define NEXT_PAGE_STRING_NAME "next page"
-#define DEMO_TITLE_STRING_NAME "Demo option:"
+#define DEMO_TITLE_STRING_NAME "Main menu:"
 
+TimerHandle_t vWatchfaceTimer = NULL;
+extern uint8_t sleep_manager_handle;
 
 typedef struct list_item_struct {
     show_screen_proc_f show_screen_f;
@@ -100,13 +111,52 @@ ATTR_RWDATA_IN_NONCACHED_RAM_4BYTE_ALIGN unsigned char frame_buffer[ScrnWidth*Sc
 
 
 static int32_t main_screen_get_index(int32_t x, int32_t y);
-static void main_screen_draw(void);
+//static void main_screen_draw(void);
+static void tui_main_screen_draw(void);
 static void main_screen_scroll_to_prevoius_page(void);
 static void main_screen_scroll_to_next_page(void);
 
 static void main_screen_event_handle(message_id_enum event_id, int32_t param1, void* param2)
 {
+
 }
+
+void vWatchfaceTimerCallback( TimerHandle_t xTimer )
+{
+	if (demo_item[3].show_screen_f) {
+		demo_item[3].show_screen_f();
+		GRAPHICLOG("show_main_wf");
+	}
+
+}
+
+void show_watchface_timer_init(uint32_t time)
+{
+    if (vWatchfaceTimer && (xTimerIsTimerActive(vWatchfaceTimer) != pdFALSE)) {
+        xTimerStop(vWatchfaceTimer, 0);
+    } else {
+		vWatchfaceTimer = xTimerCreate( "vWatchfaceTimer",           // Just a text name, not used by the kernel.
+                                      ( time*1000 / portTICK_PERIOD_MS), // The timer period in ticks.
+                                      pdFALSE,                    // The timer is a one-shot timer.
+                                      0,                          // The id is not used by the callback so can take any value.
+                                      vWatchfaceTimerCallback     // The callback function that switches the LCD back-light off.
+                                   );
+    }
+	xTimerStart(vWatchfaceTimer, 0);
+}
+
+static void main_need_lcd_init(void)
+{
+
+	hal_sleep_manager_lock_sleep(sleep_manager_handle);
+
+	hal_display_pwm_deinit();
+	hal_display_pwm_init(HAL_DISPLAY_PWM_CLOCK_26MHZ);
+	hal_display_pwm_set_duty(20);
+	BSP_LCD_ExitIdle();
+
+}
+
 //add by chenchen for keypad
 static void main_screen_keypad_event_handler(hal_keypad_event_t* keypad_event,void* user_data)
 {
@@ -122,19 +172,25 @@ static void main_screen_keypad_event_handler(hal_keypad_event_t* keypad_event,vo
 	18 0x12---down
 */
 
+	main_need_lcd_init();
+
 	GRAPHICLOG("[chenchen main_screen_keypad_event_handler key state=%d, position=%d\r\n", (int)keypad_event->state, (int)keypad_event->key_data);
+
+	if( xTimerReset( vWatchfaceTimer, 100 ) != pdPASS ) {
+		LOG_I(common, "chenchen main show wf_xTimerReset fail");
+	}
 
 	if (keypad_event->key_data == 0xd && keypad_event->state == 0){
 		temp_index = 1;
 	} else if (keypad_event->key_data == 0xe && keypad_event->state == 0){
-		temp_index = 0;
+		temp_index = -1;
 	} else if (keypad_event->key_data == 0x11 && keypad_event->state == 0){
 		temp_focus = main_screen_cntx.focus_point_index+1;
 		max_item_num = main_screen_cntx.total_item_num;
 		main_screen_cntx.focus_point_index = temp_focus%max_item_num;
 		GRAPHICLOG("[chenchen[get key]main_screen_cntx.focus_point_index=%d,\r\n", main_screen_cntx.focus_point_index);
 		if (main_screen_cntx.focus_point_index < 0)
-			main_screen_cntx.focus_point_index = 0;
+			main_screen_cntx.focus_point_index = main_screen_cntx.total_item_num -1;
 		
 	} else if (keypad_event->key_data == 0x12 && keypad_event->state == 0){
 		temp_focus = main_screen_cntx.focus_point_index-1;
@@ -142,21 +198,21 @@ static void main_screen_keypad_event_handler(hal_keypad_event_t* keypad_event,vo
 		main_screen_cntx.focus_point_index = temp_focus%max_item_num;
 		
 		if (main_screen_cntx.focus_point_index < 0)
-			main_screen_cntx.focus_point_index = 0;
+			main_screen_cntx.focus_point_index = main_screen_cntx.total_item_num -1;
 	}
 
 	switch (temp_index){
-		case -1:
-			return;
 		case -2:
 			main_screen_scroll_to_prevoius_page();
 			break;
 		case -3:
 			main_screen_scroll_to_next_page();
 			break;
-		case 0:
-			main_screen_scroll_to_prevoius_page();
-			break;
+		case -1:
+			if (demo_item[3].show_screen_f) {
+				demo_item[3].show_screen_f();
+			}
+			return;
 		case 1:
 			curr_event_handler = demo_item[main_screen_cntx.focus_point_index].event_handle_f;
             if (demo_item[main_screen_cntx.focus_point_index].show_screen_f) {
@@ -167,7 +223,8 @@ static void main_screen_keypad_event_handler(hal_keypad_event_t* keypad_event,vo
             break;
 
 	}
-	main_screen_draw();
+//	main_screen_draw();
+	tui_main_screen_draw();
 
 }
 /*****************************************************************************
@@ -221,7 +278,7 @@ static void main_screen_pen_event_handler(touch_event_struct_t* touch_event, voi
             }
             return;
     }
-    main_screen_draw();
+//    main_screen_draw();
 }
 
 /*****************************************************************************
@@ -289,8 +346,8 @@ static void main_screen_cntx_init()
     
     main_screen_cntx.LCD_WIDTH = 240 * RESIZE_RATE;
     main_screen_cntx.LCD_HEIGHT = 240 * RESIZE_RATE;
-    main_screen_cntx.top_gap = 50 * RESIZE_RATE;
-    main_screen_cntx.left_gap = 40 * RESIZE_RATE;
+    main_screen_cntx.top_gap = 130 * RESIZE_RATE;
+    main_screen_cntx.left_gap = 80 * RESIZE_RATE;
     main_screen_cntx.right_gap = 3 * RESIZE_RATE;
     main_screen_cntx.bottom_gap = 3 * RESIZE_RATE;
     main_screen_cntx.line_gap = 15 * RESIZE_RATE;
@@ -431,6 +488,176 @@ static char* my_itoa(int num,char* str,int radix)
     return str;
 }
 
+static uint16_t main_get_battery_img_number(uint16_t num)
+{
+    uint16_t img_ptr;
+    switch (num) {
+        case 0:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_0_BMP;
+        	   break;
+        case 1:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_1_BMP;
+        	   break;
+        case 2:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_2_BMP;
+        	   break;
+        case 3:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_3_BMP;
+        	   break;
+        case 4:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_4_BMP;
+        	   break;
+        case 5:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_5_BMP;
+        	   break;
+        case 6:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_6_BMP;
+        	   break;
+        case 7:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_7_BMP;
+        	   break;
+        case 8:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_8_BMP;
+        	   break;
+        case 9:
+        	   img_ptr =  IMAGE_ID_BATTERY_NUMBER_9_BMP;
+        	   break;
+        case 0xff:
+        	   img_ptr  = IMAGE_ID_BATTERY_NUMBER_0_BMP;
+        	   break;
+        default:
+                   //LOG_I(common, "wrong big number");
+                   img_ptr = IMAGE_ID_BATTERY_NUMBER_0_BMP;
+        	   break;
+    }
+    return img_ptr;
+
+}
+
+static uint16_t main_get_battery_show_img(uint16_t num)
+{
+	uint16_t img_ptr;
+	if (num <= 25 && num > 0) {
+		img_ptr = IMAGE_ID_BATTERY_25_BMP;
+	} else if (num <=50 && num > 25) {
+		img_ptr = IMAGE_ID_BATTERY_50_BMP;
+	} else if (num <= 99 && num > 50) {
+		img_ptr = IMAGE_ID_BATTERY_75_BMP;
+	}
+	return img_ptr;
+}
+
+static void get_battery_information(void)
+{
+    int32_t capacity, charger_current, charger_status, charger_type, battery_temperature, battery_volt, capacity_level;
+
+    capacity = battery_management_get_battery_property(BATTERY_PROPERTY_CAPACITY);
+    capacity_level = battery_management_get_battery_property(BATTERY_PROPERTY_CAPACITY_LEVEL);
+    charger_current = battery_management_get_battery_property(BATTERY_PROPERTY_CHARGING_CURRENT);
+    charger_status = battery_management_get_battery_property(BATTERY_PROPERTY_CHARGER_EXIST);
+    charger_type = battery_management_get_battery_property(BATTERY_PROPERTY_CHARGER_TYPE);
+    battery_temperature = battery_management_get_battery_property(BATTERY_PROPERTY_TEMPERATURE);
+    battery_volt = battery_management_get_battery_property(BATTERY_PROPERTY_VOLTAGE);
+
+	GRAPHICLOG("[chenchen battery capacity %d capacity_level %d charger_current %d charger_status %d charger_type %d\r\n", capacity,capacity_level,charger_current,charger_status,charger_type);
+
+}
+
+static void tui_main_screen_draw()
+{
+    int32_t index = main_screen_cntx.start_item;
+    int32_t num = main_screen_cntx.curr_item_num;
+	int32_t pre;
+	int32_t next;
+    int32_t x,y;
+	int16_t bat_num1,bat_num2,bat_img;
+	int32_t capacity;
+	static int32_t is_fisrt_show;
+    gdi_font_engine_display_string_info_t param;
+
+	x = main_screen_cntx.left_gap;
+	y = main_screen_cntx.top_gap;
+
+	if ((main_screen_cntx.focus_point_index != 0) && (main_screen_cntx.focus_point_index != main_screen_cntx.total_item_num - 1)){
+		pre = main_screen_cntx.focus_point_index - 1;
+		next = main_screen_cntx.focus_point_index + 1;
+	} else if (main_screen_cntx.focus_point_index == 0) {
+		pre = main_screen_cntx.total_item_num - 1;
+		next = main_screen_cntx.focus_point_index + 1;
+	} else if (main_screen_cntx.focus_point_index == main_screen_cntx.total_item_num - 1) {
+		pre = main_screen_cntx.focus_point_index - 1;
+		next = main_screen_cntx.start_item;
+	}
+
+	gdi_font_engine_set_font_size(GDI_FONT_ENGINE_FONT_SMALL);
+
+	gdi_draw_filled_rectangle(0,0,240 * RESIZE_RATE - 1,240 * RESIZE_RATE - 1,0);
+
+	//battary status 
+	// get_battery_information();
+	capacity = battery_management_get_battery_property(BATTERY_PROPERTY_CAPACITY);
+	if (capacity == 100) {
+			gdi_image_draw_by_id(11, 7, IMAGE_ID_BATTERY_FULL_BMP);
+			gdi_image_draw_by_id(51, 8, IMAGE_ID_BATTERY_NUMBER_1_BMP);
+			gdi_image_draw_by_id(61, 8, IMAGE_ID_BATTERY_NUMBER_0_BMP);
+			gdi_image_draw_by_id(71, 8, IMAGE_ID_BATTERY_NUMBER_0_BMP);
+			gdi_image_draw_by_id(81, 8, IMAGE_ID_BATTERY_NUMBER_PERCENT_BMP);
+	}else if (capacity == 0) {
+		gdi_image_draw_by_id(11, 7, IMAGE_ID_BATTERY_EMPTY_BMP);
+	}else {
+		bat_num1 = capacity / 10;
+		bat_num2 = capacity % 10;
+		bat_num1 = main_get_battery_img_number(bat_num1);
+		bat_num2 = main_get_battery_img_number(bat_num2);
+
+		bat_img = main_get_battery_show_img(capacity);
+	
+		gdi_image_draw_by_id(11, 7, bat_img);
+		gdi_image_draw_by_id(51, 8, bat_num1);
+		gdi_image_draw_by_id(61, 8, bat_num2);
+		gdi_image_draw_by_id(71, 8, IMAGE_ID_BATTERY_NUMBER_PERCENT_BMP);
+	}
+		
+	gdi_image_draw_by_id(8, 97, main_screen_cntx.focus_point_index+46);
+	gdi_image_draw_by_id(8, 74, IMAGE_ID_LINE_BMP);
+	gdi_image_draw_by_id(8, 188, IMAGE_ID_LINE_BMP);
+	
+	gdi_font_engine_color_t text_color = {0, 255, 255, 255};//white color
+	gdi_font_engine_set_text_color(text_color);
+
+	param.x = x;
+	param.y = y - 90;
+	param.string = (uint8_t*) demo_item[pre].name;
+	param.length = 4;
+	param.baseline_height = -1;
+	gdi_font_engine_display_string(&param);
+	gdi_lcd_update_screen(0, 0, LCD_CURR_WIDTH - 1, y - 40);
+	gdi_font_engine_color_t text_color1 = {0, 255, 255, 255};//white color
+	gdi_font_engine_set_text_color(text_color1);
+	
+	param.x = x;
+	param.y = y + 73;
+	param.string = (uint8_t*) demo_item[next].name;
+	param.length = 4;
+	param.baseline_height = -1;
+	gdi_font_engine_display_string(&param);
+	
+	gdi_lcd_update_screen(0, y + 41, LCD_CURR_WIDTH - 1, LCD_CURR_HEIGHT - 1);
+	gdi_font_engine_set_font_size(GDI_FONT_ENGINE_FONT_LARGE);
+	gdi_font_engine_color_t text_color2 = {0, 0, 0, 255};
+	gdi_font_engine_set_text_color(text_color2);
+
+	param.x = x;
+	param.y = y - 17;
+	param.string = (uint8_t*) demo_item[main_screen_cntx.focus_point_index].name;
+	param.length = 4;
+	param.baseline_height = -1;
+	gdi_font_engine_display_string(&param);
+
+
+	gdi_lcd_update_screen(0, y - 39, LCD_CURR_WIDTH - 1, y+ 40);
+
+}
 
 /*****************************************************************************
  * FUNCTION
@@ -484,7 +711,8 @@ static void main_screen_draw()
 			pre_index[str_len] = '.';
 			pre_index[str_len + 1] = '*';
 			pre_index[str_len + 2] = 0;
-
+			
+			gdi_image_draw_by_id(10, 100, main_screen_cntx.focus_point_index+41);
 		}else {
         	my_itoa((int) index, (char*) pre_index,10);
         	str_len = strlen((char*) pre_index);
@@ -577,32 +805,35 @@ static int32_t main_screen_get_index(int32_t x, int32_t y)
 void show_main_screen()
 {
     static int32_t is_init;
-//	static int32_t temp_index;
+	static int32_t is_wf_screen;
     curr_event_handler = main_screen_event_handle;
-    demo_ui_register_touch_event_callback(main_screen_pen_event_handler, NULL);
+//    demo_ui_register_touch_event_callback(main_screen_pen_event_handler, NULL);
 	demo_ui_register_keypad_event_callback(main_screen_keypad_event_handler, NULL);
 
     if (!is_init) {
         is_init = 1;
         BSP_LCD_Init(0xF800);
         BSP_Backlight_init();
+		BSP_Backlight_init_display_pwm();
         BSP_LCD_GetParam(LCM_IOCTRL_QUERY__LCM_HEIGHT, &LCD_CURR_HEIGHT);
         BSP_LCD_GetParam(LCM_IOCTRL_QUERY__LCM_WIDTH, &LCD_CURR_WIDTH);
     }
-    gdi_font_engine_set_font_size(GDI_FONT_ENGINE_FONT_MEDIUM);
+    gdi_font_engine_set_font_size(GDI_FONT_ENGINE_FONT_LARGE);
 
     main_screen_cntx_init();
     
-    gdi_font_engine_set_text_color(main_screen_cntx.color);
-    
     GRAPHICLOG("show_main_screen");
-/*	
-	temp_index = 0;
-	curr_event_handler = demo_item[temp_index].event_handle_f;
-	if (demo_item[temp_index].show_screen_f) {
-	     demo_item[temp_index].show_screen_f();
-	 }
+    //main_screen_draw();
+    tui_main_screen_draw();
+	show_watchface_timer_init(10);
+/*
+	if (!is_wf_screen) {
+		is_wf_screen = 1;
+		if (demo_item[3].show_screen_f) {
+	     	demo_item[3].show_screen_f();
+			GRAPHICLOG("show_main_wf");
+	 	}
+	}
 */
-    main_screen_draw();
 }
 

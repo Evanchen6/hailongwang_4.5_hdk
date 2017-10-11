@@ -32,47 +32,12 @@
  * MEDIATEK FOR SUCH MEDIATEK SOFTWARE AT ISSUE.
  */
 
-/*User self log api, to avoid wake log task*/
+ #ifndef __FOTA_DEMO_H__
+#define __FOTA_DEMO_H__
 
-#ifndef __WF_IMAGE_H__
-#define __WF_IMAGE_H__
 
-//add by chenchen
 #include "main_screen.h"
 
-
-extern uint8_t small_number_0[24*29];
-extern uint8_t small_number_1[24*29];
-extern uint8_t small_number_2[24*29];
-extern uint8_t small_number_3[24*29];
-extern uint8_t small_number_4[24*29];
-extern uint8_t small_number_5[24*29];
-extern uint8_t small_number_6[24*29];
-extern uint8_t small_number_7[24*29];
-extern uint8_t small_number_8[24*29];
-extern uint8_t small_number_9[24*29];
-extern uint8_t big_number_0[40*49];
-extern uint8_t big_number_1[40*49];
-extern uint8_t big_number_2[40*49];
-extern uint8_t big_number_3[40*49];
-extern uint8_t big_number_4[40*49];
-extern uint8_t big_number_5[40*49];
-extern uint8_t big_number_6[40*49];
-extern uint8_t big_number_7[40*49];
-extern uint8_t big_number_8[40*49];
-extern uint8_t big_number_9[40*49];
-extern uint8_t big_number_colon[16*49];
-extern uint8_t IMG2_1BIT_240X240[240*240];
-
-
-void wf_app_init(void);
-void wf_app_task_enable_show(void);
-
-
-//add by chenchen
-void wf_event_handler(message_id_enum event_id, int32_t param1, void* param2);
-
+void show_fota_screen(void);
+void fota_event_handler(message_id_enum event_id, int32_t param1, void* param2);
 #endif
-
-
-

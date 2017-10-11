@@ -483,6 +483,6 @@ const sCustFontData English_small = {
 0, 39, 500,
 (uint8_t*)AMTK_English_22_Width, (uint8_t*)AMTK_English_22_Width, (uint32_t*)AMTK_English_22_Offset, (uint8_t*)AMTK_English_22_Data, (uint16_t*)AMTK_English_22_RangeOffset,
 &AMTK_English_22_RangeInfo,
-0X00000001,
+0X00000000,
 };
 
