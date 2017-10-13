@@ -46,6 +46,7 @@
 #include "traing_type.h"
 #include "mt25x3_hdk_lcd.h"
 //add by chen
+#include "FreeRTOS.h"
 #include "stdint.h"
 #include "stdbool.h"
 #include <string.h>
@@ -54,6 +55,9 @@
 #include "bsp_lcd.h"
 #include "mt25x3_hdk_backlight.h"
 #include "fota_demo.h"
+#include "custom_image_data_resource.h"
+#include "custom_resource_def.h"
+#include "timers.h"
 
 #include "syslog.h"
 #include <stdarg.h>
@@ -65,6 +69,7 @@
 
 #define RESIZE_RATE LCD_CURR_HEIGHT/240
 #define DEMO_ITEM_NAME_MAX_LEN 50
+TimerHandle_t vTraingtypeWatchfaceTimer = NULL;
 
 static struct {
   int32_t fota_title_x;
@@ -157,9 +162,9 @@ static void traing_type_screen_cntx_init()
 
 		traing_type_screen_cntx.focus_point_index = 0;
 		traing_type_screen_cntx.start_item = 0;
-		traing_type_screen_cntx.one_screen_item_num = 2;
-		traing_type_screen_cntx.total_item_num = 2;
-		traing_type_screen_cntx.curr_item_num = 2;
+		traing_type_screen_cntx.one_screen_item_num = 3;
+		traing_type_screen_cntx.total_item_num = 3;
+		traing_type_screen_cntx.curr_item_num = 3;
     }
 
 }
@@ -228,6 +233,8 @@ static void traing_screen_draw()
 	gdi_font_engine_display_string_info_t traing_string_info = {0};
     gdi_draw_filled_rectangle(0,0,traing_type_screen_cntx.width-1,traing_type_screen_cntx.height-1, traing_type_screen_cntx.bg_color);
 
+	gdi_image_draw_by_id(0, 0, IMAGE_ID_ZBG_03_BMP);
+
 	gdi_font_engine_get_font_size(&font);
 	if (font != GDI_FONT_ENGINE_FONT_MEDIUM) {
 		GRAPHICLOG("[chenchen font size=%d,\r\n", font);
@@ -237,7 +244,7 @@ static void traing_screen_draw()
 	gdi_font_engine_get_font_size(&font);
 	GRAPHICLOG("[chenchen 2nd font size=%d,\r\n", font);
 
-    gdi_font_engine_color_t text_color = {0, 0, 255, 255};//white color
+    gdi_font_engine_color_t text_color = {0, 0, 0, 0};//black color
 
     gdi_font_engine_set_text_color(text_color);
 
@@ -282,7 +289,7 @@ static void traing_screen_draw()
         traing_string_info.baseline_height = -1;
         gdi_font_engine_display_string(&traing_string_info);
                                 
-        y += 15 * RESIZE_RATE;
+        y += 25 * RESIZE_RATE;
         index++;
         num--;
     }
@@ -305,7 +312,10 @@ static void traing_screen_keypad_event_handler(hal_keypad_event_t* keypad_event,
 	*/
 	
 		GRAPHICLOG("[chenchen traing_screen_keypad_event_handler key state=%d, position=%d\r\n", (int)keypad_event->state, (int)keypad_event->key_data);
-	
+		if( xTimerReset( vTraingtypeWatchfaceTimer, 100 ) != pdPASS ) {
+		LOG_I(common, "chenchen main show traingtype timer fail");
+		}
+		
 		if (keypad_event->key_data == 0xd && keypad_event->state == 0){
 			temp_index = 1;
 		} else if (keypad_event->key_data == 0xe && keypad_event->state == 0){
@@ -339,6 +349,7 @@ static void traing_screen_keypad_event_handler(hal_keypad_event_t* keypad_event,
 			case 0:
 				break;
 			case 1:
+				show_traingtypewatchface_timer_stop();
 				curr_event_handler = demo_traing_item[traing_type_screen_cntx.focus_point_index].event_traing_handle_f;
 				if (demo_traing_item[traing_type_screen_cntx.focus_point_index].show_traing_screen_f) {
 					demo_traing_item[traing_type_screen_cntx.focus_point_index].show_traing_screen_f();
@@ -350,6 +361,7 @@ static void traing_screen_keypad_event_handler(hal_keypad_event_t* keypad_event,
 		}
 
 		if (keypad_event->key_data == 0xe && keypad_event->state == 0){
+			show_traingtypewatchface_timer_stop();
 			show_main_screen();
 		} else {
 			traing_screen_draw();
@@ -357,6 +369,34 @@ static void traing_screen_keypad_event_handler(hal_keypad_event_t* keypad_event,
 
 }
 
+void vTraingtypeWatchfaceTimerCallback( TimerHandle_t xTimer )
+{
+	show_main_screen();
+
+}
+
+void show_traingtypewatchface_timer_stop(void)
+{
+    if (vTraingtypeWatchfaceTimer && (xTimerIsTimerActive(vTraingtypeWatchfaceTimer) != pdFALSE)) {
+        xTimerStop(vTraingtypeWatchfaceTimer, 0);
+    }
+
+}
+
+void show_traingtypewatchface_timer_init(uint32_t time)
+{
+    if (vTraingtypeWatchfaceTimer && (xTimerIsTimerActive(vTraingtypeWatchfaceTimer) != pdFALSE)) {
+        xTimerStop(vTraingtypeWatchfaceTimer, 0);
+    } else {
+		vTraingtypeWatchfaceTimer = xTimerCreate( "vTraingtypeWatchfaceTimer",           // Just a text name, not used by the kernel.
+                                      ( time*1000 / portTICK_PERIOD_MS), // The timer period in ticks.
+                                      pdFALSE,                    // The timer is a one-shot timer.
+                                      0,                          // The id is not used by the callback so can take any value.
+                                      vTraingtypeWatchfaceTimerCallback     // The callback function that switches the LCD back-light off.
+                                   );
+    }
+	xTimerStart(vTraingtypeWatchfaceTimer, 0);
+}
 
 
 void show_traing_type_screen(void)
@@ -364,5 +404,6 @@ void show_traing_type_screen(void)
 	traing_type_screen_cntx_init();
 	demo_ui_register_keypad_event_callback(traing_screen_keypad_event_handler, NULL);
 	traing_screen_draw();
+	show_traingtypewatchface_timer_init(10);
 }
 

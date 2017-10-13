@@ -52,6 +52,7 @@
 #include "timers.h"
 #include "hal_display_pwm.h"
 #include "hal_display_pwm_internal.h"
+#include "task.h"
 
 #include "hal_keypad.h"
 #include "battery_management.h"
@@ -127,6 +128,14 @@ void vWatchfaceTimerCallback( TimerHandle_t xTimer )
 		demo_item[3].show_screen_f();
 		GRAPHICLOG("show_main_wf");
 	}
+
+}
+
+void show_watchface_timer_stop(void)
+{
+    if (vWatchfaceTimer && (xTimerIsTimerActive(vWatchfaceTimer) != pdFALSE)) {
+        xTimerStop(vWatchfaceTimer, 0);
+    }
 
 }
 
@@ -216,6 +225,7 @@ static void main_screen_keypad_event_handler(hal_keypad_event_t* keypad_event,vo
 			return;
 
 		case 1:
+			show_watchface_timer_stop();
 			curr_event_handler = demo_item[main_screen_cntx.focus_point_index].event_handle_f;
             if (demo_item[main_screen_cntx.focus_point_index].show_screen_f) {
                 demo_item[main_screen_cntx.focus_point_index].show_screen_f();
@@ -622,7 +632,7 @@ static void tui_main_screen_draw()
 		gdi_image_draw_by_id(71, 8, IMAGE_ID_BATTERY_NUMBER_PERCENT_BMP);
 	}
 	
-	gdi_image_draw_by_id(8, 97, main_screen_cntx.focus_point_index+46);
+	gdi_image_draw_by_id(8, 97, main_screen_cntx.focus_point_index+66);
 	gdi_image_draw_by_id(8, 74, IMAGE_ID_LINE_BMP);
 	gdi_image_draw_by_id(8, 188, IMAGE_ID_LINE_BMP);
 
@@ -833,7 +843,14 @@ void show_main_screen()
     gdi_font_engine_set_font_size(GDI_FONT_ENGINE_FONT_LARGE);
 
     main_screen_cntx_init();
-    
+	
+    if (!is_wf_screen) {
+		is_wf_screen = 1;
+		gdi_draw_filled_rectangle(0,0,240 * RESIZE_RATE - 1,240 * RESIZE_RATE - 1,0);
+		gdi_image_draw_by_id(0, 0, IMAGE_ID_ZBG_05_BMP); //logo by chen
+		gdi_lcd_update_screen(0, 0, 240 * RESIZE_RATE - 1, 240 * RESIZE_RATE - 1);
+		vTaskDelay(2000);
+	}
     GRAPHICLOG("show_main_screen");
 //    main_screen_draw();
 	tui_main_screen_draw();

@@ -19,6 +19,8 @@
 #include "memory_attribute.h"
 #include "bsp_lcd.h"
 #include "mt25x3_hdk_backlight.h"
+#include "custom_image_data_resource.h"
+#include "custom_resource_def.h"
 
 #include "syslog.h"
 #include <stdarg.h>
@@ -183,8 +185,10 @@ void show_running_screen(void)
 	gdi_font_engine_display_string_info_t running_string_info = {0};
     gdi_draw_filled_rectangle(0,0,running_screen_cntx.width-1,running_screen_cntx.height-1, running_screen_cntx.bg_color);
 
-    gdi_font_engine_size_t font = GDI_FONT_ENGINE_FONT_MEDIUM;
-    gdi_font_engine_color_t text_color = {0, 255, 255, 255};//white color
+    gdi_font_engine_size_t font = GDI_FONT_ENGINE_FONT_SMALL;
+    gdi_font_engine_color_t text_color = {0, 0, 0, 0};//black color
+
+	gdi_image_draw_by_id(0, 0, IMAGE_ID_ZBG_03_BMP);
 
     gdi_font_engine_set_font_size(font);
     gdi_font_engine_set_text_color(text_color);
