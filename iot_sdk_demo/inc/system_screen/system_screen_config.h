@@ -3,7 +3,7 @@
 #include "traing_swim.h"
 #include "traing_3km.h"
 #include "sensor_demo.h"
-#include "gnss_demo.h"
+//#include "bt_audio.h"
 #endif
 
 
@@ -13,7 +13,6 @@
 {show_swim_screen, NULL, {0x38,0x6E,0xF3,0x6C,0x00}},
 {show_running_3km_screen, NULL, {0x09,0x4E,0x6C,0x51,0xCC,0x91,0x00}},
 {show_sensor_ready_to_connect_screen, sensor_event_handler, {0xE1,0x4F,0x6F,0x60,0x00}},
-{show_gnss_screen, gnss_event_handler, {0x4D,0x4F,0x6E,0x7F,0x00}},
 
 #endif
 

@@ -536,6 +536,174 @@ void wf_event_handler(message_id_enum event_id, int32_t param1, void* param2)
 	//wf_app_task_enable_show();
 }
 
+static uint16_t wf_get_year_time_img_number(uint16_t num)
+{
+	uint16_t img_ptr;
+    switch (num) {
+        case 0:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_0_BMP;
+        	   break;
+        case 1:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_1_BMP;
+        	   break;
+        case 2:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_2_BMP;
+        	   break;
+        case 3:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_3_BMP;
+        	   break;
+        case 4:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_4_BMP;
+        	   break;
+        case 5:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_5_BMP;
+        	   break;
+        case 6:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_6_BMP;
+        	   break;
+        case 7:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_7_BMP;
+        	   break;
+        case 8:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_8_BMP;
+        	   break;
+        case 9:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_9_BMP;
+        	   break;
+        default:
+               img_ptr = IMAGE_ID_BATTERY_NUMBER_0_BMP;
+        	   break;
+    }
+    return img_ptr;
+
+}
+
+static uint16_t wf_get_mon_time_img_number(uint16_t num)
+{
+	uint16_t img_ptr;
+    switch (num) {
+        case 0:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_0_BMP;
+        	   break;
+        case 1:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_1_BMP;
+        	   break;
+        case 2:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_2_BMP;
+        	   break;
+        case 3:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_3_BMP;
+        	   break;
+        case 4:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_4_BMP;
+        	   break;
+        case 5:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_5_BMP;
+        	   break;
+        case 6:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_6_BMP;
+        	   break;
+        case 7:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_7_BMP;
+        	   break;
+        case 8:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_8_BMP;
+        	   break;
+        case 9:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_9_BMP;
+        	   break;
+        default:
+               img_ptr = IMAGE_ID_BATTERY_NUMBER_0_BMP;
+        	   break;
+    }
+    return img_ptr;
+
+}
+
+static uint16_t wf_get_day_time_img_number(uint16_t num)
+{
+	uint16_t img_ptr;
+    switch (num) {
+        case 0:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_0_BMP;
+        	   break;
+        case 1:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_1_BMP;
+        	   break;
+        case 2:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_2_BMP;
+        	   break;
+        case 3:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_3_BMP;
+        	   break;
+        case 4:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_4_BMP;
+        	   break;
+        case 5:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_5_BMP;
+        	   break;
+        case 6:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_6_BMP;
+        	   break;
+        case 7:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_7_BMP;
+        	   break;
+        case 8:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_8_BMP;
+        	   break;
+        case 9:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_9_BMP;
+        	   break;
+        default:
+               img_ptr = IMAGE_ID_BATTERY_NUMBER_0_BMP;
+        	   break;
+    }
+    return img_ptr;
+
+}
+
+static uint16_t wf_get_week_time_img_number(uint16_t num)
+{
+	uint16_t img_ptr;
+    switch (num) {
+        case 0:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_0_BMP;
+        	   break;
+        case 1:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_1_BMP;
+        	   break;
+        case 2:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_2_BMP;
+        	   break;
+        case 3:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_3_BMP;
+        	   break;
+        case 4:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_4_BMP;
+        	   break;
+        case 5:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_5_BMP;
+        	   break;
+        case 6:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_6_BMP;
+        	   break;
+        case 7:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_7_BMP;
+        	   break;
+        case 8:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_8_BMP;
+        	   break;
+        case 9:
+        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_9_BMP;
+        	   break;
+        default:
+               img_ptr = IMAGE_ID_BATTERY_NUMBER_0_BMP;
+        	   break;
+    }
+    return img_ptr;
+
+}
+
 static uint16_t wf_get_hour_time_img_number(uint16_t num)
 {
 	uint16_t img_ptr;
@@ -828,6 +996,34 @@ static void wf_app_update_time(hal_rtc_time_t *curr_time)
 		gdi_init(LCD_WIDTH, LCD_HEIGHT, GDI_COLOR_FORMAT_16, layer_buffer);
 		gdi_draw_filled_rectangle(0, 0, LCD_WIDTH, LCD_HEIGHT, gdi_get_color_from_argb(0, 0, 0, 0)); // Clear the screen to black.
 
+		temp_num = curr_time->rtc_year/10;
+		temp_img = wf_get_year_time_img_number(temp_num);
+		gdi_image_draw_by_id(85, 50, IMAGE_ID_BATTERY_NUMBER_2_BMP);
+		gdi_image_draw_by_id(95, 50, IMAGE_ID_BATTERY_NUMBER_0_BMP);
+		gdi_image_draw_by_id(105, 50, temp_img);
+		LOG_I(common, "chenchen wf_app_time year %d mon %d day %d\n",curr_time->rtc_year,curr_time->rtc_mon,curr_time->rtc_day);
+
+		temp_num = curr_time->rtc_year%10;
+		temp_img = wf_get_year_time_img_number(temp_num);
+		gdi_image_draw_by_id(115, 50, temp_img);
+
+		temp_num = curr_time->rtc_mon/10;
+		temp_img = wf_get_mon_time_img_number(temp_num);
+		gdi_image_draw_by_id(125, 50, temp_img);
+
+		temp_num = curr_time->rtc_mon%10;
+		temp_img = wf_get_mon_time_img_number(temp_num);
+		gdi_image_draw_by_id(135, 50, temp_img);
+
+		temp_num = curr_time->rtc_day/10;
+		temp_img = wf_get_day_time_img_number(temp_num);
+		gdi_image_draw_by_id(145, 50, temp_img);
+
+		temp_num = curr_time->rtc_day%10;
+		temp_img = wf_get_day_time_img_number(temp_num);
+		gdi_image_draw_by_id(155, 50, temp_img);
+
+/*------------------------------------------------------*/
 		temp_num = curr_time->rtc_hour/10;
 		temp_img = wf_get_hour_time_img_number(temp_num);
 		gdi_image_draw_by_id(15, 95, temp_img);

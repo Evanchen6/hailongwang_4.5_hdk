@@ -68,7 +68,7 @@
 
 #define RESIZE_RATE LCD_CURR_HEIGHT/240
 #define DEMO_ITEM_NAME_MAX_LEN 50
-TimerHandle_t vTraingtypeWatchfaceTimer = NULL;
+TimerHandle_t vSystemscreenWatchfaceTimer = NULL;
 
 static struct {
   int32_t fota_title_x;
@@ -96,74 +96,74 @@ static struct {
   gdi_color_t font_color;
   uint32_t width;
   uint32_t height;
-} traing_type_screen_cntx;
+} system_screen_cntx;
 
 static event_handle_func curr_event_handler;
 
 #define DEMO_ITEM_NAME_MAX_LEN 50
 
 #define CONFIG_INCLUDE_HEADER
-#include "traing_screen_config.h"
+#include "system_screen_config.h"
 #undef CONFIG_INCLUDE_HEADER
 #define CONFIG_INCLUD_BODY
 
 #define RESIZE_RATE LCD_CURR_HEIGHT/240
 
-typedef struct list_traing_item_struct {
-    show_screen_proc_f show_traing_screen_f;
-    event_handle_func event_traing_handle_f;
+typedef struct list_system_item_struct {
+    show_screen_proc_f show_system_screen_f;
+    event_handle_func event_system_handle_f;
     uint8_t name[DEMO_ITEM_NAME_MAX_LEN];
-} list_traing_item_struct_t;
+} list_system_item_struct_t;
 
-static const list_traing_item_struct_t demo_traing_item[] =
+static const list_system_item_struct_t demo_system_screen_item[] =
 {
-#include "traing_screen_config.h"
+#include "system_screen_config.h"
 };
 
 
-void show_traing_type_screen(void);
+void show_system_screen(void);
 
-void traing_type_event_handler(message_id_enum event_id, int32_t param1, void* param2)
+void system_screen_event_handler(message_id_enum event_id, int32_t param1, void* param2)
 {
 
 }
-static void traing_type_screen_cntx_init()
+static void system_screen_cntx_init()
 {
-    if ((traing_type_screen_cntx.height == 0) && (traing_type_screen_cntx.width==0)) {
+    if ((system_screen_cntx.height == 0) && (system_screen_cntx.width==0)) {
 
-        bsp_lcd_get_parameter(LCM_IOCTRL_QUERY__LCM_HEIGHT, &(traing_type_screen_cntx.height));
-        bsp_lcd_get_parameter(LCM_IOCTRL_QUERY__LCM_WIDTH, &(traing_type_screen_cntx.width));
+        bsp_lcd_get_parameter(LCM_IOCTRL_QUERY__LCM_HEIGHT, &(system_screen_cntx.height));
+        bsp_lcd_get_parameter(LCM_IOCTRL_QUERY__LCM_WIDTH, &(system_screen_cntx.width));
 //        LOG_I("width(%d), height(%d).\r\n", fota_screen_cntx.width, fota_screen_cntx.height);
 
-        traing_type_screen_cntx.bg_color = 0;
-        traing_type_screen_cntx.font_color = 0xFFFF;
+        system_screen_cntx.bg_color = 0;
+        system_screen_cntx.font_color = 0xFFFF;
         /* first */
-        traing_type_screen_cntx.fota_title_x = 5;
-        traing_type_screen_cntx.fota_title_y = 6;
+        system_screen_cntx.fota_title_x = 5;
+        system_screen_cntx.fota_title_y = 6;
 
         /* middle */
-        traing_type_screen_cntx.hr_title_x = LEFT_GAP;
-        traing_type_screen_cntx.hr_title_y = ITEM_HEIGHT*2 + traing_type_screen_cntx.fota_title_y;
-        traing_type_screen_cntx.hrv_title_x = LEFT_GAP;
-        traing_type_screen_cntx.hrv_title_y = ITEM_HEIGHT + traing_type_screen_cntx.hr_title_y;
-        traing_type_screen_cntx.hrv_value_x = LEFT_GAP;
-        traing_type_screen_cntx.hrv_value_y = ITEM_HEIGHT + traing_type_screen_cntx.hrv_title_y;
+        system_screen_cntx.hr_title_x = LEFT_GAP;
+        system_screen_cntx.hr_title_y = ITEM_HEIGHT*2 + system_screen_cntx.fota_title_y;
+        system_screen_cntx.hrv_title_x = LEFT_GAP;
+        system_screen_cntx.hrv_title_y = ITEM_HEIGHT + system_screen_cntx.hr_title_y;
+        system_screen_cntx.hrv_value_x = LEFT_GAP;
+        system_screen_cntx.hrv_value_y = ITEM_HEIGHT + system_screen_cntx.hrv_title_y;
 
         /* end */
-        traing_type_screen_cntx.bt_name_x = LEFT_GAP;
-        traing_type_screen_cntx.bt_name_y = traing_type_screen_cntx.height - 6 - (ITEM_HEIGHT*3);
-        traing_type_screen_cntx.bt_status_x = LEFT_GAP;
-        traing_type_screen_cntx.bt_status_y = ITEM_HEIGHT*2 + traing_type_screen_cntx.bt_name_y;
-        traing_type_screen_cntx.back_x1 = traing_type_screen_cntx.width-80;
-        traing_type_screen_cntx.back_y1 = ITEM_HEIGHT*2 + traing_type_screen_cntx.bt_name_y;
-        traing_type_screen_cntx.back_x2 = traing_type_screen_cntx.width-1;
-        traing_type_screen_cntx.back_y2 = traing_type_screen_cntx.height-1;
+        system_screen_cntx.bt_name_x = LEFT_GAP;
+        system_screen_cntx.bt_name_y = system_screen_cntx.height - 6 - (ITEM_HEIGHT*3);
+        system_screen_cntx.bt_status_x = LEFT_GAP;
+        system_screen_cntx.bt_status_y = ITEM_HEIGHT*2 + system_screen_cntx.bt_name_y;
+        system_screen_cntx.back_x1 = system_screen_cntx.width-80;
+        system_screen_cntx.back_y1 = ITEM_HEIGHT*2 + system_screen_cntx.bt_name_y;
+        system_screen_cntx.back_x2 = system_screen_cntx.width-1;
+        system_screen_cntx.back_y2 = system_screen_cntx.height-1;
 
-		traing_type_screen_cntx.focus_point_index = 0;
-		traing_type_screen_cntx.start_item = 0;
-		traing_type_screen_cntx.one_screen_item_num = 5;
-		traing_type_screen_cntx.total_item_num = 5;
-		traing_type_screen_cntx.curr_item_num = 5;
+		system_screen_cntx.focus_point_index = 0;
+		system_screen_cntx.start_item = 0;
+		system_screen_cntx.one_screen_item_num = 4;
+		system_screen_cntx.total_item_num = 4;
+		system_screen_cntx.curr_item_num = 4;
     }
 
 }
@@ -204,7 +204,7 @@ static char* my_itoa(int num,char* str,int radix)
 }
 
 
-static uint8_t* traing_type_convert_string_to_wstring(char* string)
+static uint8_t* system_screen_convert_string_to_wstring(char* string)
 {
     static uint8_t wstring[50];
     int32_t index = 0;
@@ -220,17 +220,17 @@ static uint8_t* traing_type_convert_string_to_wstring(char* string)
     return wstring;
 }
 
-static void traing_screen_draw()
+static void system_screen_draw()
 {
-    int32_t index = traing_type_screen_cntx.start_item;
-    int32_t num = traing_type_screen_cntx.curr_item_num;
+    int32_t index = system_screen_cntx.start_item;
+    int32_t num = system_screen_cntx.curr_item_num;
     int32_t x,y;
 	gdi_font_engine_size_t font;
 
 	x = 40 * RESIZE_RATE;
 	y = 50 * RESIZE_RATE;
-	gdi_font_engine_display_string_info_t traing_string_info = {0};
-    gdi_draw_filled_rectangle(0,0,traing_type_screen_cntx.width-1,traing_type_screen_cntx.height-1, traing_type_screen_cntx.bg_color);
+	gdi_font_engine_display_string_info_t system_screen_string_info = {0};
+    gdi_draw_filled_rectangle(0,0,system_screen_cntx.width-1,system_screen_cntx.height-1, system_screen_cntx.bg_color);
 
 	gdi_image_draw_by_id(0, 0, IMAGE_ID_ZBG_03_BMP);
 
@@ -252,7 +252,7 @@ static void traing_screen_draw()
         uint8_t pre_index[10];
         int32_t str_len;
 		
-		if (index == traing_type_screen_cntx.focus_point_index){
+		if (index == system_screen_cntx.focus_point_index){
 			my_itoa((int) index, (char*) pre_index,10);
 			str_len = strlen((char*) pre_index);
 			pre_index[str_len] = '.';
@@ -266,38 +266,38 @@ static void traing_screen_draw()
 			pre_index[str_len + 1] = 0;
 		}
 		
-        traing_string_info.x = x - 30 * RESIZE_RATE;
-        traing_string_info.y = y;
-        traing_string_info.string = traing_type_convert_string_to_wstring((char*)pre_index);
-        traing_string_info.length = strlen((char*) pre_index);
-        traing_string_info.baseline_height = -1;
-        gdi_font_engine_display_string(&traing_string_info);
+        system_screen_string_info.x = x - 30 * RESIZE_RATE;
+        system_screen_string_info.y = y;
+        system_screen_string_info.string = system_screen_convert_string_to_wstring((char*)pre_index);
+        system_screen_string_info.length = strlen((char*) pre_index);
+        system_screen_string_info.baseline_height = -1;
+        gdi_font_engine_display_string(&system_screen_string_info);
 
 /*
-        traing_string_info.x = x;
-        traing_string_info.y = y;
-        traing_string_info.string = traing_type_convert_string_to_wstring((char*)demo_traing_item[index].name);
-        traing_string_info.length = strlen((char*) demo_traing_item[index].name);
-        traing_string_info.baseline_height = -1;
-        gdi_font_engine_display_string(&traing_string_info);
+        system_screen_string_info.x = x;
+        system_screen_string_info.y = y;
+        system_screen_string_info.string = traing_type_convert_string_to_wstring((char*)demo_system_screen_item[index].name);
+        system_screen_string_info.length = strlen((char*) demo_system_screen_item[index].name);
+        system_screen_string_info.baseline_height = -1;
+        gdi_font_engine_display_string(&system_screen_string_info);
 */
-		traing_string_info.x = x;
-        traing_string_info.y = y;
-        traing_string_info.string = (uint8_t*)demo_traing_item[index].name;
-        traing_string_info.length = 4;
-        traing_string_info.baseline_height = -1;
-        gdi_font_engine_display_string(&traing_string_info);
+		system_screen_string_info.x = x;
+        system_screen_string_info.y = y;
+        system_screen_string_info.string = (uint8_t*)demo_system_screen_item[index].name;
+        system_screen_string_info.length = 4;
+        system_screen_string_info.baseline_height = -1;
+        gdi_font_engine_display_string(&system_screen_string_info);
                                 
         y += 25 * RESIZE_RATE;
         index++;
         num--;
     }
 	
-	gdi_lcd_update_screen(0,0,traing_type_screen_cntx.width-1,traing_type_screen_cntx.height-1);
+	gdi_lcd_update_screen(0,0,system_screen_cntx.width-1,system_screen_cntx.height-1);
 
 }
 
-static void traing_screen_keypad_event_handler(hal_keypad_event_t* keypad_event,void* user_data)
+static void system_screen_keypad_event_handler(hal_keypad_event_t* keypad_event,void* user_data)
 {
 		int32_t temp_index;
 		int32_t max_item_num;
@@ -311,7 +311,7 @@ static void traing_screen_keypad_event_handler(hal_keypad_event_t* keypad_event,
 	*/
 	
 		GRAPHICLOG("[chenchen traing_screen_keypad_event_handler key state=%d, position=%d\r\n", (int)keypad_event->state, (int)keypad_event->key_data);
-		if( xTimerReset( vTraingtypeWatchfaceTimer, 100 ) != pdPASS ) {
+		if( xTimerReset( vSystemscreenWatchfaceTimer, 100 ) != pdPASS ) {
 		LOG_I(common, "chenchen main show traingtype timer fail");
 		}
 		
@@ -320,20 +320,20 @@ static void traing_screen_keypad_event_handler(hal_keypad_event_t* keypad_event,
 		} else if (keypad_event->key_data == 0xe && keypad_event->state == 0){
 			temp_index = 2;
 		} else if (keypad_event->key_data == 0x11 && keypad_event->state == 0){
-			temp_focus = traing_type_screen_cntx.focus_point_index+1;
-			max_item_num = traing_type_screen_cntx.total_item_num;
-			traing_type_screen_cntx.focus_point_index = temp_focus%max_item_num;
-			GRAPHICLOG("[chenchen[get key]main_screen_cntx.focus_point_index=%d,\r\n", traing_type_screen_cntx.focus_point_index);
-			if (traing_type_screen_cntx.focus_point_index < 0)
-				traing_type_screen_cntx.focus_point_index = 0;
+			temp_focus = system_screen_cntx.focus_point_index+1;
+			max_item_num = system_screen_cntx.total_item_num;
+			system_screen_cntx.focus_point_index = temp_focus%max_item_num;
+			GRAPHICLOG("[chenchen[get key]main_screen_cntx.focus_point_index=%d,\r\n", system_screen_cntx.focus_point_index);
+			if (system_screen_cntx.focus_point_index < 0)
+				system_screen_cntx.focus_point_index = 0;
 			
 		} else if (keypad_event->key_data == 0x12 && keypad_event->state == 0){
-			temp_focus = traing_type_screen_cntx.focus_point_index-1;
-			max_item_num = traing_type_screen_cntx.total_item_num;
-			traing_type_screen_cntx.focus_point_index = temp_focus%max_item_num;
+			temp_focus = system_screen_cntx.focus_point_index-1;
+			max_item_num = system_screen_cntx.total_item_num;
+			system_screen_cntx.focus_point_index = temp_focus%max_item_num;
 			
-			if (traing_type_screen_cntx.focus_point_index < 0)
-				traing_type_screen_cntx.focus_point_index = 0;
+			if (system_screen_cntx.focus_point_index < 0)
+				system_screen_cntx.focus_point_index = 0;
 		}
 	
 		switch (temp_index){
@@ -349,9 +349,9 @@ static void traing_screen_keypad_event_handler(hal_keypad_event_t* keypad_event,
 				break;
 			case 1:
 				show_traingtypewatchface_timer_stop();
-				curr_event_handler = demo_traing_item[traing_type_screen_cntx.focus_point_index].event_traing_handle_f;
-				if (demo_traing_item[traing_type_screen_cntx.focus_point_index].show_traing_screen_f) {
-					demo_traing_item[traing_type_screen_cntx.focus_point_index].show_traing_screen_f();
+				curr_event_handler = demo_system_screen_item[system_screen_cntx.focus_point_index].event_system_handle_f;
+				if (demo_system_screen_item[system_screen_cntx.focus_point_index].show_system_screen_f) {
+					demo_system_screen_item[system_screen_cntx.focus_point_index].show_system_screen_f();
 				}
 				return;
 			default:
@@ -360,49 +360,49 @@ static void traing_screen_keypad_event_handler(hal_keypad_event_t* keypad_event,
 		}
 
 		if (keypad_event->key_data == 0xe && keypad_event->state == 0){
-			show_traingtypewatchface_timer_stop();
+			show_systemscreenwatchface_timer_stop();
 			show_main_screen();
 		} else {
-			traing_screen_draw();
+			system_screen_draw();
 		}
 
 }
 
-void vTraingtypeWatchfaceTimerCallback( TimerHandle_t xTimer )
+void vSystemscreenWatchfaceTimerCallback( TimerHandle_t xTimer )
 {
 	show_main_screen();
 
 }
 
-void show_traingtypewatchface_timer_stop(void)
+void show_systemscreenwatchface_timer_stop(void)
 {
-    if (vTraingtypeWatchfaceTimer && (xTimerIsTimerActive(vTraingtypeWatchfaceTimer) != pdFALSE)) {
-        xTimerStop(vTraingtypeWatchfaceTimer, 0);
+    if (vSystemscreenWatchfaceTimer && (xTimerIsTimerActive(vSystemscreenWatchfaceTimer) != pdFALSE)) {
+        xTimerStop(vSystemscreenWatchfaceTimer, 0);
     }
 
 }
 
-void show_traingtypewatchface_timer_init(uint32_t time)
+void show_systemscreenwatchface_timer_init(uint32_t time)
 {
-    if (vTraingtypeWatchfaceTimer && (xTimerIsTimerActive(vTraingtypeWatchfaceTimer) != pdFALSE)) {
-        xTimerStop(vTraingtypeWatchfaceTimer, 0);
+    if (vSystemscreenWatchfaceTimer && (xTimerIsTimerActive(vSystemscreenWatchfaceTimer) != pdFALSE)) {
+        xTimerStop(vSystemscreenWatchfaceTimer, 0);
     } else {
-		vTraingtypeWatchfaceTimer = xTimerCreate( "vTraingtypeWatchfaceTimer",           // Just a text name, not used by the kernel.
+		vSystemscreenWatchfaceTimer = xTimerCreate( "vSystemscreenWatchfaceTimer",           // Just a text name, not used by the kernel.
                                       ( time*1000 / portTICK_PERIOD_MS), // The timer period in ticks.
                                       pdFALSE,                    // The timer is a one-shot timer.
                                       0,                          // The id is not used by the callback so can take any value.
-                                      vTraingtypeWatchfaceTimerCallback     // The callback function that switches the LCD back-light off.
+                                      vSystemscreenWatchfaceTimerCallback     // The callback function that switches the LCD back-light off.
                                    );
     }
-	xTimerStart(vTraingtypeWatchfaceTimer, 0);
+	xTimerStart(vSystemscreenWatchfaceTimer, 0);
 }
 
 
-void show_traing_type_screen(void)
+void show_system_screen(void)
 {
-	traing_type_screen_cntx_init();
-	demo_ui_register_keypad_event_callback(traing_screen_keypad_event_handler, NULL);
-	traing_screen_draw();
-	show_traingtypewatchface_timer_init(10);
+	system_screen_cntx_init();
+	demo_ui_register_keypad_event_callback(system_screen_keypad_event_handler, NULL);
+	system_screen_draw();
+	show_systemscreenwatchface_timer_init(10);
 }
 
