@@ -21,6 +21,9 @@
 #include "mt25x3_hdk_backlight.h"
 #include "custom_image_data_resource.h"
 #include "custom_resource_def.h"
+#include "gnss_app.h"
+#include "task.h"
+#include "gnss_log.h"
 
 #include "syslog.h"
 #include <stdarg.h>
@@ -65,6 +68,7 @@ static struct {
 void show_running_3km_screen(void);
 
 //void running_3km_event_handler(message_id_enum event_id, int32_t param1, void* param2);
+static TaskHandle_t gnss_task_handle;
 
 static void running_3km_screen_cntx_init()
 {
@@ -144,6 +148,8 @@ static void running_3km_screen_keypad_event_handler(hal_keypad_event_t* keypad_e
 			case 0:
 				break;
 			case 2:
+				gnss_demo_app_stop();
+                gnss_demo_app_destroy(gnss_task_handle);
 				show_traing_type_screen();
 				return;
 			default:
@@ -170,36 +176,76 @@ static uint8_t* running_3km_convert_string_to_wstring(char* string)
     return wstring;
 }
 
-void show_running_3km_screen(void)
+static void gnss_3km_app_location_handle(gnss_location_handle_type_t type, void* param)
 {
-//	int32_t index = sensor_screen_cntx.start_item;
-//   int32_t num = sensor_screen_cntx.curr_item_num;
     int32_t x,y;
 
 	x = 40 * RESIZE_RATE;
 	y = 50 * RESIZE_RATE;
 
+    if (type == GNSS_LOCATION_HANDLE_TYPE_ERROR) {
+        GNSSLOGD("[chenchen] location handle error! type: %d\n", (int)param);
+    } else {
+        gnss_location_struct_t *location = (gnss_location_struct_t *)param;
+        GNSSLOGD("[chenchen] App Get Location, latitude:%s, longitude:%s, accuracy:%d\n", location->latitude, location->longitude, (int)location->accuracy);
+        //gnss_update_data(&location->nmea_sentence);		
+        ui_send_event(MESSAGE_ID_GNSS_NMEA, 0, 0);
+    
+
+		gdi_font_engine_display_string_info_t running_3km_string_info = {0};
+	    gdi_draw_filled_rectangle(0,0,running_3km_screen_cntx.width-1,running_3km_screen_cntx.height-1, running_3km_screen_cntx.bg_color);
+
+		gdi_image_draw_by_id(0, 0, IMAGE_ID_ZBG_03_BMP);
+
+	    gdi_font_engine_size_t font = GDI_FONT_ENGINE_FONT_SMALL;
+	    gdi_font_engine_color_t text_color = {0, 0, 0, 0};//black color
+
+	    gdi_font_engine_set_font_size(font);
+	    gdi_font_engine_set_text_color(text_color);
+
+	    running_3km_string_info.baseline_height = -1;
+	    running_3km_string_info.x = running_3km_screen_cntx.fota_title_x;
+	    running_3km_string_info.y = running_3km_screen_cntx.fota_title_y;
+	    running_3km_string_info.string = running_3km_convert_string_to_wstring("RUN..");
+	    running_3km_string_info.length = strlen("3km..");
+	    gdi_font_engine_display_string(&running_3km_string_info);
+
+	    running_3km_string_info.baseline_height = -1;
+	    running_3km_string_info.x = 100;
+	    running_3km_string_info.y = 10;
+	    running_3km_string_info.string = running_3km_convert_string_to_wstring((char*)location->latitude);
+	    running_3km_string_info.length = strlen((char*)location->latitude);
+	    gdi_font_engine_display_string(&running_3km_string_info);
+
+	    running_3km_string_info.baseline_height = -1;
+	    running_3km_string_info.x = 100;
+	    running_3km_string_info.y = 50;
+	    running_3km_string_info.string = running_3km_convert_string_to_wstring((char*)location->longitude);
+	    running_3km_string_info.length = strlen((char*)location->longitude);
+	    gdi_font_engine_display_string(&running_3km_string_info);
+
+		gdi_lcd_update_screen(0,0,running_3km_screen_cntx.width-1,running_3km_screen_cntx.height-1);	
+    }
+}
+
+static void gnss_3km_main()
+{
+    int32_t periodic = 1;
+    
+    gnss_task_handle = gnss_demo_app_create();
+    gnss_demo_app_config(periodic, gnss_3km_app_location_handle);
+    gnss_demo_app_start();
+}
+
+
+void show_running_3km_screen(void)
+{
+//	int32_t index = sensor_screen_cntx.start_item;
+//   int32_t num = sensor_screen_cntx.curr_item_num;
+
 	running_3km_screen_cntx_init();
 	demo_ui_register_keypad_event_callback(running_3km_screen_keypad_event_handler, NULL);
+	gnss_3km_main();
 	
-	gdi_font_engine_display_string_info_t running_3km_string_info = {0};
-    gdi_draw_filled_rectangle(0,0,running_3km_screen_cntx.width-1,running_3km_screen_cntx.height-1, running_3km_screen_cntx.bg_color);
-
-	gdi_image_draw_by_id(0, 0, IMAGE_ID_ZBG_03_BMP);
-
-    gdi_font_engine_size_t font = GDI_FONT_ENGINE_FONT_SMALL;
-    gdi_font_engine_color_t text_color = {0, 0, 0, 0};//black color
-
-    gdi_font_engine_set_font_size(font);
-    gdi_font_engine_set_text_color(text_color);
-
-    running_3km_string_info.baseline_height = -1;
-    running_3km_string_info.x = running_3km_screen_cntx.fota_title_x;
-    running_3km_string_info.y = running_3km_screen_cntx.fota_title_y;
-    running_3km_string_info.string = running_3km_convert_string_to_wstring("RUN..");
-    running_3km_string_info.length = strlen("3km..");
-    gdi_font_engine_display_string(&running_3km_string_info);
-
-	gdi_lcd_update_screen(0,0,running_3km_screen_cntx.width-1,running_3km_screen_cntx.height-1);
 }
 

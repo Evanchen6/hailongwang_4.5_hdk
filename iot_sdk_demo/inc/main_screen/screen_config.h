@@ -33,7 +33,7 @@
  */
 
 #ifdef CONFIG_INCLUDE_HEADER
-#include "gnss_demo.h"
+//#include "gnss_demo.h"
 #include "traing_type.h"
 //#include "bt_audio.h"
 #include "sensor_demo.h"
