@@ -9,8 +9,8 @@
 
 #ifdef CONFIG_INCLUD_BODY
 // add your screen here
-{show_gnss_screen, gnss_event_handler, "OTA demo"},
-{show_bt_audio_screen, bt_audio_event_handler, "BT Audio"},
+//{show_gnss_screen, gnss_event_handler, "OTA demo"},
+//{show_bt_audio_screen, bt_audio_event_handler, "BT Audio"},
 
 #endif
 

@@ -256,6 +256,8 @@ void enable_all_sensors(void)
         }
     }
 #endif
+
+	enable_bp();
 }
 
 /**

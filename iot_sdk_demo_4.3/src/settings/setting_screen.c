@@ -53,7 +53,6 @@
 #include "memory_attribute.h"
 #include "bsp_lcd.h"
 #include "mt25x3_hdk_backlight.h"
-#include "fota_demo.h"
 
 #include "syslog.h"
 #include <stdarg.h>
