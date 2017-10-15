@@ -42,6 +42,7 @@
 #include "about_screen.h"
 #include "setting_screen.h"
 #include "system_screen.h"
+#include "traing_3km.h"
 #endif
 
 #ifdef CONFIG_INCLUD_BODY
@@ -52,6 +53,7 @@
 {wf_app_task_enable_show, wf_event_handler, {0xF6,0x65,0xF4,0x95,0x3E,0x66,0x3A,0x79,0x00}},
 {show_about_screen, about_screen_event_handler, {0x73,0x51,0x8E,0x4E,0x00}},
 {show_gnss_screen, gnss_event_handler, {0x4D,0x4F,0x6E,0x7F,0x00}},
+{show_running_3km_screen, NULL, {0x09,0x4E,0x6C,0x51,0xCC,0x91,0x00}},
 #endif
 
 #ifdef CONFIG_MESSAGE_ID_ENUM
