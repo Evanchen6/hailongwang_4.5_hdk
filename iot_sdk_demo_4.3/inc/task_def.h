@@ -210,6 +210,12 @@ typedef enum {
 #define LORA_TASK_STACK_SIZE (512*4)
 #define LORA_TASK_PRIO TASK_PRIORITY_NORMAL
 
+/* Training run task definition */
+#define TRAINING_RUN_TASK_NAME "training_run"
+#define TRAINING_RUN_TASK_STACK_SIZE (512*4)
+#define TRAINING_RUN_TASK_PRIO TASK_PRIORITY_NORMAL
+
+
 
 
 /* BT sink app task definition */

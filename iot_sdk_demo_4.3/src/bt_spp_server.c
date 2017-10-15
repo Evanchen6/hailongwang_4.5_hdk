@@ -35,10 +35,7 @@
 #include "bt_spp_server.h"
 
 #include "hal.h"
-
-uint8_t UIinfo[SPP_SERVER_RECEIVED_DATA_BUF];
-
-
+#include "lora.h"
 
 #define BT_SPP_STANDARD_UUID    0x00,0x00,0x11,0x01,0x00,0x00,0x10,0x00,   \
                                  0x80,0x00,0x00,0x80,0x5F,0x9B,0x34,0xFB
@@ -198,56 +195,12 @@ void spp_server_ready_to_send_ind(bt_spp_ready_to_send_ind_t* send_ind_p)
     spp_server_send_data();
 }
 
-void setUIinfo(uint8_t* str)
-{
-	log_hal_info("@@@111: %p",str);
-	memcpy(UIinfo, str, SPP_SERVER_RECEIVED_DATA_BUF);
-}
-
-uint8_t* getUIinfo()
-{
-	log_hal_info("@@@222: %p",UIinfo);
-	return UIinfo;
-}
-
 void bt_data_handle()
 {
-	int i;
-	if(strcmp("hello", spp_server_cntx_p->rx_data_buf) == 0){
-		i = 0;
-	}else if(strcmp("goodbye", spp_server_cntx_p->rx_data_buf) == 0){
-		i = 1;
-	}else if(strcmp("man", spp_server_cntx_p->rx_data_buf) == 0){
-		i = 2;
-	}else{
-		i = 3;
-	};
+	spp_event_handler((spp_message_ex_t*)spp_server_cntx_p->rx_data_buf);
 
+	//bt_spp_send(spp_server_cntx_p->spp_handle, "hello", sizeof("hello"));
 
-	switch(i){
-		case 0:
-		{
-			bt_spp_send(spp_server_cntx_p->spp_handle, "hello", sizeof("hello"));
-		}
-		break;
-
-		case 1:
-		{
-			bt_spp_send(spp_server_cntx_p->spp_handle, "goodbye", sizeof("goodbye"));
-		}
-		break;
-
-		case 2:
-		{
-			setUIinfo(spp_server_cntx_p->rx_data_buf);
-		}
-		break;
-
-		case 3:
-		{
-			return;
-		}
-	}
 }
 
 /**

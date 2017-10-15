@@ -72,6 +72,7 @@ include main_screen.mk
 include traing_type.mk
 include about_screen.mk
 include settings.mk
+include system_screen.mk
 # gdi module
 include $(SOURCE_DIR)/middleware/MTK/gdi/module.mk
 
@@ -184,6 +185,9 @@ APP_FILES = $(APP_PATH_SRC)/main.c \
 # BT audio app
 include $(SOURCE_DIR)/project/mt2523_hdk/apps/iot_sdk_demo/src/bt_audio/sink/module.mk
 APP_FILES += $(APP_PATH_SRC_BT_AUDIO)/bt_audio.c
+
+#LORA
+APP_FILES += $(APP_PATH_SRC)/lora.c
 
 APP_FILES += $(APP_PATH_SRC_PXP)/ble_gatt_common.c \
              $(APP_PATH_SRC_PXP)/ble_gatt_connect.c \

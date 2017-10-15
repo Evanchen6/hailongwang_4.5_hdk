@@ -36,20 +36,22 @@
 #include "gnss_demo.h"
 #include "traing_type.h"
 #include "bt_audio.h"
-//#include "sensor_demo.h"
+#include "sensor_demo.h"
 #include "ble_pxp_app.h"
 #include "wf_image.h"
 #include "about_screen.h"
 #include "setting_screen.h"
+#include "system_screen.h"
 #endif
 
 #ifdef CONFIG_INCLUD_BODY
 // add your screen here
 {show_traing_type_screen, traing_type_event_handler, {0xAD,0x8B,0xC3,0x7E,0x7B,0x7C,0x8B,0x57,0x00}},
-{show_gnss_screen, gnss_event_handler, {0xFB,0x7C,0xDF,0x7E,0x00}},
+{show_system_screen, system_screen_event_handler, {0xFB,0x7C,0xDF,0x7E,0x00}},
 {show_settings_screen, settings_screen_event_handler, {0xBE,0x8B,0x6E,0x7F,0x00}},
 {wf_app_task_enable_show, wf_event_handler, {0xF6,0x65,0xF4,0x95,0x3E,0x66,0x3A,0x79,0x00}},
 {show_about_screen, about_screen_event_handler, {0x73,0x51,0x8E,0x4E,0x00}},
+{show_gnss_screen, gnss_event_handler, {0x4D,0x4F,0x6E,0x7F,0x00}},
 #endif
 
 #ifdef CONFIG_MESSAGE_ID_ENUM

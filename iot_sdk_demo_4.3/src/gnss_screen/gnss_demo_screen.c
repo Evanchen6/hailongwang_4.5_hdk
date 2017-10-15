@@ -39,7 +39,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-
 #endif
 
 #include "gdi.h"
@@ -48,6 +47,16 @@
 #include "gnss_app.h"
 #include "task.h"
 #include "gnss_log.h"
+
+//start(hailong)
+#include "FreeRTOS.h"
+#include "task.h"
+#include "task_def.h"
+#include "gdi_font_engine.h"
+#include "hal.h"
+#include <math.h>
+#include "stdio.h"
+//end(hailong)
 
 static struct {
     int32_t title_x;
@@ -168,6 +177,191 @@ static TaskHandle_t gnss_task_handle;
 #define GNSS_COLOM_COLOR_INVIEW gdi_get_color_from_argb(255, 127, 127, 127)
 #define GNSS_COLOR_TEXT gdi_get_color_from_argb(255, 255, 255, 255)
 
+//start(hailong)
+uint8_t lat[13] = "\0";
+uint8_t lng[13] = "\0";
+#define PI 3.1415926535897
+#define round(x) floor(x+0.5)
+#define MAX_PRECISION   (13)
+static const double EARTH_RADIUS = 6378137.000;
+double distance = 0.0; 
+
+char * my_ftoa(double f, char * buf, int precision)
+{
+    char * ptr = buf;
+    char * p = ptr;
+    char * p1;
+    char c;
+    long intPart;
+    char* temp_str;
+
+    // check precision bounds
+    if (precision > MAX_PRECISION)
+        precision = MAX_PRECISION;
+
+    // sign stuff
+    if (f < 0)
+    {
+        f = -f;
+        *ptr++ = '-';
+    }
+
+    if (precision < 0)  // negative precision == automatic precision guess
+    {
+        if (f < (double)1.0) precision = 6;
+        else if (f < (double)10.0) precision = 5;
+        else if (f < (double)100.0) precision = 4;
+        else if (f < (double)1000.0) precision = 3;
+        else if (f < (double)10000.0) precision = 2;
+        else if (f < (double)100000.0) precision = 1;
+        else precision = 0;
+    }
+
+    // round value according the precision
+    //if (precision)
+    //    f += rounders[precision];
+
+    // integer part...
+    intPart = f;
+    f -= intPart;
+
+    if (!intPart)
+        *ptr++ = '0';
+    else
+    {
+        // save start pointer
+        p = ptr;
+
+        // convert (reverse order)
+        while (intPart)
+        {
+            *p++ = '0' + intPart % 10;
+            intPart /= 10;
+        }
+
+        // save end pos
+        p1 = p;
+
+        // reverse result
+        while (p > ptr)
+        {
+            c = *--p;
+            *p = *ptr;
+            *ptr++ = c;
+        }
+
+        // restore end pos
+        ptr = p1;
+    }
+
+    // decimal part
+    if (precision)
+    {
+        // place decimal point
+        *ptr++ = '.';
+
+        // convert
+        while (precision--)
+        {
+            f *= (double)10.0;
+            c = f;
+            *ptr++ = '0' + c;
+            f -= c;
+        }
+    }
+
+    // terminating zero
+    *ptr = 0;
+
+    temp_str = --ptr;
+    while(*temp_str != '.')
+    { 
+        if(*temp_str == '0')
+        {
+            *temp_str = '\0';
+        }
+        else
+        {
+            break;
+        }
+        temp_str--;
+    }   
+
+    if((*(temp_str+1) == '\0') && (*temp_str == '.'))
+    {
+        *(temp_str+1) = '0';
+    }
+
+    return buf;
+}
+
+double rad(double d)
+{
+	return d*PI/180.0;
+}
+
+/*
+double getdistance(double lat1, double lng1, double lat2, double lng2)
+{
+	double a = rad(lat1)-rad(lat2);
+	double b = rad(lng1)-rad(lng2);
+	double s = 2 * asin(sqrt(pow(sin(a/2),2)+cos(rad(lat1))*cos(rad(lat2))*pow(sin(b/2),2)));
+	s = s*EARTH_RADIUS;
+	s = round(s*10000)/10000;
+	return s;
+}
+*/
+
+double getdistance(int lat1, int lng1, int lat2, int lng2)
+{
+	double a = abs(lat1-lat2)*10.0;
+	double b = abs(lng1-lng2)*11.0;
+	double temp1 = a*a;
+	double temp2 = b*b;
+	double temp = temp1 + temp2;
+	double s = sqrt(temp);	
+	return s;
+
+}
+
+void training_run()
+{
+	double lat1,lng1,lat2,lng2;
+	double s1;
+
+	log_hal_info("[hailong]training run begin\n");
+	while(1){
+		if((latitude[0] == 0 && longitude[0] == 0)){			
+			vTaskDelay(2000);
+		}else{
+			lat1 = atof(lat);
+			lat1 = lat1*10000;
+			lng1 = atof(lng);
+			lng1 = lng1*10000;
+			while(1){
+				lat2 = lat1;
+				lng2 = lng1;
+				vTaskDelay(2000);
+				lat1 = atof(lat);
+				lat1 = lat1*10000;
+				lng1 = atof(lng);
+				lng1 = lng1*10000;
+				log_hal_info("[hailong1]lat1 = %d\n",(int)lat1);
+				log_hal_info("[hailong1]lng1 = %d\n",(int)lng1);
+				log_hal_info("[hailong1]lat2 = %d\n",(int)lat2);
+				log_hal_info("[hailong1]lng2 = %d\n",(int)lng2);
+				s1 = getdistance((int)lat1,(int)lng1,(int)lat2,(int)lng2);
+				log_hal_info("[hailong1]s1 = %d\n",(int)s1);
+				distance += s1;
+				log_hal_info("[hailong1]distance = %d\n",(int)distance);
+				if((latitude[0] == 0 && longitude[0] == 0)){
+					return;
+				}
+			}
+		}
+	}
+}
+//end(hailong)
 
 static void text_rect_init(gnss_screen_text_rect_t* rect, 
                         int16_t x, 
@@ -692,6 +886,14 @@ static int32_t gnss_update_data(gnss_sentence_info_t *input)
 	
     strcpy((char*) fix, "3D Fixed");
 
+	//start(hailong)
+	int m = 0;
+	for(m= 0; m<13; m++){
+		lat[m]=latitude[m+2];
+		lng[m]=longitude[m+2];
+	}
+	//end(hailong)
+
     return 0;
 
 }
@@ -733,6 +935,8 @@ static void show_gnss_screen001(void)
 {
     int32_t i;
     int32_t max_statellite = 10;
+	gdi_font_engine_display_string_info_t param1, param2;
+	char buf[32];
     
     gnss_screen_001_init();
     gdi_draw_filled_rectangle(0,0,240 * RESIZE_RATE - 1,240 * RESIZE_RATE -1, gnss_screen_cntx.bg_color);
@@ -748,12 +952,32 @@ static void show_gnss_screen001(void)
     {
         colom_rect_draw(&gnss_screen_cntx001.colom_array[i]);
     }
+
+	log_hal_info("[hailongXX] distance = %d\n",(int)distance);
+	my_ftoa(distance, buf, 1);
+	log_hal_info("[hailongXX] distance = %s\n",buf);
+	param1.x = 140;
+	param1.y = 60;
+	param1.string = gnss_convert_string_to_wstring(buf);
+	param1.length = strlen(buf);
+	param1.baseline_height = -1;
+    gdi_font_engine_display_string(&param1);
+
+    param2.x = 180;
+    param2.y = 60;
+    param2.string = gnss_convert_string_to_wstring((uint8_t*) "m");
+    param2.length = strlen("m");
+    param2.baseline_height = -1;
+    gdi_font_engine_display_string(&param2);
+
     gdi_lcd_update_screen(0, 0, LCD_CURR_WIDTH - 1, LCD_CURR_HEIGHT - 1);;
 }
 
 void show_gnss_screen(void)
 {
     gdi_font_engine_color_t color;
+	TaskHandle_t xCreatedTrainingRunTask;
+	
     demo_ui_register_touch_event_callback(gnss_keypad_event_handler, NULL);
     gnss_demo_main();
     color.alpha = 255;
@@ -762,6 +986,12 @@ void show_gnss_screen(void)
     color.red = 255;
     gdi_font_engine_set_text_color(color);
     show_gnss_screen001();
+
+	if(pdPASS !=xTaskCreate(training_run, TRAINING_RUN_TASK_NAME, TRAINING_RUN_TASK_STACK_SIZE /((uint32_t)sizeof(StackType_t)), NULL, TRAINING_RUN_TASK_PRIO, &xCreatedTrainingRunTask)){
+		log_hal_info("[hailong]creat training run task fail\n");
+	}else{
+		log_hal_info("[hailong]creat training run task pass\n");
+	}
     if (0)
     {
         text_rect_draw(NULL);
