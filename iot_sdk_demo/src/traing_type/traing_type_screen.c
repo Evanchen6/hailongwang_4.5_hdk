@@ -125,6 +125,9 @@ void show_traing_type_screen(void);
 
 void traing_type_event_handler(message_id_enum event_id, int32_t param1, void* param2)
 {
+    if (curr_event_handler) {
+        curr_event_handler(event_id, param1, param2);
+    }
 
 }
 static void traing_type_screen_cntx_init()
