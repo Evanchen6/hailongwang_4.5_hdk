@@ -180,13 +180,13 @@ static TaskHandle_t gnss_task_handle;
 //start(hailong)
 uint8_t lat[13] = "\0";
 uint8_t lng[13] = "\0";
-#define PI 3.1415926535897
-#define round(x) floor(x+0.5)
+//#define PI 3.1415926535897
+//#define round(x) floor(x+0.5)
 #define MAX_PRECISION   (13)
-static const double EARTH_RADIUS = 6378137.000;
+//static const double EARTH_RADIUS = 6378137.000;
 double distance = 0.0; 
 
-char * my_ftoa(double f, char * buf, int precision)
+char * my_gnss_ftoa(double f, char * buf, int precision)
 {
     char * ptr = buf;
     char * p = ptr;
@@ -295,10 +295,12 @@ char * my_ftoa(double f, char * buf, int precision)
     return buf;
 }
 
+/*
 double rad(double d)
 {
 	return d*PI/180.0;
 }
+*/
 
 /*
 double getdistance(double lat1, double lng1, double lat2, double lng2)
@@ -312,7 +314,7 @@ double getdistance(double lat1, double lng1, double lat2, double lng2)
 }
 */
 
-double getdistance(int lat1, int lng1, int lat2, int lng2)
+static double getdistance(int lat1, int lng1, int lat2, int lng2)
 {
 	double a = abs(lat1-lat2)*10.0;
 	double b = abs(lng1-lng2)*11.0;
@@ -354,9 +356,6 @@ void training_run()
 				log_hal_info("[hailong1]s1 = %d\n",(int)s1);
 				distance += s1;
 				log_hal_info("[hailong1]distance = %d\n",(int)distance);
-				if((latitude[0] == 0 && longitude[0] == 0)){
-					return;
-				}
 			}
 		}
 	}
@@ -953,9 +952,7 @@ static void show_gnss_screen001(void)
         colom_rect_draw(&gnss_screen_cntx001.colom_array[i]);
     }
 
-	log_hal_info("[hailongXX] distance = %d\n",(int)distance);
-	my_ftoa(distance, buf, 1);
-	log_hal_info("[hailongXX] distance = %s\n",buf);
+	my_gnss_ftoa(distance, buf, 1);
 	param1.x = 140;
 	param1.y = 60;
 	param1.string = gnss_convert_string_to_wstring(buf);
