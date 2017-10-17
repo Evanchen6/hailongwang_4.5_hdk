@@ -295,7 +295,7 @@ static void traing_screen_draw()
         traing_string_info.baseline_height = -1;
         gdi_font_engine_display_string(&traing_string_info);
                                 
-        y += 30 * RESIZE_RATE;
+        y += 35 * RESIZE_RATE;
         index++;
         num--;
     }

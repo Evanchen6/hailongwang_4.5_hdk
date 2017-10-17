@@ -31,6 +31,12 @@
 #include <string.h>
 #include "traing_3km.h"
 
+#include "FreeRTOS.h"
+#include "task.h"
+#include "task_def.h"
+#include <math.h>
+#include "hal.h"
+
 #define LEFT_GAP 5
 #define ITEM_HEIGHT 25
 
@@ -69,6 +75,161 @@ void show_running_3km_screen(void);
 
 //void running_3km_event_handler(message_id_enum event_id, int32_t param1, void* param2);
 static TaskHandle_t gnss_task_handle;
+
+int8_t lat_temp[15] = "\0";
+int8_t lng_temp[15] = "\0";
+double distance_3km = 0.0;
+#define MAX_PRECISION   (13)
+
+static char * my_3km_ftoa(double f, char * buf, int precision)
+{
+    char * ptr = buf;
+    char * p = ptr;
+    char * p1;
+    char c;
+    long intPart;
+    char* temp_str;
+
+    // check precision bounds
+    if (precision > MAX_PRECISION)
+        precision = MAX_PRECISION;
+
+    // sign stuff
+    if (f < 0)
+    {
+        f = -f;
+        *ptr++ = '-';
+    }
+
+    if (precision < 0)  // negative precision == automatic precision guess
+    {
+        if (f < (double)1.0) precision = 6;
+        else if (f < (double)10.0) precision = 5;
+        else if (f < (double)100.0) precision = 4;
+        else if (f < (double)1000.0) precision = 3;
+        else if (f < (double)10000.0) precision = 2;
+        else if (f < (double)100000.0) precision = 1;
+        else precision = 0;
+    }
+
+    // round value according the precision
+    //if (precision)
+    //    f += rounders[precision];
+
+    // integer part...
+    intPart = f;
+    f -= intPart;
+
+    if (!intPart)
+        *ptr++ = '0';
+    else
+    {
+        // save start pointer
+        p = ptr;
+
+        // convert (reverse order)
+        while (intPart)
+        {
+            *p++ = '0' + intPart % 10;
+            intPart /= 10;
+        }
+
+        // save end pos
+        p1 = p;
+
+        // reverse result
+        while (p > ptr)
+        {
+            c = *--p;
+            *p = *ptr;
+            *ptr++ = c;
+        }
+
+        // restore end pos
+        ptr = p1;
+    }
+
+    // decimal part
+    if (precision)
+    {
+        // place decimal point
+        *ptr++ = '.';
+
+        // convert
+        while (precision--)
+        {
+            f *= (double)10.0;
+            c = f;
+            *ptr++ = '0' + c;
+            f -= c;
+        }
+    }
+
+    // terminating zero
+    *ptr = 0;
+
+    temp_str = --ptr;
+    while(*temp_str != '.')
+    { 
+        if(*temp_str == '0')
+        {
+            *temp_str = '\0';
+        }
+        else
+        {
+            break;
+        }
+        temp_str--;
+    }   
+
+    if((*(temp_str+1) == '\0') && (*temp_str == '.'))
+    {
+        *(temp_str+1) = '0';
+    }
+
+    return buf;
+}
+
+static double getdistance(int lat1, int lng1, int lat2, int lng2)
+{
+	double a = abs(lat1-lat2)*10.0;
+	double b = abs(lng1-lng2)*11.0;
+	double s = sqrt((a*a)+(b*b));	
+	return s;
+}
+
+void training_3km()
+{
+	int lat1,lng1,lat2,lng2;
+	double s1;
+
+	while(1){
+		if(lat_temp[0] == 0 && lng_temp[0] == 0){
+			vTaskDelay(2000);
+		}else{
+			lat1 = atof(lat_temp)*100;
+			lng1 = atof(lng_temp)*100;
+			while(1){
+				lat2 = lat1;
+				lng2 = lng1;
+				vTaskDelay(2000);
+				if(lat_temp[0] == 0 && lng_temp[0] == 0){
+					continue;
+				}
+				lat1 = atof(lat_temp)*100;
+				lng1 = atof(lng_temp)*100;
+				s1 = getdistance(lat1,lng1,lat2,lng2);
+				distance_3km += s1;
+				if(distance_3km >= 3000){
+					PMIC_VR_CONTROL(PMIC_VIBR   , PMIC_VR_CTL_ENABLE);
+					vTaskDelay(1000);
+					PMIC_VR_CONTROL(PMIC_VIBR   , PMIC_VR_CTL_DISABLE);
+					return;
+				}
+			}
+		}
+	}
+}
 
 static void running_3km_screen_cntx_init()
 {
@@ -140,10 +301,8 @@ static void running_3km_screen_keypad_event_handler(hal_keypad_event_t* keypad_e
 			case -1:
 				return;
 			case -2:
-//				main_screen_scroll_to_prevoius_page();
 				break;
 			case -3:
-//				main_screen_scroll_to_next_page();
 				break;
 			case 0:
 				break;
@@ -179,6 +338,10 @@ static uint8_t* running_3km_convert_string_to_wstring(char* string)
 static void gnss_3km_app_location_handle(gnss_location_handle_type_t type, void* param)
 {
     int32_t x,y;
+	char buf1[32];
+	char buf2[32];
+	char buf3[32];
+	uint8_t trainning3kmname[10] = {0x09,0x4E,0x6C,0x51,0xCC,0x91,0x00};
 
 	x = 40 * RESIZE_RATE;
 	y = 50 * RESIZE_RATE;
@@ -189,8 +352,13 @@ static void gnss_3km_app_location_handle(gnss_location_handle_type_t type, void*
         gnss_location_struct_t *location = (gnss_location_struct_t *)param;
         GNSSLOGD("[chenchen] App Get Location, latitude:%s, longitude:%s, accuracy:%d\n", location->latitude, location->longitude, (int)location->accuracy);
         //gnss_update_data(&location->nmea_sentence);		
-        ui_send_event(MESSAGE_ID_GNSS_NMEA, 0, 0);
-    
+        ui_send_event(MESSAGE_ID_GNSS_NMEA, 0, 0); 
+
+		memcpy(lat_temp, location->latitude, sizeof(location->latitude));
+		memcpy(lng_temp, location->longitude, sizeof(location->longitude));
+
+		my_3km_ftoa(atof(location->latitude)/100, buf1, 4);
+		my_3km_ftoa(atof(location->longitude)/100, buf2, 4);
 
 		gdi_font_engine_display_string_info_t running_3km_string_info = {0};
 	    gdi_draw_filled_rectangle(0,0,running_3km_screen_cntx.width-1,running_3km_screen_cntx.height-1, running_3km_screen_cntx.bg_color);
@@ -198,7 +366,7 @@ static void gnss_3km_app_location_handle(gnss_location_handle_type_t type, void*
 //		gdi_image_draw_by_id(0, 0, IMAGE_ID_ZBG_03_BMP);
 
 	    gdi_font_engine_size_t font = GDI_FONT_ENGINE_FONT_SMALL;
-	    gdi_font_engine_color_t text_color = {0, 255, 255, 255};//white color
+	    gdi_font_engine_color_t text_color = {0, 255, 255, 255};
 
 	    gdi_font_engine_set_font_size(font);
 	    gdi_font_engine_set_text_color(text_color);
@@ -206,22 +374,65 @@ static void gnss_3km_app_location_handle(gnss_location_handle_type_t type, void*
 	    running_3km_string_info.baseline_height = -1;
 	    running_3km_string_info.x = running_3km_screen_cntx.fota_title_x;
 	    running_3km_string_info.y = running_3km_screen_cntx.fota_title_y;
-	    running_3km_string_info.string = running_3km_convert_string_to_wstring("RUN..");
-	    running_3km_string_info.length = strlen("3km..");
-	    gdi_font_engine_display_string(&running_3km_string_info);
+	    running_3km_string_info.string = trainning3kmname;
+	    running_3km_string_info.length = 4;
+	    gdi_font_engine_display_string(&running_3km_string_info);	
 
 	    running_3km_string_info.baseline_height = -1;
-	    running_3km_string_info.x = 100;
-	    running_3km_string_info.y = 10;
-	    running_3km_string_info.string = running_3km_convert_string_to_wstring((char*)location->latitude);
-	    running_3km_string_info.length = strlen((char*)location->latitude);
-	    gdi_font_engine_display_string(&running_3km_string_info);
-
-	    running_3km_string_info.baseline_height = -1;
-	    running_3km_string_info.x = 100;
+	    running_3km_string_info.x = 25;
 	    running_3km_string_info.y = 50;
-	    running_3km_string_info.string = running_3km_convert_string_to_wstring((char*)location->longitude);
-	    running_3km_string_info.length = strlen((char*)location->longitude);
+	    running_3km_string_info.string = running_3km_convert_string_to_wstring("latitude:");
+	    running_3km_string_info.length = strlen("latitude:");
+	    gdi_font_engine_display_string(&running_3km_string_info);
+
+	    running_3km_string_info.baseline_height = -1;
+	    running_3km_string_info.x = 120;
+	    running_3km_string_info.y = 50;
+	    running_3km_string_info.string = running_3km_convert_string_to_wstring(buf1);
+	    running_3km_string_info.length = strlen(buf1);
+	    gdi_font_engine_display_string(&running_3km_string_info);
+
+	    running_3km_string_info.baseline_height = -1;
+	    running_3km_string_info.x = 25;
+	    running_3km_string_info.y = 85;
+	    running_3km_string_info.string = running_3km_convert_string_to_wstring("longitude:");
+	    running_3km_string_info.length = strlen("longitude:");
+	    gdi_font_engine_display_string(&running_3km_string_info);
+
+	    running_3km_string_info.baseline_height = -1;
+	    running_3km_string_info.x = 120;
+	    running_3km_string_info.y = 85;
+	    running_3km_string_info.string = running_3km_convert_string_to_wstring(buf2);
+	    running_3km_string_info.length = strlen(buf2);
+	    gdi_font_engine_display_string(&running_3km_string_info);
+
+		running_3km_string_info.baseline_height = -1;
+	    running_3km_string_info.x = 25;
+	    running_3km_string_info.y = 120;
+	    running_3km_string_info.string = running_3km_convert_string_to_wstring("heartrate:");
+	    running_3km_string_info.length = strlen("heartrate:");
+	    gdi_font_engine_display_string(&running_3km_string_info);
+
+		running_3km_string_info.baseline_height = -1;
+	    running_3km_string_info.x = 25;
+	    running_3km_string_info.y = 155;
+	    running_3km_string_info.string = running_3km_convert_string_to_wstring("distance:");
+	    running_3km_string_info.length = strlen("distance:");
+	    gdi_font_engine_display_string(&running_3km_string_info);
+
+		my_3km_ftoa(distance_3km,buf3,1);
+		running_3km_string_info.baseline_height = -1;
+	    running_3km_string_info.x = 120;
+	    running_3km_string_info.y = 155;
+	    running_3km_string_info.string = running_3km_convert_string_to_wstring(buf3);
+	    running_3km_string_info.length = strlen(buf3);
+	    gdi_font_engine_display_string(&running_3km_string_info);
+
+		running_3km_string_info.baseline_height = -1;
+	    running_3km_string_info.x = 180;
+	    running_3km_string_info.y = 155;
+	    running_3km_string_info.string = running_3km_convert_string_to_wstring("m");
+	    running_3km_string_info.length = strlen("m");
 	    gdi_font_engine_display_string(&running_3km_string_info);
 
 		gdi_lcd_update_screen(0,0,running_3km_screen_cntx.width-1,running_3km_screen_cntx.height-1);	
@@ -240,12 +451,16 @@ static void gnss_3km_main()
 
 void show_running_3km_screen(void)
 {
-//	int32_t index = sensor_screen_cntx.start_item;
-//   int32_t num = sensor_screen_cntx.curr_item_num;
-
+	TaskHandle_t xCreatedTraining3KMTask;
+	
 	running_3km_screen_cntx_init();
 	demo_ui_register_keypad_event_callback(running_3km_screen_keypad_event_handler, NULL);
 	gnss_3km_main();
-	
+
+	if(pdPASS !=xTaskCreate(training_3km, TRAINING_3KM_TASK_NAME, TRAINING_3KM_TASK_STACK_SIZE /((uint32_t)sizeof(StackType_t)), NULL, TRAINING_3KM_TASK_PRIO, &xCreatedTraining3KMTask)){
+		log_hal_info("[hailong]creat training 3km task fail\n");
+	}else{
+		log_hal_info("[hailong]creat training 3km task pass\n");
+	}
 }
 

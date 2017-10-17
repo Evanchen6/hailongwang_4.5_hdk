@@ -204,6 +204,11 @@ typedef enum {
 #define GNSS_DEMO_TASK_STACK_SIZE 4000
 #define GNSS_DEMO_TASK_PRIO TASK_PRIORITY_HIGH
 
+/* Training 3km task definition */
+#define TRAINING_3KM_TASK_NAME "training_3km"
+#define TRAINING_3KM_TASK_STACK_SIZE (512*4)
+#define TRAINING_3KM_TASK_PRIO TASK_PRIORITY_NORMAL
+
 /* BT sink app task definition */
 #define BT_SINK_APP_TASK_NAME      "BT_sink_task"
 #define BT_SINK_APP_TASK_STACKSIZE (4096)
