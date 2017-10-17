@@ -55,6 +55,9 @@
 #include "bsp_lcd.h"
 #include "mt25x3_hdk_backlight.h"
 #include "about_screen.h"
+#include "custom_image_data_resource.h"
+#include "custom_resource_def.h"
+
 
 #include "syslog.h"
 #include <stdarg.h>
@@ -175,12 +178,23 @@ void show_about_screen(void)
 
     gdi_font_engine_set_font_size(font);
     gdi_font_engine_set_text_color(text_color);
-
+	
+//	gdi_image_draw_by_id(0, 0, IMAGE_ID_ZBG_02_BMP);
+/*
     about_string_info.baseline_height = -1;
     about_string_info.x = about_screen_cntx.fota_title_x;
     about_string_info.y = about_screen_cntx.fota_title_y;
     about_string_info.string = about_convert_string_to_wstring("information..");
     about_string_info.length = strlen("information..");
+    gdi_font_engine_display_string(&about_string_info);
+*/	
+	uint8_t data_utf8[10]={0x00,0x5F,0xD1,0x53,0x2D,0x4E,0x00};
+
+	about_string_info.baseline_height = -1;
+    about_string_info.x = x;
+    about_string_info.y = y;
+    about_string_info.string = data_utf8;
+    about_string_info.length = 4;
     gdi_font_engine_display_string(&about_string_info);
 
 	gdi_lcd_update_screen(0,0,about_screen_cntx.width-1,about_screen_cntx.height-1);

@@ -180,6 +180,54 @@ static void sensor_pen_event_handler(touch_event_struct_t* pen_event, void* user
     }
 }
 
+static void sensor_screen_keypad_event_handler(hal_keypad_event_t* keypad_event,void* user_data)
+{
+		int32_t temp_index;
+		int32_t max_item_num;
+		int32_t temp_focus;
+	/*
+		keyvalue
+		13 0xd ---enter
+		14 0xe ---back
+		17 0x11---up
+		18 0x12---down
+	*/
+	
+		GRAPHICLOG("[chenchen sensor_screen_keypad_event_handler key state=%d, position=%d\r\n", (int)keypad_event->state, (int)keypad_event->key_data);
+	
+		if (keypad_event->key_data == 0xd && keypad_event->state == 0){
+			temp_index = 1;
+		} else if (keypad_event->key_data == 0xe && keypad_event->state == 0){
+			temp_index = 2;
+		} else if (keypad_event->key_data == 0x11 && keypad_event->state == 0){
+			temp_index = 1;
+		} else if (keypad_event->key_data == 0x12 && keypad_event->state == 0){
+			temp_index = 1;
+		}
+		
+		switch (temp_index){
+			case -1:
+				return;
+			case -2:
+//				main_screen_scroll_to_prevoius_page();
+				break;
+			case -3:
+//				main_screen_scroll_to_next_page();
+				break;
+			case 0:
+				break;
+			case 2:
+				disable_all_sensors();
+				show_traing_type_screen();
+				return;
+			default:
+				break;
+	
+		}
+
+
+}
+
 void sensor_event_handler(message_id_enum event_id, int32_t param1, void* param2)
 {
 }
@@ -231,7 +279,8 @@ static void show_sensor_screen(void)
 
     }
 
-    demo_ui_register_touch_event_callback(sensor_pen_event_handler, NULL);
+//    demo_ui_register_touch_event_callback(sensor_pen_event_handler, NULL);
+	demo_ui_register_keypad_event_callback(sensor_screen_keypad_event_handler, NULL);
     gdi_draw_filled_rectangle(0,0,sensor_screen_cntx.width-1,sensor_screen_cntx.height-1, sensor_screen_cntx.bg_color);
 
     gdi_font_engine_size_t font = GDI_FONT_ENGINE_FONT_MEDIUM;

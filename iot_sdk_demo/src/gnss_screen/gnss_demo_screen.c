@@ -49,6 +49,7 @@
 #include "task.h"
 #include "gnss_log.h"
 
+
 static struct {
     int32_t title_x;
     int32_t title_y;
@@ -396,7 +397,8 @@ static void gnss_keypad_event_handler(hal_keypad_event_t* keypad_event,void* use
 	if (keypad_event->key_data == 0xe && keypad_event->state == 0){
                 gnss_demo_app_stop();
                 gnss_demo_app_destroy(gnss_task_handle);
-                show_main_screen();
+				show_traing_type_screen();
+//                show_main_screen();
 		}
 }
 

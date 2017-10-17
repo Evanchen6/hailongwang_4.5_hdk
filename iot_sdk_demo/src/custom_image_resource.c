@@ -32,7 +32,7 @@
  * MEDIATEK FOR SUCH MEDIATEK SOFTWARE AT ISSUE.
  */
 #include "gdi_resource_internal.h"
-const uint16_t  gdi_resource_current_max_image_number=80;
+const uint16_t  gdi_resource_current_max_image_number=105;
 #include "custom_image_data_resource.h"
 
 const gdi_resource_custom_image_t	gdi_resource_custom_image_names[]={
@@ -54,6 +54,17 @@ const gdi_resource_custom_image_t	gdi_resource_custom_image_names[]={
 {(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__BATTERY_NUMBER_9_BMP},
 {(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__BATTERY_NUMBER_PERCENT_BMP},
 {(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__IDLE_ALARM_BMP},
+{(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__IDLE_DATE_NUMBER_0_BMP},
+{(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__IDLE_DATE_NUMBER_1_BMP},
+{(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__IDLE_DATE_NUMBER_2_BMP},
+{(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__IDLE_DATE_NUMBER_3_BMP},
+{(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__IDLE_DATE_NUMBER_4_BMP},
+{(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__IDLE_DATE_NUMBER_5_BMP},
+{(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__IDLE_DATE_NUMBER_6_BMP},
+{(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__IDLE_DATE_NUMBER_7_BMP},
+{(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__IDLE_DATE_NUMBER_8_BMP},
+{(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__IDLE_DATE_NUMBER_9_BMP},
+{(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__IDLE_DATE_NUMBER_LINE_BMP},
 {(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__IDLE_GPS_BMP},
 {(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__IDLE_HEART_BMP},
 {(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__IDLE_TIME_NUMBER_COLON_BMP},
@@ -98,6 +109,20 @@ const gdi_resource_custom_image_t	gdi_resource_custom_image_names[]={
 {(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__IDLE_TIME_NUMBER_MINUTE_8_BLUE_BMP},
 {(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__IDLE_TIME_NUMBER_MINUTE_9_BMP},
 {(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__IDLE_TIME_NUMBER_MINUTE_9_BLUE_BMP},
+{(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__IDLE_WEEK_FRI_CN_BMP},
+{(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__IDLE_WEEK_FRI_EN_BMP},
+{(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__IDLE_WEEK_MON_CN_BMP},
+{(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__IDLE_WEEK_MON_EN_BMP},
+{(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__IDLE_WEEK_SAT_CN_BMP},
+{(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__IDLE_WEEK_SAT_EN_BMP},
+{(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__IDLE_WEEK_SUN_CN_BMP},
+{(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__IDLE_WEEK_SUN_EN_BMP},
+{(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__IDLE_WEEK_THUR_CN_BMP},
+{(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__IDLE_WEEK_THUR_EN_BMP},
+{(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__IDLE_WEEK_TUES_CN_BMP},
+{(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__IDLE_WEEK_TUES_EN_BMP},
+{(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__IDLE_WEEK_WED_CN_BMP},
+{(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__IDLE_WEEK_WED_EN_BMP},
 {(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__LINE_BMP},
 {(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__LIST_1TYPE_BMP},
 {(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__LIST_2PERSON_BMP},

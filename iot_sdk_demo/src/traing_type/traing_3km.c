@@ -195,10 +195,10 @@ static void gnss_3km_app_location_handle(gnss_location_handle_type_t type, void*
 		gdi_font_engine_display_string_info_t running_3km_string_info = {0};
 	    gdi_draw_filled_rectangle(0,0,running_3km_screen_cntx.width-1,running_3km_screen_cntx.height-1, running_3km_screen_cntx.bg_color);
 
-		gdi_image_draw_by_id(0, 0, IMAGE_ID_ZBG_03_BMP);
+//		gdi_image_draw_by_id(0, 0, IMAGE_ID_ZBG_03_BMP);
 
 	    gdi_font_engine_size_t font = GDI_FONT_ENGINE_FONT_SMALL;
-	    gdi_font_engine_color_t text_color = {0, 0, 0, 0};//black color
+	    gdi_font_engine_color_t text_color = {0, 255, 255, 255};//white color
 
 	    gdi_font_engine_set_font_size(font);
 	    gdi_font_engine_set_text_color(text_color);
