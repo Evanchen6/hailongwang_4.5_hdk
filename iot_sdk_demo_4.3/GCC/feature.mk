@@ -107,5 +107,6 @@ MTK_DEMO_PROJ_LOWPOWER_AT_CMD_ENABLE = y
 # TE enable, enable this feature will avoid tearing effect
 MTK_TE_ENABLE = y
 
-#Enable keypad feature
-MTK_KEYPAD_ENABLE = y
+#Enable fatfs feature
+MTK_FATFS_ENABLE = n
+MTK_USB_BOOT_MSC = n

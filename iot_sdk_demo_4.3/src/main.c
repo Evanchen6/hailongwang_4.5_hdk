@@ -465,7 +465,7 @@ int main(void)
     audio_middleware_init();
 
     bt_demo_init();
-	
+
 	//++ by yanhui add for SPP
 	bt_io_uart_init_ex(HAL_UART_2);
 	log_config_print_switch(BTMM, DEBUG_LOG_OFF);

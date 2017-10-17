@@ -180,10 +180,7 @@ static TaskHandle_t gnss_task_handle;
 //start(hailong)
 uint8_t lat[13] = "\0";
 uint8_t lng[13] = "\0";
-//#define PI 3.1415926535897
-//#define round(x) floor(x+0.5)
 #define MAX_PRECISION   (13)
-//static const double EARTH_RADIUS = 6378137.000;
 double distance = 0.0; 
 
 char * my_gnss_ftoa(double f, char * buf, int precision)
@@ -217,11 +214,6 @@ char * my_gnss_ftoa(double f, char * buf, int precision)
         else precision = 0;
     }
 
-    // round value according the precision
-    //if (precision)
-    //    f += rounders[precision];
-
-    // integer part...
     intPart = f;
     f -= intPart;
 
@@ -229,28 +221,23 @@ char * my_gnss_ftoa(double f, char * buf, int precision)
         *ptr++ = '0';
     else
     {
-        // save start pointer
         p = ptr;
 
-        // convert (reverse order)
         while (intPart)
         {
             *p++ = '0' + intPart % 10;
             intPart /= 10;
         }
 
-        // save end pos
         p1 = p;
 
-        // reverse result
         while (p > ptr)
         {
             c = *--p;
             *p = *ptr;
             *ptr++ = c;
         }
-
-        // restore end pos
+		
         ptr = p1;
     }
 
@@ -344,6 +331,9 @@ void training_run()
 				lat2 = lat1;
 				lng2 = lng1;
 				vTaskDelay(2000);
+				if((latitude[0] == 0 && longitude[0] == 0)){
+					continue;
+				}
 				lat1 = atof(lat);
 				lat1 = lat1*10000;
 				lng1 = atof(lng);
@@ -589,7 +579,8 @@ static void gnss_keypad_event_handler(hal_keypad_event_t* keypad_event,void* use
 	if (keypad_event->key_data == 0xe && keypad_event->state == 0){
 		gnss_demo_app_stop();
 		gnss_demo_app_destroy(gnss_task_handle);
-		show_main_screen();
+		//show_main_screen();
+		show_traing_type_screen();
 	}
 }
 //end
@@ -975,7 +966,7 @@ void show_gnss_screen(void)
     gdi_font_engine_color_t color;
 	TaskHandle_t xCreatedTrainingRunTask;
 	
-    demo_ui_register_touch_event_callback(gnss_keypad_event_handler, NULL);
+    demo_ui_register_keypad_event_callback(gnss_keypad_event_handler, NULL);
     gnss_demo_main();
     color.alpha = 255;
     color.blue = 255;

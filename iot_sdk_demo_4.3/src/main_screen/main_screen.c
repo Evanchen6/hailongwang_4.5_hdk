@@ -834,7 +834,7 @@ void show_main_screen()
 	if (!is_wf_screen) {
 		is_wf_screen = 1;
 		gdi_draw_filled_rectangle(0,0,240 * RESIZE_RATE - 1,240 * RESIZE_RATE - 1,0);
-		gdi_image_draw_by_id(0, 0, IMAGE_ID_ZBG_05_BMP); //logo by chen
+		gdi_image_draw_by_id(0, 0, IMAGE_ID_ZBG_06_BMP); //logo by chen
 		gdi_lcd_update_screen(0, 0, 240 * RESIZE_RATE - 1, 240 * RESIZE_RATE - 1);
 		vTaskDelay(2000);
 	}

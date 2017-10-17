@@ -103,19 +103,19 @@ const gdi_resource_custom_image_t	gdi_resource_custom_image_names[]={
 {(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__LIST_2PERSON_BMP},
 {(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__LIST_3SETTING_BMP},
 {(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__LIST_4HISTORY_BMP},
+{(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__LIST_5HISTORY_BMP},
 {(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__MENU_BG_BMP},
 {(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__MENU_DOWN_BMP},
 {(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__MENU_TITLE_BMP},
 {(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__MENU_UP_BMP},
 {(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__POP_UP_BMP},
 {(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__POP_UP_BG_BMP},
-{(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__ZBACKGROUND_BMP},
-{(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__ZBACKGROUND_LIGHT_BMP},
 {(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__ZBG_01_BMP},
 {(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__ZBG_02_BMP},
 {(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__ZBG_03_BMP},
 {(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__ZBG_04_BMP},
 {(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__ZBG_05_BMP},
+{(uint8_t*)&________________CUSTOM_RESOURCE__IMAGES__ZBG_06_BMP},
 };
 
 

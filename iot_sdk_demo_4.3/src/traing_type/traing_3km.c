@@ -213,6 +213,9 @@ void training_3km()
 				lat2 = lat1;
 				lng2 = lng1;
 				vTaskDelay(2000);
+				if(lat_temp[0] == 0 && lng_temp[0] == 0){
+					continue;
+				}
 				lat1 = atof(lat_temp)*100;
 				lng1 = atof(lng_temp)*100;
 				s1 = getdistance(lat1,lng1,lat2,lng2);
