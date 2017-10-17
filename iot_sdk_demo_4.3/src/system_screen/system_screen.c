@@ -232,7 +232,7 @@ static void system_screen_draw()
 	gdi_font_engine_display_string_info_t system_screen_string_info = {0};
     gdi_draw_filled_rectangle(0,0,system_screen_cntx.width-1,system_screen_cntx.height-1, system_screen_cntx.bg_color);
 
-	gdi_image_draw_by_id(0, 0, IMAGE_ID_ZBG_03_BMP);
+	//gdi_image_draw_by_id(0, 0, IMAGE_ID_ZBG_03_BMP);
 
 	gdi_font_engine_get_font_size(&font);
 	if (font != GDI_FONT_ENGINE_FONT_MEDIUM) {
@@ -243,7 +243,7 @@ static void system_screen_draw()
 	gdi_font_engine_get_font_size(&font);
 	GRAPHICLOG("[chenchen 2nd font size=%d,\r\n", font);
 
-    gdi_font_engine_color_t text_color = {0, 0, 0, 0};//black color
+    gdi_font_engine_color_t text_color = {0, 255, 255, 255};//black color
 
     gdi_font_engine_set_text_color(text_color);
 

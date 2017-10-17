@@ -53,6 +53,8 @@
 #include "memory_attribute.h"
 #include "bsp_lcd.h"
 #include "mt25x3_hdk_backlight.h"
+#include "custom_image_data_resource.h"
+#include "custom_resource_def.h"
 
 #include "syslog.h"
 #include <stdarg.h>
@@ -236,10 +238,11 @@ static void setting_screen_draw()
 	gdi_font_engine_get_font_size(&font);
 	GRAPHICLOG("[chenchen 2nd font size=%d,\r\n", font);
 
-    gdi_font_engine_color_t text_color = {0, 0, 255, 255};//white color
+    gdi_font_engine_color_t text_color = {0, 255, 255, 255};//blue color
 
     gdi_font_engine_set_text_color(text_color);
 
+//	gdi_image_draw_by_id(0, 0, IMAGE_ID_ZBG_01_BMP);
 
     while (num) {
         uint8_t pre_index[10];

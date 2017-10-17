@@ -231,11 +231,11 @@ static void traing_screen_draw()
 	gdi_font_engine_size_t font;
 
 	x = 40 * RESIZE_RATE;
-	y = 50 * RESIZE_RATE;
+	y = 30 * RESIZE_RATE;
 	gdi_font_engine_display_string_info_t traing_string_info = {0};
     gdi_draw_filled_rectangle(0,0,traing_type_screen_cntx.width-1,traing_type_screen_cntx.height-1, traing_type_screen_cntx.bg_color);
 
-	gdi_image_draw_by_id(0, 0, IMAGE_ID_ZBG_03_BMP);
+	//gdi_image_draw_by_id(0, 0, IMAGE_ID_ZBG_03_BMP);
 	
 	gdi_font_engine_get_font_size(&font);
 	if (font != GDI_FONT_ENGINE_FONT_MEDIUM) {
@@ -246,7 +246,7 @@ static void traing_screen_draw()
 	gdi_font_engine_get_font_size(&font);
 	GRAPHICLOG("[chenchen 2nd font size=%d,\r\n", font);
 
-    gdi_font_engine_color_t text_color = {0, 0, 0, 0};//black color
+    gdi_font_engine_color_t text_color = {0, 255, 255, 255};//white color
 
     gdi_font_engine_set_text_color(text_color);
 
@@ -256,25 +256,28 @@ static void traing_screen_draw()
         int32_t str_len;
 		
 		if (index == traing_type_screen_cntx.focus_point_index){
-			my_itoa((int) index, (char*) pre_index,10);
-			str_len = strlen((char*) pre_index);
-			pre_index[str_len] = '.';
-			pre_index[str_len + 1] = '*';
-			pre_index[str_len + 2] = 0;
-
+			//my_itoa((int) index, (char*) pre_index,10);
+			//str_len = strlen((char*) pre_index);
+			//pre_index[str_len] = '.';
+			//pre_index[str_len + 1] = '*';
+			//pre_index[str_len + 2] = 0;
+			gdi_font_engine_color_t text_color1 = {0, 0, 0, 255};
+			gdi_font_engine_set_text_color(text_color1);
 		}else {
-        	my_itoa((int) index, (char*) pre_index,10);
-        	str_len = strlen((char*) pre_index);
-        	pre_index[str_len] = '.';        	
-			pre_index[str_len + 1] = 0;
+        	//my_itoa((int) index, (char*) pre_index,10);
+        	//str_len = strlen((char*) pre_index);
+        	//pre_index[str_len] = '.';        	
+			//pre_index[str_len + 1] = 0;
+			gdi_font_engine_color_t text_color2 = {0, 255, 255, 255};
+			gdi_font_engine_set_text_color(text_color2);
 		}
 		
-        traing_string_info.x = x - 30 * RESIZE_RATE;
-        traing_string_info.y = y;
-        traing_string_info.string = traing_type_convert_string_to_wstring((char*)pre_index);
-        traing_string_info.length = strlen((char*) pre_index);
-        traing_string_info.baseline_height = -1;
-        gdi_font_engine_display_string(&traing_string_info);
+        //traing_string_info.x = x - 30 * RESIZE_RATE;
+        //traing_string_info.y = y;
+        //traing_string_info.string = traing_type_convert_string_to_wstring((char*)pre_index);
+        //traing_string_info.length = strlen((char*) pre_index);
+        //traing_string_info.baseline_height = -1;
+        //gdi_font_engine_display_string(&traing_string_info);
 
 /*
         traing_string_info.x = x;
@@ -291,7 +294,7 @@ static void traing_screen_draw()
         traing_string_info.baseline_height = -1;
         gdi_font_engine_display_string(&traing_string_info);
                                 
-        y += 25 * RESIZE_RATE;
+        y += 40 * RESIZE_RATE;
         index++;
         num--;
     }

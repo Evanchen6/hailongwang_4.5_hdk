@@ -627,9 +627,7 @@ static void tui_main_screen_draw()
 		gdi_image_draw_by_id(71, 8, IMAGE_ID_BATTERY_NUMBER_PERCENT_BMP);
 	}
 		
-	gdi_image_draw_by_id(8, 97, main_screen_cntx.focus_point_index+66);
-	gdi_image_draw_by_id(8, 74, IMAGE_ID_LINE_BMP);
-	gdi_image_draw_by_id(8, 188, IMAGE_ID_LINE_BMP);
+	gdi_image_draw_by_id(8, 97, main_screen_cntx.focus_point_index+91);
 	
 	gdi_font_engine_color_t text_color = {0, 255, 255, 255};//white color
 	gdi_font_engine_set_text_color(text_color);
@@ -640,6 +638,9 @@ static void tui_main_screen_draw()
 	param.length = 4;
 	param.baseline_height = -1;
 	gdi_font_engine_display_string(&param);
+
+	gdi_image_draw_by_id(8, 74, IMAGE_ID_LINE_BMP);
+	
 	gdi_lcd_update_screen(0, 0, LCD_CURR_WIDTH - 1, y - 40);
 	gdi_font_engine_color_t text_color1 = {0, 255, 255, 255};//white color
 	gdi_font_engine_set_text_color(text_color1);
@@ -650,6 +651,8 @@ static void tui_main_screen_draw()
 	param.length = 4;
 	param.baseline_height = -1;
 	gdi_font_engine_display_string(&param);
+
+	gdi_image_draw_by_id(8, 188, IMAGE_ID_LINE_BMP);
 	
 	gdi_lcd_update_screen(0, y + 41, LCD_CURR_WIDTH - 1, LCD_CURR_HEIGHT - 1);
 	gdi_font_engine_set_font_size(GDI_FONT_ENGINE_FONT_LARGE);

@@ -185,10 +185,10 @@ void show_running_screen(void)
 	gdi_font_engine_display_string_info_t running_string_info = {0};
     gdi_draw_filled_rectangle(0,0,running_screen_cntx.width-1,running_screen_cntx.height-1, running_screen_cntx.bg_color);
 
-    gdi_font_engine_size_t font = GDI_FONT_ENGINE_FONT_SMALL;
-    gdi_font_engine_color_t text_color = {0, 0, 0, 0};//black color
+    gdi_font_engine_size_t font = GDI_FONT_ENGINE_FONT_MEDIUM;
+    gdi_font_engine_color_t text_color = {0, 255, 255, 255};//black color
 
-	gdi_image_draw_by_id(0, 0, IMAGE_ID_ZBG_03_BMP);
+	//gdi_image_draw_by_id(0, 0, IMAGE_ID_ZBG_03_BMP);
 	
     gdi_font_engine_set_font_size(font);
     gdi_font_engine_set_text_color(text_color);
@@ -199,6 +199,14 @@ void show_running_screen(void)
     running_string_info.string = running_convert_string_to_wstring("RUN..");
     running_string_info.length = strlen("RUN..");
     gdi_font_engine_display_string(&running_string_info);
+
+	uint8_t data_utf8[10]={0x00,0x5F,0xD1,0x53,0x2D,0x4E,0x00};
+	running_string_info.baseline_height = -1;
+	running_string_info.x = x;
+	running_string_info.y = y;
+	running_string_info.string = data_utf8;
+	running_string_info.length = 4;
+	gdi_font_engine_display_string(&running_string_info);
 
 	gdi_lcd_update_screen(0,0,running_screen_cntx.width-1,running_screen_cntx.height-1);
 }

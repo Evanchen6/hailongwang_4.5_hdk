@@ -122,6 +122,40 @@ static uint8_t* swim_convert_string_to_wstring(char* string)
     return wstring;
 }
 
+static void swim_screen_keypad_event_handler(hal_keypad_event_t* keypad_event,void* user_data)
+{
+	int32_t temp_index;
+	int32_t max_item_num;
+	int32_t temp_focus;
+
+	if (keypad_event->key_data == 0xd && keypad_event->state == 0){
+		temp_index = 1;
+	} else if (keypad_event->key_data == 0xe && keypad_event->state == 0){
+		temp_index = 2;
+	} else if (keypad_event->key_data == 0x11 && keypad_event->state == 0){
+		temp_index = 1;
+	} else if (keypad_event->key_data == 0x12 && keypad_event->state == 0){
+		temp_index = 1;
+	}
+
+	switch (temp_index){
+		case -1:
+			return;
+		case -2:
+			break;
+		case -3:
+			break;
+		case 0:
+			break;
+		case 2:
+			show_traing_type_screen();
+			return;
+		default:
+			break;
+	}
+
+}
+
 void show_swim_screen(void)
 {
     int32_t x,y;
@@ -130,14 +164,15 @@ void show_swim_screen(void)
 	y = 50 * RESIZE_RATE;
 
 	swim_screen_cntx_init();
+	demo_ui_register_keypad_event_callback(swim_screen_keypad_event_handler, NULL);
 	
 	gdi_font_engine_display_string_info_t swim_string_info = {0};
     gdi_draw_filled_rectangle(0,0,swim_screen_cntx.width-1,swim_screen_cntx.height-1, swim_screen_cntx.bg_color);
 
-    gdi_font_engine_size_t font = GDI_FONT_ENGINE_FONT_SMALL;
+    gdi_font_engine_size_t font = GDI_FONT_ENGINE_FONT_MEDIUM;
     gdi_font_engine_color_t text_color = {0, 255, 255, 255};//white color
 
-	gdi_image_draw_by_id(0, 0, IMAGE_ID_ZBG_03_BMP);
+	//gdi_image_draw_by_id(0, 0, IMAGE_ID_ZBG_03_BMP);
 
     gdi_font_engine_set_font_size(font);
     gdi_font_engine_set_text_color(text_color);
@@ -148,6 +183,14 @@ void show_swim_screen(void)
     swim_string_info.string = swim_convert_string_to_wstring("swim..");
     swim_string_info.length = strlen("swim..");
     gdi_font_engine_display_string(&swim_string_info);
+
+	uint8_t data_utf8[10]={0x00,0x5F,0xD1,0x53,0x2D,0x4E,0x00};
+	swim_string_info.baseline_height = -1;
+	swim_string_info.x = x;
+	swim_string_info.y = y;
+	swim_string_info.string = data_utf8;
+	swim_string_info.length = 4;
+	gdi_font_engine_display_string(&swim_string_info);
 
 	gdi_lcd_update_screen(0,0,swim_screen_cntx.width-1,swim_screen_cntx.height-1);
 }

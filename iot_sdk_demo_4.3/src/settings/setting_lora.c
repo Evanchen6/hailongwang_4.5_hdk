@@ -145,6 +145,14 @@ void show_setting_lora_screen(void)
     swim_string_info.length = strlen("swim..");
     gdi_font_engine_display_string(&swim_string_info);
 
+	uint8_t data_utf8[10]={0x00,0x5F,0xD1,0x53,0x2D,0x4E,0x00};
+	swim_string_info.baseline_height = -1;
+	swim_string_info.x = x;
+	swim_string_info.y = y;
+	swim_string_info.string = data_utf8;
+	swim_string_info.length = 4;
+	gdi_font_engine_display_string(&swim_string_info);
+
 	gdi_lcd_update_screen(0,0,setting_lora_screen_cntx.width-1,setting_lora_screen_cntx.height-1);
 }
 
