@@ -33,7 +33,7 @@
  */
 #include "gdi_resource_internal.h"
 
-uint16_t gdi_resource_current_max_image_id=80;
+uint16_t gdi_resource_current_max_image_id=105;
 const gdi_resource_custom_image_map_t gdi_resource_custom_image_id_map[]={
 	{0},
 	{1},
@@ -115,6 +115,31 @@ const gdi_resource_custom_image_map_t gdi_resource_custom_image_id_map[]={
 	{77},
 	{78},
 	{79},
+	{80},
+	{81},
+	{82},
+	{83},
+	{84},
+	{85},
+	{86},
+	{87},
+	{88},
+	{89},
+	{90},
+	{91},
+	{92},
+	{93},
+	{94},
+	{95},
+	{96},
+	{97},
+	{98},
+	{99},
+	{100},
+	{101},
+	{102},
+	{103},
+	{104},
 };
 
 
@@ -122,7 +147,7 @@ const gdi_resource_custom_image_map_t gdi_resource_custom_image_id_map[]={
 const uint16_t gdi_resource_current_max_search_image_id=2;
 const gdi_resource_custom_image_search_map_t gdi_resource_image_id_search_map[]={
 	{1,1,0},
-	{4,82,1},
+	{4,107,1},
 };
 
 

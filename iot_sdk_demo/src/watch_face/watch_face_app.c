@@ -541,37 +541,37 @@ static uint16_t wf_get_year_time_img_number(uint16_t num)
 	uint16_t img_ptr;
     switch (num) {
         case 0:
-        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_0_BMP;
+        	   img_ptr = IMAGE_ID_IDLE_DATE_NUMBER_0_BMP;
         	   break;
         case 1:
-        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_1_BMP;
+        	   img_ptr = IMAGE_ID_IDLE_DATE_NUMBER_1_BMP;
         	   break;
         case 2:
-        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_2_BMP;
+        	   img_ptr = IMAGE_ID_IDLE_DATE_NUMBER_2_BMP;
         	   break;
         case 3:
-        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_3_BMP;
+        	   img_ptr = IMAGE_ID_IDLE_DATE_NUMBER_3_BMP;
         	   break;
         case 4:
-        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_4_BMP;
+        	   img_ptr = IMAGE_ID_IDLE_DATE_NUMBER_4_BMP;
         	   break;
         case 5:
-        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_5_BMP;
+        	   img_ptr = IMAGE_ID_IDLE_DATE_NUMBER_5_BMP;
         	   break;
         case 6:
-        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_6_BMP;
+        	   img_ptr = IMAGE_ID_IDLE_DATE_NUMBER_6_BMP;
         	   break;
         case 7:
-        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_7_BMP;
+        	   img_ptr = IMAGE_ID_IDLE_DATE_NUMBER_7_BMP;
         	   break;
         case 8:
-        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_8_BMP;
+        	   img_ptr = IMAGE_ID_IDLE_DATE_NUMBER_8_BMP;
         	   break;
         case 9:
-        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_9_BMP;
+        	   img_ptr = IMAGE_ID_IDLE_DATE_NUMBER_9_BMP;
         	   break;
         default:
-               img_ptr = IMAGE_ID_BATTERY_NUMBER_0_BMP;
+               img_ptr = IMAGE_ID_IDLE_DATE_NUMBER_0_BMP;
         	   break;
     }
     return img_ptr;
@@ -583,37 +583,37 @@ static uint16_t wf_get_mon_time_img_number(uint16_t num)
 	uint16_t img_ptr;
     switch (num) {
         case 0:
-        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_0_BMP;
+        	   img_ptr = IMAGE_ID_IDLE_DATE_NUMBER_0_BMP;
         	   break;
         case 1:
-        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_1_BMP;
+        	   img_ptr = IMAGE_ID_IDLE_DATE_NUMBER_1_BMP;
         	   break;
         case 2:
-        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_2_BMP;
+        	   img_ptr = IMAGE_ID_IDLE_DATE_NUMBER_2_BMP;
         	   break;
         case 3:
-        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_3_BMP;
+        	   img_ptr = IMAGE_ID_IDLE_DATE_NUMBER_3_BMP;
         	   break;
         case 4:
-        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_4_BMP;
+        	   img_ptr = IMAGE_ID_IDLE_DATE_NUMBER_4_BMP;
         	   break;
         case 5:
-        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_5_BMP;
+        	   img_ptr = IMAGE_ID_IDLE_DATE_NUMBER_5_BMP;
         	   break;
         case 6:
-        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_6_BMP;
+        	   img_ptr = IMAGE_ID_IDLE_DATE_NUMBER_6_BMP;
         	   break;
         case 7:
-        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_7_BMP;
+        	   img_ptr = IMAGE_ID_IDLE_DATE_NUMBER_7_BMP;
         	   break;
         case 8:
-        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_8_BMP;
+        	   img_ptr = IMAGE_ID_IDLE_DATE_NUMBER_8_BMP;
         	   break;
         case 9:
-        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_9_BMP;
+        	   img_ptr = IMAGE_ID_IDLE_DATE_NUMBER_9_BMP;
         	   break;
         default:
-               img_ptr = IMAGE_ID_BATTERY_NUMBER_0_BMP;
+               img_ptr = IMAGE_ID_IDLE_DATE_NUMBER_0_BMP;
         	   break;
     }
     return img_ptr;
@@ -625,37 +625,37 @@ static uint16_t wf_get_day_time_img_number(uint16_t num)
 	uint16_t img_ptr;
     switch (num) {
         case 0:
-        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_0_BMP;
+        	   img_ptr = IMAGE_ID_IDLE_DATE_NUMBER_0_BMP;
         	   break;
         case 1:
-        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_1_BMP;
+        	   img_ptr = IMAGE_ID_IDLE_DATE_NUMBER_1_BMP;
         	   break;
         case 2:
-        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_2_BMP;
+        	   img_ptr = IMAGE_ID_IDLE_DATE_NUMBER_2_BMP;
         	   break;
         case 3:
-        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_3_BMP;
+        	   img_ptr = IMAGE_ID_IDLE_DATE_NUMBER_3_BMP;
         	   break;
         case 4:
-        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_4_BMP;
+        	   img_ptr = IMAGE_ID_IDLE_DATE_NUMBER_4_BMP;
         	   break;
         case 5:
-        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_5_BMP;
+        	   img_ptr = IMAGE_ID_IDLE_DATE_NUMBER_5_BMP;
         	   break;
         case 6:
-        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_6_BMP;
+        	   img_ptr = IMAGE_ID_IDLE_DATE_NUMBER_6_BMP;
         	   break;
         case 7:
-        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_7_BMP;
+        	   img_ptr = IMAGE_ID_IDLE_DATE_NUMBER_7_BMP;
         	   break;
         case 8:
-        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_8_BMP;
+        	   img_ptr = IMAGE_ID_IDLE_DATE_NUMBER_8_BMP;
         	   break;
         case 9:
-        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_9_BMP;
+        	   img_ptr = IMAGE_ID_IDLE_DATE_NUMBER_9_BMP;
         	   break;
         default:
-               img_ptr = IMAGE_ID_BATTERY_NUMBER_0_BMP;
+               img_ptr = IMAGE_ID_IDLE_DATE_NUMBER_0_BMP;
         	   break;
     }
     return img_ptr;
@@ -667,34 +667,25 @@ static uint16_t wf_get_week_time_img_number(uint16_t num)
 	uint16_t img_ptr;
     switch (num) {
         case 0:
-        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_0_BMP;
+        	   img_ptr = IMAGE_ID_IDLE_WEEK_SUN_CN_BMP;
         	   break;
         case 1:
-        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_1_BMP;
+        	   img_ptr = IMAGE_ID_IDLE_WEEK_MON_CN_BMP;
         	   break;
         case 2:
-        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_2_BMP;
+        	   img_ptr = IMAGE_ID_IDLE_WEEK_THUR_CN_BMP;
         	   break;
         case 3:
-        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_3_BMP;
+        	   img_ptr = IMAGE_ID_IDLE_WEEK_WED_CN_BMP;
         	   break;
         case 4:
-        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_4_BMP;
+        	   img_ptr = IMAGE_ID_IDLE_WEEK_TUES_CN_BMP;
         	   break;
         case 5:
-        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_5_BMP;
+        	   img_ptr = IMAGE_ID_IDLE_WEEK_FRI_CN_BMP;
         	   break;
         case 6:
-        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_6_BMP;
-        	   break;
-        case 7:
-        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_7_BMP;
-        	   break;
-        case 8:
-        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_8_BMP;
-        	   break;
-        case 9:
-        	   img_ptr = IMAGE_ID_BATTERY_NUMBER_9_BMP;
+        	   img_ptr = IMAGE_ID_IDLE_WEEK_SAT_CN_BMP;
         	   break;
         default:
                img_ptr = IMAGE_ID_BATTERY_NUMBER_0_BMP;
@@ -998,49 +989,57 @@ static void wf_app_update_time(hal_rtc_time_t *curr_time)
 
 		temp_num = curr_time->rtc_year/10;
 		temp_img = wf_get_year_time_img_number(temp_num);
-		gdi_image_draw_by_id(85, 50, IMAGE_ID_BATTERY_NUMBER_2_BMP);
-		gdi_image_draw_by_id(95, 50, IMAGE_ID_BATTERY_NUMBER_0_BMP);
-		gdi_image_draw_by_id(105, 50, temp_img);
+		gdi_image_draw_by_id(45, 170, IMAGE_ID_IDLE_DATE_NUMBER_2_BMP);
+		gdi_image_draw_by_id(55, 170, IMAGE_ID_IDLE_DATE_NUMBER_0_BMP);
+		gdi_image_draw_by_id(65, 170, temp_img);
 		LOG_I(common, "chenchen wf_app_time year %d mon %d day %d\n",curr_time->rtc_year,curr_time->rtc_mon,curr_time->rtc_day);
 
 		temp_num = curr_time->rtc_year%10;
 		temp_img = wf_get_year_time_img_number(temp_num);
-		gdi_image_draw_by_id(115, 50, temp_img);
+		gdi_image_draw_by_id(75, 170, temp_img);
+
+		gdi_image_draw_by_id(85, 170, IMAGE_ID_IDLE_DATE_NUMBER_LINE_BMP);
 
 		temp_num = curr_time->rtc_mon/10;
 		temp_img = wf_get_mon_time_img_number(temp_num);
-		gdi_image_draw_by_id(125, 50, temp_img);
+		gdi_image_draw_by_id(95, 170, temp_img);
 
 		temp_num = curr_time->rtc_mon%10;
 		temp_img = wf_get_mon_time_img_number(temp_num);
-		gdi_image_draw_by_id(135, 50, temp_img);
+		gdi_image_draw_by_id(105, 170, temp_img);
+
+		gdi_image_draw_by_id(115, 170, IMAGE_ID_IDLE_DATE_NUMBER_LINE_BMP);
 
 		temp_num = curr_time->rtc_day/10;
 		temp_img = wf_get_day_time_img_number(temp_num);
-		gdi_image_draw_by_id(145, 50, temp_img);
+		gdi_image_draw_by_id(125, 170, temp_img);
 
 		temp_num = curr_time->rtc_day%10;
 		temp_img = wf_get_day_time_img_number(temp_num);
-		gdi_image_draw_by_id(155, 50, temp_img);
+		gdi_image_draw_by_id(135, 170, temp_img);
+
+		temp_num = curr_time->rtc_week;
+		temp_img = wf_get_week_time_img_number(temp_num);
+		gdi_image_draw_by_id(155, 170, temp_img);
 
 /*------------------------------------------------------*/
 		temp_num = curr_time->rtc_hour/10;
 		temp_img = wf_get_hour_time_img_number(temp_num);
-		gdi_image_draw_by_id(15, 95, temp_img);
+		gdi_image_draw_by_id(15, 75, temp_img);
 
 		temp_num = curr_time->rtc_hour%10;
 		temp_img = wf_get_hour_time_img_number(temp_num);
-		gdi_image_draw_by_id(65, 95, temp_img);
+		gdi_image_draw_by_id(65, 75, temp_img);
 		
-		gdi_image_draw_by_id(120, 95, IMAGE_ID_IDLE_TIME_NUMBER_COLON_BMP);		
+		gdi_image_draw_by_id(120, 75, IMAGE_ID_IDLE_TIME_NUMBER_COLON_BMP);		
 
 		temp_num = curr_time->rtc_min/10;
 		temp_img = wf_get_minute_time_img_number(temp_num);
-		gdi_image_draw_by_id(134, 95, temp_img);
+		gdi_image_draw_by_id(134, 75, temp_img);
 
 		temp_num = curr_time->rtc_min%10;
 		temp_img = wf_get_minute_time_img_number(temp_num);
-		gdi_image_draw_by_id(184, 95, temp_img);
+		gdi_image_draw_by_id(184, 75, temp_img);
 
 
 		capacity = battery_management_get_battery_property(BATTERY_PROPERTY_CAPACITY);
