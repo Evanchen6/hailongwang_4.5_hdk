@@ -377,12 +377,20 @@ static void gnss_3km_app_location_handle(gnss_location_handle_type_t type, void*
 	    running_3km_string_info.string = trainning3kmname;
 	    running_3km_string_info.length = 4;
 	    gdi_font_engine_display_string(&running_3km_string_info);	
-
+/*
 	    running_3km_string_info.baseline_height = -1;
 	    running_3km_string_info.x = 25;
 	    running_3km_string_info.y = 50;
 	    running_3km_string_info.string = running_3km_convert_string_to_wstring("latitude:");
 	    running_3km_string_info.length = strlen("latitude:");
+	    gdi_font_engine_display_string(&running_3km_string_info);
+*/
+		uint8_t lat_cn[10] = {0xAC,0x7E,0xA6,0x5E,0x00};
+		running_3km_string_info.baseline_height = -1;
+	    running_3km_string_info.x = 25;
+	    running_3km_string_info.y = 50;
+	    running_3km_string_info.string = lat_cn;
+	    running_3km_string_info.length = 2;
 	    gdi_font_engine_display_string(&running_3km_string_info);
 
 	    running_3km_string_info.baseline_height = -1;
@@ -391,13 +399,22 @@ static void gnss_3km_app_location_handle(gnss_location_handle_type_t type, void*
 	    running_3km_string_info.string = running_3km_convert_string_to_wstring(buf1);
 	    running_3km_string_info.length = strlen(buf1);
 	    gdi_font_engine_display_string(&running_3km_string_info);
-
+/*
 	    running_3km_string_info.baseline_height = -1;
 	    running_3km_string_info.x = 25;
 	    running_3km_string_info.y = 85;
 	    running_3km_string_info.string = running_3km_convert_string_to_wstring("longitude:");
 	    running_3km_string_info.length = strlen("longitude:");
 	    gdi_font_engine_display_string(&running_3km_string_info);
+*/
+		uint8_t lon_cn[10] = {0xCF,0x7E,0xAC,0x7E,0x00};
+	    running_3km_string_info.baseline_height = -1;
+	    running_3km_string_info.x = 25;
+	    running_3km_string_info.y = 85;
+	    running_3km_string_info.string = lon_cn;
+	    running_3km_string_info.length = 2;
+	    gdi_font_engine_display_string(&running_3km_string_info);
+
 
 	    running_3km_string_info.baseline_height = -1;
 	    running_3km_string_info.x = 120;
@@ -405,20 +422,38 @@ static void gnss_3km_app_location_handle(gnss_location_handle_type_t type, void*
 	    running_3km_string_info.string = running_3km_convert_string_to_wstring(buf2);
 	    running_3km_string_info.length = strlen(buf2);
 	    gdi_font_engine_display_string(&running_3km_string_info);
-
+/*
 		running_3km_string_info.baseline_height = -1;
 	    running_3km_string_info.x = 25;
 	    running_3km_string_info.y = 120;
 	    running_3km_string_info.string = running_3km_convert_string_to_wstring("heartrate:");
 	    running_3km_string_info.length = strlen("heartrate:");
 	    gdi_font_engine_display_string(&running_3km_string_info);
+*/
+		uint8_t hr_cn[10] = {0xC3,0x5F,0x87,0x73,0x00};
+		running_3km_string_info.baseline_height = -1;
+	    running_3km_string_info.x = 25;
+	    running_3km_string_info.y = 120;
+	    running_3km_string_info.string = hr_cn;
+	    running_3km_string_info.length = 2;
+	    gdi_font_engine_display_string(&running_3km_string_info);
 
+/*
 		running_3km_string_info.baseline_height = -1;
 	    running_3km_string_info.x = 25;
 	    running_3km_string_info.y = 155;
 	    running_3km_string_info.string = running_3km_convert_string_to_wstring("distance:");
 	    running_3km_string_info.length = strlen("distance:");
 	    gdi_font_engine_display_string(&running_3km_string_info);
+*/
+		uint8_t dis_cn[10] = {0xDD,0x8D,0xBB,0x79,0x00};
+		running_3km_string_info.baseline_height = -1;
+	    running_3km_string_info.x = 25;
+	    running_3km_string_info.y = 155;
+	    running_3km_string_info.string = dis_cn;
+	    running_3km_string_info.length = 2;
+	    gdi_font_engine_display_string(&running_3km_string_info);
+
 
 		my_3km_ftoa(distance_3km,buf3,1);
 		running_3km_string_info.baseline_height = -1;
