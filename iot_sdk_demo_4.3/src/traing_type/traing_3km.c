@@ -301,10 +301,8 @@ static void running_3km_screen_keypad_event_handler(hal_keypad_event_t* keypad_e
 			case -1:
 				return;
 			case -2:
-//				main_screen_scroll_to_prevoius_page();
 				break;
 			case -3:
-//				main_screen_scroll_to_next_page();
 				break;
 			case 0:
 				break;
@@ -343,6 +341,7 @@ static void gnss_3km_app_location_handle(gnss_location_handle_type_t type, void*
 	char buf1[32];
 	char buf2[32];
 	char buf3[32];
+	uint8_t trainning3kmname[10] = {0x09,0x4E,0x6C,0x51,0xCC,0x91,0x00};
 
 	x = 40 * RESIZE_RATE;
 	y = 50 * RESIZE_RATE;
@@ -375,41 +374,48 @@ static void gnss_3km_app_location_handle(gnss_location_handle_type_t type, void*
 	    running_3km_string_info.baseline_height = -1;
 	    running_3km_string_info.x = running_3km_screen_cntx.fota_title_x;
 	    running_3km_string_info.y = running_3km_screen_cntx.fota_title_y;
-	    running_3km_string_info.string = running_3km_convert_string_to_wstring("RUN 3KM..");
-	    running_3km_string_info.length = strlen("RUN 3KM..");
-	    gdi_font_engine_display_string(&running_3km_string_info);
+	    running_3km_string_info.string = trainning3kmname;
+	    running_3km_string_info.length = 4;
+	    gdi_font_engine_display_string(&running_3km_string_info);	
 
 	    running_3km_string_info.baseline_height = -1;
 	    running_3km_string_info.x = 25;
-	    running_3km_string_info.y = 40;
+	    running_3km_string_info.y = 50;
 	    running_3km_string_info.string = running_3km_convert_string_to_wstring("latitude:");
 	    running_3km_string_info.length = strlen("latitude:");
 	    gdi_font_engine_display_string(&running_3km_string_info);
 
 	    running_3km_string_info.baseline_height = -1;
 	    running_3km_string_info.x = 120;
-	    running_3km_string_info.y = 40;
+	    running_3km_string_info.y = 50;
 	    running_3km_string_info.string = running_3km_convert_string_to_wstring(buf1);
 	    running_3km_string_info.length = strlen(buf1);
 	    gdi_font_engine_display_string(&running_3km_string_info);
 
 	    running_3km_string_info.baseline_height = -1;
 	    running_3km_string_info.x = 25;
-	    running_3km_string_info.y = 60;
+	    running_3km_string_info.y = 85;
 	    running_3km_string_info.string = running_3km_convert_string_to_wstring("longitude:");
 	    running_3km_string_info.length = strlen("longitude:");
 	    gdi_font_engine_display_string(&running_3km_string_info);
 
 	    running_3km_string_info.baseline_height = -1;
 	    running_3km_string_info.x = 120;
-	    running_3km_string_info.y = 60;
+	    running_3km_string_info.y = 85;
 	    running_3km_string_info.string = running_3km_convert_string_to_wstring(buf2);
 	    running_3km_string_info.length = strlen(buf2);
 	    gdi_font_engine_display_string(&running_3km_string_info);
 
 		running_3km_string_info.baseline_height = -1;
 	    running_3km_string_info.x = 25;
-	    running_3km_string_info.y = 80;
+	    running_3km_string_info.y = 120;
+	    running_3km_string_info.string = running_3km_convert_string_to_wstring("heartrate:");
+	    running_3km_string_info.length = strlen("heartrate:");
+	    gdi_font_engine_display_string(&running_3km_string_info);
+
+		running_3km_string_info.baseline_height = -1;
+	    running_3km_string_info.x = 25;
+	    running_3km_string_info.y = 155;
 	    running_3km_string_info.string = running_3km_convert_string_to_wstring("distance:");
 	    running_3km_string_info.length = strlen("distance:");
 	    gdi_font_engine_display_string(&running_3km_string_info);
@@ -417,14 +423,14 @@ static void gnss_3km_app_location_handle(gnss_location_handle_type_t type, void*
 		my_3km_ftoa(distance_3km,buf3,1);
 		running_3km_string_info.baseline_height = -1;
 	    running_3km_string_info.x = 120;
-	    running_3km_string_info.y = 80;
+	    running_3km_string_info.y = 155;
 	    running_3km_string_info.string = running_3km_convert_string_to_wstring(buf3);
 	    running_3km_string_info.length = strlen(buf3);
 	    gdi_font_engine_display_string(&running_3km_string_info);
 
 		running_3km_string_info.baseline_height = -1;
 	    running_3km_string_info.x = 180;
-	    running_3km_string_info.y = 80;
+	    running_3km_string_info.y = 155;
 	    running_3km_string_info.string = running_3km_convert_string_to_wstring("m");
 	    running_3km_string_info.length = strlen("m");
 	    gdi_font_engine_display_string(&running_3km_string_info);
