@@ -674,13 +674,13 @@ static uint16_t wf_get_week_time_img_number(uint16_t num)
         	   img_ptr = IMAGE_ID_IDLE_WEEK_MON_CN_BMP;
         	   break;
         case 2:
-        	   img_ptr = IMAGE_ID_IDLE_WEEK_THUR_CN_BMP;
+        	   img_ptr = IMAGE_ID_IDLE_WEEK_TUES_CN_BMP;
         	   break;
         case 3:
         	   img_ptr = IMAGE_ID_IDLE_WEEK_WED_CN_BMP;
         	   break;
         case 4:
-        	   img_ptr = IMAGE_ID_IDLE_WEEK_TUES_CN_BMP;
+        	   img_ptr = IMAGE_ID_IDLE_WEEK_THUR_CN_BMP;
         	   break;
         case 5:
         	   img_ptr = IMAGE_ID_IDLE_WEEK_FRI_CN_BMP;

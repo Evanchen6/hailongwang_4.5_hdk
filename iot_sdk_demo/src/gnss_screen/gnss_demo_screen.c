@@ -414,6 +414,7 @@ uint8_t gnss_get_week(uint32_t y, uint8_t m, uint8_t d)
 	
 	GNSSLOGD("[GNSS Demo] get week, d :%d m: %d y: %d \n", d, m, y);
 	uint8_t iWeek=(d+2*m+3*(m+1)/5+y+y/4-y/100+y/400)%7;
+	GNSSLOGD("[GNSS Demo] get week, iWeek :%d \n", iWeek);
 
 	iWeek = iWeek + 1;
 	if (iWeek == 7){
