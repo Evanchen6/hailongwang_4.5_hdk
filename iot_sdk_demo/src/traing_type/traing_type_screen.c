@@ -130,6 +130,36 @@ void traing_type_event_handler(message_id_enum event_id, int32_t param1, void* p
     }
 
 }
+
+void vTraingtypeWatchfaceTimerCallback( TimerHandle_t xTimer )
+{
+	show_main_screen();
+
+}
+
+void show_traingtypewatchface_timer_stop(void)
+{
+    if (vTraingtypeWatchfaceTimer && (xTimerIsTimerActive(vTraingtypeWatchfaceTimer) != pdFALSE)) {
+        xTimerStop(vTraingtypeWatchfaceTimer, 0);
+    }
+
+}
+
+void show_traingtypewatchface_timer_init(uint32_t time)
+{
+    if (vTraingtypeWatchfaceTimer && (xTimerIsTimerActive(vTraingtypeWatchfaceTimer) != pdFALSE)) {
+        xTimerStop(vTraingtypeWatchfaceTimer, 0);
+    } else {
+		vTraingtypeWatchfaceTimer = xTimerCreate( "vTraingtypeWatchfaceTimer",           // Just a text name, not used by the kernel.
+                                      ( time*1000 / portTICK_PERIOD_MS), // The timer period in ticks.
+                                      pdFALSE,                    // The timer is a one-shot timer.
+                                      0,                          // The id is not used by the callback so can take any value.
+                                      vTraingtypeWatchfaceTimerCallback     // The callback function that switches the LCD back-light off.
+                                   );
+    }
+	xTimerStart(vTraingtypeWatchfaceTimer, 0);
+}
+
 static void traing_type_screen_cntx_init()
 {
     if ((traing_type_screen_cntx.height == 0) && (traing_type_screen_cntx.width==0)) {
@@ -375,34 +405,7 @@ static void traing_screen_keypad_event_handler(hal_keypad_event_t* keypad_event,
 
 }
 
-void vTraingtypeWatchfaceTimerCallback( TimerHandle_t xTimer )
-{
-	show_main_screen();
 
-}
-
-void show_traingtypewatchface_timer_stop(void)
-{
-    if (vTraingtypeWatchfaceTimer && (xTimerIsTimerActive(vTraingtypeWatchfaceTimer) != pdFALSE)) {
-        xTimerStop(vTraingtypeWatchfaceTimer, 0);
-    }
-
-}
-
-void show_traingtypewatchface_timer_init(uint32_t time)
-{
-    if (vTraingtypeWatchfaceTimer && (xTimerIsTimerActive(vTraingtypeWatchfaceTimer) != pdFALSE)) {
-        xTimerStop(vTraingtypeWatchfaceTimer, 0);
-    } else {
-		vTraingtypeWatchfaceTimer = xTimerCreate( "vTraingtypeWatchfaceTimer",           // Just a text name, not used by the kernel.
-                                      ( time*1000 / portTICK_PERIOD_MS), // The timer period in ticks.
-                                      pdFALSE,                    // The timer is a one-shot timer.
-                                      0,                          // The id is not used by the callback so can take any value.
-                                      vTraingtypeWatchfaceTimerCallback     // The callback function that switches the LCD back-light off.
-                                   );
-    }
-	xTimerStart(vTraingtypeWatchfaceTimer, 0);
-}
 
 
 void show_traing_type_screen(void)

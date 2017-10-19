@@ -48,6 +48,7 @@
 #include "gnss_app.h"
 #include "task.h"
 #include "gnss_log.h"
+#include "hal_rtc.h"
 
 
 static struct {
@@ -149,6 +150,8 @@ static uint8_t sv_used[15] = "0";
 static uint8_t sv_total[15] = "00";
 static uint8_t speed[15] = "0";
 static uint8_t accuracy[10] = "\0";
+static uint8_t time[10] = "\0";
+static uint8_t date[10] = "\0";
 
 static void show_gnss_screen001(void);
 
@@ -402,6 +405,90 @@ static void gnss_keypad_event_handler(hal_keypad_event_t* keypad_event,void* use
 		}
 }
 
+uint8_t gnss_get_week(uint32_t y, uint8_t m, uint8_t d)
+{
+	if (m == 1 || m ==2) {
+		m += 12;
+		y--;
+	}
+	
+	GNSSLOGD("[GNSS Demo] get week, d :%d m: %d y: %d \n", d, m, y);
+	uint8_t iWeek=(d+2*m+3*(m+1)/5+y+y/4-y/100+y/400)%7;
+
+	iWeek = iWeek + 1;
+	if (iWeek == 7){
+		iWeek = 0;
+	}
+	
+	return iWeek;
+}
+
+static void gnss_set_gps_time(void)
+{
+	hal_rtc_time_t gps_time;
+	uint8_t year_temp,mon_temp,day_temp,hour_temp,min_temp,sec_temp;
+	hal_rtc_status_t result = hal_rtc_init();
+	if (result != HAL_RTC_STATUS_OK) {
+		GNSSLOGD("[GNSS Demo] rtc init fail\n");
+		return;
+	}
+
+
+	hour_temp = (time[0] - '0')*10 + (time[1] - '0') + 8;
+	min_temp = (time[2] - '0')*10 + (time[3] - '0');
+	sec_temp = (time[4] - '0')*10 + (time[5] - '0');
+
+	year_temp = (date[4] - '0')*10 + (date[5] - '0');
+	mon_temp = (date[2] - '0')*10 + (date[3] - '0');
+	day_temp = (date[0] - '0')*10 + (date[1] - '0');
+
+	if (hour_temp > 24) {
+		hour_temp = hour_temp - 24;
+		day_temp = day_temp + 1;
+	}
+
+	if (mon_temp == 2) {
+		if (day_temp > 28) {
+			day_temp = day_temp - 28;
+			mon_temp = mon_temp + 1;
+		}
+	} else if (mon_temp == 4 || mon_temp == 6 || mon_temp == 9 || mon_temp == 11) {
+		if (day_temp > 30) {
+			day_temp = day_temp - 30;
+			mon_temp = mon_temp + 1;
+		}
+	} else {
+		if (day_temp > 31) {
+			day_temp = day_temp - 31;
+			mon_temp = mon_temp + 1;
+		}
+	}
+
+	if (mon_temp > 12) {
+		mon_temp = mon_temp - 12;
+		year_temp = year_temp + 1;
+	}
+	
+	GNSSLOGD("[GNSS Demo] gps time, year_temp:%d, mon_temp:%d, day_temp:%d\n", year_temp, mon_temp, day_temp);
+	GNSSLOGD("[GNSS Demo] gps time, hour_temp:%d, min_temp:%d, sec_temp:%d\n", hour_temp, min_temp, sec_temp);
+	GNSSLOGD("[GNSS Demo] gps time, time:%s \n", time);
+	GNSSLOGD("[GNSS Demo] gps time, date:%s \n", date);
+
+	gps_time.rtc_year = year_temp;
+    gps_time.rtc_mon = mon_temp;
+    gps_time.rtc_day = day_temp;
+	uint32_t year_for_week = 2000 + year_temp;
+	gps_time.rtc_week = gnss_get_week(year_for_week,mon_temp,day_temp);
+    gps_time.rtc_hour = hour_temp;
+    gps_time.rtc_min = min_temp;
+    gps_time.rtc_sec = sec_temp;
+	
+	GNSSLOGD("[GNSS Demo] gps time,year_for_week %d, week:%d \n", year_for_week,gps_time.rtc_week);
+
+	hal_rtc_set_time(&gps_time);
+
+}
+
 //end
 static int32_t gnss_update_data(gnss_sentence_info_t *input)
 {
@@ -612,6 +699,40 @@ static int32_t gnss_update_data(gnss_sentence_info_t *input)
 
     j = 0;
     for (i = 0; i < 100; i++) {
+        if (gprmc[i] == ',') {          
+            int32_t len = 0;
+            while (gprmc[i + 1 + len] != ',') {
+                time[len] = gprmc[i + 1 + len];
+                len++;
+            }
+            time[len] = 0;
+            break;
+        }
+        j = i;            
+        
+    }
+
+    j = 0;
+	int32_t temp = 0;
+    for (i = 0; i < 100; i++) {
+        if (gprmc[i] == ',') {
+			temp++;
+			if (temp == 9) {
+                int32_t len = 0;
+                while (gprmc[i + 1 + len] != ',') {
+                    date[len] = gprmc[i + 1 + len];
+                    len++;
+                }
+                date[len] = 0;
+                break;
+            }
+            j = i;            
+        }
+    }
+
+
+    j = 0;
+    for (i = 0; i < 100; i++) {
         if (gpacc[i] == '*') {
             accuracy[j] = '\0';
             break;
@@ -692,6 +813,7 @@ static int32_t gnss_update_data(gnss_sentence_info_t *input)
     }
 	
     strcpy((char*) fix, "3D Fixed");
+	gnss_set_gps_time();
 
     return 0;
 
@@ -734,7 +856,8 @@ static void show_gnss_screen001(void)
 {
     int32_t i;
     int32_t max_statellite = 10;
-    
+    gdi_font_engine_display_string_info_t gpstime_string_info = {0};
+	
     gnss_screen_001_init();
     gdi_draw_filled_rectangle(0,0,240 * RESIZE_RATE - 1,240 * RESIZE_RATE -1, gnss_screen_cntx.bg_color);
     text_rect_draw_text_only(&gnss_screen_cntx001.location);
@@ -749,6 +872,23 @@ static void show_gnss_screen001(void)
     {
         colom_rect_draw(&gnss_screen_cntx001.colom_array[i]);
     }
+
+
+/*
+	gpstime_string_info.x = 10;
+    gpstime_string_info.y = 50;
+    gpstime_string_info.string = gnss_convert_string_to_wstring((uint8_t*)time);
+    gpstime_string_info.length = strlen((uint8_t*)time);
+    gpstime_string_info.baseline_height = -1;
+    gdi_font_engine_display_string(&gpstime_string_info);
+
+	gpstime_string_info.x = 10;
+    gpstime_string_info.y = 70;
+    gpstime_string_info.string = gnss_convert_string_to_wstring((uint8_t*)date);
+    gpstime_string_info.length = strlen((uint8_t*)date);
+    gpstime_string_info.baseline_height = -1;
+    gdi_font_engine_display_string(&gpstime_string_info);
+*/	
     gdi_lcd_update_screen(0, 0, LCD_CURR_WIDTH - 1, LCD_CURR_HEIGHT - 1);;
 }
 

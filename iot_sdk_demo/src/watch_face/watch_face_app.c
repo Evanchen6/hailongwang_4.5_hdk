@@ -58,6 +58,7 @@
 #include "timers.h"
 #include "hal_display_pwm.h"
 #include "hal_display_pwm_internal.h"
+#include "task.h"
 
 
 #define LCD_WIDTH   (240)
@@ -930,6 +931,21 @@ void wf_app_task(void *arg)
 
 }
 
+static void wf_app_set_defalut_time(void)
+{
+	hal_rtc_time_t time;
+
+	time.rtc_year = 17;
+    time.rtc_mon = 10;
+    time.rtc_day = 18;
+	time.rtc_week = 3;
+    time.rtc_hour = 10;
+    time.rtc_min = 0;
+    time.rtc_sec = 0;
+
+	hal_rtc_set_time(&time);
+
+}
 
 static hal_display_lcd_roi_output_t lcd_para_wf;
 static hal_display_lcd_layer_input_t lcm_para_wf;
@@ -944,6 +960,7 @@ static void wf_app_update_time(hal_rtc_time_t *curr_time)
     uint16_t temp_num;
 	int16_t bat_num1,bat_num2,bat_img;
 	int32_t capacity;
+	static int32_t is_set_time;
 	static uint8_t layer_buffer[LCD_WIDTH * LCD_HEIGHT * 2];
     //LOG_I(common, "app task to draw screen %d", g_wf_is_show_screen);
 /* iot_demo watch face
@@ -980,9 +997,13 @@ static void wf_app_update_time(hal_rtc_time_t *curr_time)
     	  bsp_lcd_update_screen(lcd_para_wf.target_start_x, lcd_para_wf.target_start_y, lcd_para_wf.target_end_x, lcd_para_wf.target_end_y);
     }
 */
+	if (!is_set_time) {
+		is_set_time = 1;
+		wf_app_set_defalut_time();
+		vTaskDelay(100);
+	}
+	
 	if (g_wf_is_show_screen) {
-//		gdi_init(LCD_WIDTH, LCD_HEIGHT, GDI_COLOR_FORMAT_16, layer_time_buffer);
-//		gdi_draw_filled_rectangle(0, 40, LCD_WIDTH, 199, gdi_get_color_from_argb(0, 0, 0, 0)); // Clear the screen to black.
 
 		gdi_init(LCD_WIDTH, LCD_HEIGHT, GDI_COLOR_FORMAT_16, layer_buffer);
 		gdi_draw_filled_rectangle(0, 0, LCD_WIDTH, LCD_HEIGHT, gdi_get_color_from_argb(0, 0, 0, 0)); // Clear the screen to black.
