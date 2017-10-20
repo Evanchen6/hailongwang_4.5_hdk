@@ -161,6 +161,14 @@ static uint8_t* about_convert_string_to_wstring(char* string)
     return wstring;
 }
 
+static void about_screen_need_lcd_init(void)
+{
+	hal_display_pwm_deinit();
+	hal_display_pwm_init(HAL_DISPLAY_PWM_CLOCK_26MHZ);
+	hal_display_pwm_set_duty(20);
+
+}
+
 static void about_screen_keypad_event_handler(hal_keypad_event_t* keypad_event,void* user_data)
 {
 		int32_t temp_index;
@@ -173,7 +181,7 @@ static void about_screen_keypad_event_handler(hal_keypad_event_t* keypad_event,v
 		17 0x11---up
 		18 0x12---down
 	*/
-	
+		about_screen_need_lcd_init();
 		GRAPHICLOG("[chenchen about_screen_keypad_event_handler key state=%d, position=%d\r\n", (int)keypad_event->state, (int)keypad_event->key_data);
 	
 		if (keypad_event->key_data == 0xd && keypad_event->state == 0){

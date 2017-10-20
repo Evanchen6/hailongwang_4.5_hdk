@@ -259,7 +259,7 @@ static void setting_screen_draw()
 	gdi_font_engine_size_t font;
 
 	x = 40 * RESIZE_RATE;
-	y = 50 * RESIZE_RATE;
+	y = 30 * RESIZE_RATE;
 	gdi_font_engine_display_string_info_t setting_string_info = {0};
     gdi_draw_filled_rectangle(0,0,setting_screen_cntx.width-1,setting_screen_cntx.height-1, setting_screen_cntx.bg_color);
 
@@ -319,7 +319,7 @@ static void setting_screen_draw()
         setting_string_info.baseline_height = -1;
         gdi_font_engine_display_string(&setting_string_info);
                                 
-        y += 20 * RESIZE_RATE;
+        y += 30 * RESIZE_RATE;
         index++;
         num--;
     }

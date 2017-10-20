@@ -228,7 +228,7 @@ static void system_screen_draw()
 	gdi_font_engine_size_t font;
 
 	x = 40 * RESIZE_RATE;
-	y = 50 * RESIZE_RATE;
+	y = 30 * RESIZE_RATE;
 	gdi_font_engine_display_string_info_t system_screen_string_info = {0};
     gdi_draw_filled_rectangle(0,0,system_screen_cntx.width-1,system_screen_cntx.height-1, system_screen_cntx.bg_color);
 
