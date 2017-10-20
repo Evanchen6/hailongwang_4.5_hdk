@@ -10,11 +10,11 @@
 
 #ifdef CONFIG_INCLUD_BODY
 // add your screen here
-{show_setting_bt_screen, NULL, "bt enable"},
-{show_setting_lora_screen, NULL, "lora enable"},
-{show_setting_gps_screen, NULL, "gps enable"},
+{show_setting_bt_screen, NULL, "BT enable"},
+{show_setting_lora_screen, NULL, "LORA enable"},
+{show_setting_gps_screen, NULL, "GPS enable"},
 {show_setting_fota_screen, NULL, "FOTA"},
-{show_setting_vibrator_screen, NULL, "vibrator"},
+{show_setting_vibrator_screen, NULL, "VIBRATOR"},
 
 #endif
 

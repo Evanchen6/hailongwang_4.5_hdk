@@ -1,18 +1,14 @@
 #ifdef CONFIG_INCLUDE_HEADER
-#include "traing_running.h"
-#include "traing_swim.h"
-#include "traing_3km.h"
-#include "sensor_demo.h"
+#include "system_person.h"
+#include "system_record.h"
 //#include "bt_audio.h"
 #endif
 
 
 #ifdef CONFIG_INCLUD_BODY
 // add your screen here
-{show_running_screen, NULL, {0xD1,0x8D,0x65,0x6B,0x00}},
-{show_swim_screen, NULL, {0x38,0x6E,0xF3,0x6C,0x00}},
-{show_running_3km_screen, NULL, {0x09,0x4E,0x6C,0x51,0xCC,0x91,0x00}},
-{show_sensor_ready_to_connect_screen, sensor_event_handler, {0xE1,0x4F,0x6F,0x60,0x00}},
+{show_system_person_screen, NULL, {0x28,0x75,0x37,0x62,0x00}},
+{show_system_record_screen, NULL, {0xAD,0x8B,0xC3,0x7E,0xE1,0x4F,0x6F,0x60,0x00}},
 #endif
 
 #ifdef CONFIG_MESSAGE_ID_ENUM

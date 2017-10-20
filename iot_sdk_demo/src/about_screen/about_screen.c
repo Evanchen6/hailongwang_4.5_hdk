@@ -161,6 +161,53 @@ static uint8_t* about_convert_string_to_wstring(char* string)
     return wstring;
 }
 
+static void about_screen_keypad_event_handler(hal_keypad_event_t* keypad_event,void* user_data)
+{
+		int32_t temp_index;
+		int32_t max_item_num;
+		int32_t temp_focus;
+	/*
+		keyvalue
+		13 0xd ---enter
+		14 0xe ---back
+		17 0x11---up
+		18 0x12---down
+	*/
+	
+		GRAPHICLOG("[chenchen about_screen_keypad_event_handler key state=%d, position=%d\r\n", (int)keypad_event->state, (int)keypad_event->key_data);
+	
+		if (keypad_event->key_data == 0xd && keypad_event->state == 0){
+			temp_index = 1;
+		} else if (keypad_event->key_data == 0xe && keypad_event->state == 0){
+			temp_index = 2;
+		} else if (keypad_event->key_data == 0x11 && keypad_event->state == 0){
+			temp_index = 1;
+		} else if (keypad_event->key_data == 0x12 && keypad_event->state == 0){
+			temp_index = 1;
+		}
+		
+		switch (temp_index){
+			case -1:
+				return;
+			case -2:
+//				main_screen_scroll_to_prevoius_page();
+				break;
+			case -3:
+//				main_screen_scroll_to_next_page();
+				break;
+			case 0:
+				break;
+			case 2:
+				show_main_screen();
+				return;
+			default:
+				break;
+	
+		}
+
+
+}
+
 void show_about_screen(void)
 {
     int32_t x,y;
@@ -169,7 +216,8 @@ void show_about_screen(void)
 	y = 50 * RESIZE_RATE;
 
 	about_screen_cntx_init();
-	
+	demo_ui_register_keypad_event_callback(about_screen_keypad_event_handler, NULL);	
+
 	gdi_font_engine_display_string_info_t about_string_info = {0};
     gdi_draw_filled_rectangle(0,0,about_screen_cntx.width-1,about_screen_cntx.height-1, about_screen_cntx.bg_color);
 

@@ -334,6 +334,14 @@ static void traing_screen_draw()
 
 }
 
+static void traing_need_lcd_init(void)
+{
+	hal_display_pwm_deinit();
+	hal_display_pwm_init(HAL_DISPLAY_PWM_CLOCK_26MHZ);
+	hal_display_pwm_set_duty(20);
+
+}
+
 static void traing_screen_keypad_event_handler(hal_keypad_event_t* keypad_event,void* user_data)
 {
 		int32_t temp_index;
@@ -346,7 +354,7 @@ static void traing_screen_keypad_event_handler(hal_keypad_event_t* keypad_event,
 		17 0x11---up
 		18 0x12---down
 	*/
-	
+		traing_need_lcd_init();
 		GRAPHICLOG("[chenchen traing_screen_keypad_event_handler key state=%d, position=%d\r\n", (int)keypad_event->state, (int)keypad_event->key_data);
 		if( xTimerReset( vTraingtypeWatchfaceTimer, 100 ) != pdPASS ) {
 		LOG_I(common, "chenchen main show traingtype timer fail");

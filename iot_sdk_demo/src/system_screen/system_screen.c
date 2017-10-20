@@ -161,9 +161,9 @@ static void system_screen_cntx_init()
 
 		system_screen_cntx.focus_point_index = 0;
 		system_screen_cntx.start_item = 0;
-		system_screen_cntx.one_screen_item_num = 4;
-		system_screen_cntx.total_item_num = 4;
-		system_screen_cntx.curr_item_num = 4;
+		system_screen_cntx.one_screen_item_num = 2;
+		system_screen_cntx.total_item_num = 2;
+		system_screen_cntx.curr_item_num = 2;
     }
 
 }
@@ -253,26 +253,33 @@ static void system_screen_draw()
         int32_t str_len;
 		
 		if (index == system_screen_cntx.focus_point_index){
+			gdi_font_engine_color_t text_color1 = {0, 0, 0, 255};
+			gdi_font_engine_set_text_color(text_color1);
+/*
 			my_itoa((int) index, (char*) pre_index,10);
 			str_len = strlen((char*) pre_index);
 			pre_index[str_len] = '.';
 			pre_index[str_len + 1] = '*';
 			pre_index[str_len + 2] = 0;
-
+*/
 		}else {
-        	my_itoa((int) index, (char*) pre_index,10);
+			gdi_font_engine_color_t text_color2 = {0, 255, 255, 255};
+			gdi_font_engine_set_text_color(text_color2);
+/*
+			my_itoa((int) index, (char*) pre_index,10);
         	str_len = strlen((char*) pre_index);
         	pre_index[str_len] = '.';        	
 			pre_index[str_len + 1] = 0;
+*/
 		}
-		
+/*		
         system_screen_string_info.x = x - 30 * RESIZE_RATE;
         system_screen_string_info.y = y;
         system_screen_string_info.string = system_screen_convert_string_to_wstring((char*)pre_index);
         system_screen_string_info.length = strlen((char*) pre_index);
         system_screen_string_info.baseline_height = -1;
         gdi_font_engine_display_string(&system_screen_string_info);
-
+*/
 /*
         system_screen_string_info.x = x;
         system_screen_string_info.y = y;
@@ -288,12 +295,20 @@ static void system_screen_draw()
         system_screen_string_info.baseline_height = -1;
         gdi_font_engine_display_string(&system_screen_string_info);
                                 
-        y += 25 * RESIZE_RATE;
+        y += 40 * RESIZE_RATE;
         index++;
         num--;
     }
 	
 	gdi_lcd_update_screen(0,0,system_screen_cntx.width-1,system_screen_cntx.height-1);
+
+}
+
+static void system_screen_need_lcd_init(void)
+{
+	hal_display_pwm_deinit();
+	hal_display_pwm_init(HAL_DISPLAY_PWM_CLOCK_26MHZ);
+	hal_display_pwm_set_duty(20);
 
 }
 
@@ -309,7 +324,7 @@ static void system_screen_keypad_event_handler(hal_keypad_event_t* keypad_event,
 		17 0x11---up
 		18 0x12---down
 	*/
-	
+		system_screen_need_lcd_init();
 		GRAPHICLOG("[chenchen traing_screen_keypad_event_handler key state=%d, position=%d\r\n", (int)keypad_event->state, (int)keypad_event->key_data);
 		if( xTimerReset( vSystemscreenWatchfaceTimer, 100 ) != pdPASS ) {
 		LOG_I(common, "chenchen main show traingtype timer fail");

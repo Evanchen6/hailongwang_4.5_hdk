@@ -997,12 +997,13 @@ static void wf_app_update_time(hal_rtc_time_t *curr_time)
     	  bsp_lcd_update_screen(lcd_para_wf.target_start_x, lcd_para_wf.target_start_y, lcd_para_wf.target_end_x, lcd_para_wf.target_end_y);
     }
 */
+/*
 	if (!is_set_time) {
 		is_set_time = 1;
 		wf_app_set_defalut_time();
 		vTaskDelay(100);
 	}
-	
+*/	
 	if (g_wf_is_show_screen) {
 
 		gdi_init(LCD_WIDTH, LCD_HEIGHT, GDI_COLOR_FORMAT_16, layer_buffer);

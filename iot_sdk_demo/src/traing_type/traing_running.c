@@ -193,12 +193,6 @@ void show_running_screen(void)
     gdi_font_engine_set_font_size(font);
     gdi_font_engine_set_text_color(text_color);
 
-    running_string_info.baseline_height = -1;
-    running_string_info.x = running_screen_cntx.fota_title_x;
-    running_string_info.y = running_screen_cntx.fota_title_y;
-    running_string_info.string = running_convert_string_to_wstring("RUN..");
-    running_string_info.length = strlen("RUN..");
-    gdi_font_engine_display_string(&running_string_info);
 
 	uint8_t data_utf8[10]={0x00,0x5F,0xD1,0x53,0x2D,0x4E,0x00};
 

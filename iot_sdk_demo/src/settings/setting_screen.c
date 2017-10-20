@@ -46,6 +46,7 @@
 #include "setting_screen.h"
 #include "mt25x3_hdk_lcd.h"
 //add by chen
+#include "FreeRTOS.h"
 #include "stdint.h"
 #include "stdbool.h"
 #include <string.h>
@@ -55,6 +56,7 @@
 #include "mt25x3_hdk_backlight.h"
 #include "custom_image_data_resource.h"
 #include "custom_resource_def.h"
+#include "timers.h"
 
 
 #include "syslog.h"
@@ -106,6 +108,7 @@ static event_handle_func curr_event_handler;
 #define CONFIG_INCLUD_BODY
 
 #define RESIZE_RATE LCD_CURR_HEIGHT/240
+TimerHandle_t vSettingWatchfaceTimer = NULL;
 
 typedef struct list_settings_item_struct {
     show_screen_proc_f show_setting_screen_f;
@@ -125,6 +128,36 @@ void settings_screen_event_handler(message_id_enum event_id, int32_t param1, voi
 {
 
 }
+
+void vSettingWatchfaceTimerCallback( TimerHandle_t xTimer )
+{
+	show_main_screen();
+
+}
+
+void show_settingwatchface_timer_stop(void)
+{
+    if (vSettingWatchfaceTimer && (xTimerIsTimerActive(vSettingWatchfaceTimer) != pdFALSE)) {
+        xTimerStop(vSettingWatchfaceTimer, 0);
+    }
+
+}
+
+void show_settingwatchface_timer_init(uint32_t time)
+{
+    if (vSettingWatchfaceTimer && (xTimerIsTimerActive(vSettingWatchfaceTimer) != pdFALSE)) {
+        xTimerStop(vSettingWatchfaceTimer, 0);
+    } else {
+		vSettingWatchfaceTimer = xTimerCreate( "vSettingWatchfaceTimer",           // Just a text name, not used by the kernel.
+                                      ( time*1000 / portTICK_PERIOD_MS), // The timer period in ticks.
+                                      pdFALSE,                    // The timer is a one-shot timer.
+                                      0,                          // The id is not used by the callback so can take any value.
+                                      vSettingWatchfaceTimerCallback     // The callback function that switches the LCD back-light off.
+                                   );
+    }
+	xTimerStart(vSettingWatchfaceTimer, 0);
+}
+
 static void setting_screen_cntx_init()
 {
     if ((setting_screen_cntx.height == 0) && (setting_screen_cntx.width==0)) {
@@ -250,34 +283,35 @@ static void setting_screen_draw()
         int32_t str_len;
 		
 		if (index == setting_screen_cntx.focus_point_index){
+			gdi_font_engine_color_t text_color1 = {0, 0, 0, 255};
+			gdi_font_engine_set_text_color(text_color1);
+/*
 			my_itoa((int) index, (char*) pre_index,10);
 			str_len = strlen((char*) pre_index);
 			pre_index[str_len] = '.';
 			pre_index[str_len + 1] = '*';
 			pre_index[str_len + 2] = 0;
-
+*/
 		}else {
-        	my_itoa((int) index, (char*) pre_index,10);
+			gdi_font_engine_color_t text_color2 = {0, 255, 255, 255};
+			gdi_font_engine_set_text_color(text_color2);
+/*
+			my_itoa((int) index, (char*) pre_index,10);
         	str_len = strlen((char*) pre_index);
         	pre_index[str_len] = '.';        	
 			pre_index[str_len + 1] = 0;
+*/
 		}
-		
+
+/*		
         setting_string_info.x = x - 30 * RESIZE_RATE;
         setting_string_info.y = y;
         setting_string_info.string = setting_screen_convert_string_to_wstring((char*)pre_index);
         setting_string_info.length = strlen((char*) pre_index);
         setting_string_info.baseline_height = -1;
         gdi_font_engine_display_string(&setting_string_info);
-
-/*
-        traing_string_info.x = x;
-        traing_string_info.y = y;
-        traing_string_info.string = traing_type_convert_string_to_wstring((char*)demo_settings_item[index].name);
-        traing_string_info.length = strlen((char*) demo_settings_item[index].name);
-        traing_string_info.baseline_height = -1;
-        gdi_font_engine_display_string(&traing_string_info);
 */
+
 		setting_string_info.x = x;
         setting_string_info.y = y;
         setting_string_info.string = setting_screen_convert_string_to_wstring((uint8_t*)demo_settings_item[index].name);
@@ -285,12 +319,20 @@ static void setting_screen_draw()
         setting_string_info.baseline_height = -1;
         gdi_font_engine_display_string(&setting_string_info);
                                 
-        y += 15 * RESIZE_RATE;
+        y += 20 * RESIZE_RATE;
         index++;
         num--;
     }
 	
 	gdi_lcd_update_screen(0,0,setting_screen_cntx.width-1,setting_screen_cntx.height-1);
+
+}
+
+static void setting_screen_need_lcd_init(void)
+{
+	hal_display_pwm_deinit();
+	hal_display_pwm_init(HAL_DISPLAY_PWM_CLOCK_26MHZ);
+	hal_display_pwm_set_duty(20);
 
 }
 
@@ -306,9 +348,12 @@ static void setting_screen_keypad_event_handler(hal_keypad_event_t* keypad_event
 		17 0x11---up
 		18 0x12---down
 	*/
-	
+		setting_screen_need_lcd_init();
 		GRAPHICLOG("[chenchen setting_screen_keypad_event_handler key state=%d, position=%d\r\n", (int)keypad_event->state, (int)keypad_event->key_data);
-	
+		if( xTimerReset( vSettingWatchfaceTimer, 100 ) != pdPASS ) {
+		LOG_I(common, "chenchen setting show timer fail");
+		}
+
 		if (keypad_event->key_data == 0xd && keypad_event->state == 0){
 			temp_index = 1;
 		} else if (keypad_event->key_data == 0xe && keypad_event->state == 0){
@@ -342,6 +387,7 @@ static void setting_screen_keypad_event_handler(hal_keypad_event_t* keypad_event
 			case 0:
 				break;
 			case 1:
+				show_settingwatchface_timer_stop();
 				curr_event_handler = demo_settings_item[setting_screen_cntx.focus_point_index].event_setting_handle_f;
 				if (demo_settings_item[setting_screen_cntx.focus_point_index].show_setting_screen_f) {
 					demo_settings_item[setting_screen_cntx.focus_point_index].show_setting_screen_f();
@@ -353,6 +399,7 @@ static void setting_screen_keypad_event_handler(hal_keypad_event_t* keypad_event
 		}
 
 		if (keypad_event->key_data == 0xe && keypad_event->state == 0){
+			show_settingwatchface_timer_stop();
 			show_main_screen();
 		} else {
 			setting_screen_draw();
@@ -367,5 +414,6 @@ void show_settings_screen(void)
 	setting_screen_cntx_init();
 	demo_ui_register_keypad_event_callback(setting_screen_keypad_event_handler, NULL);
 	setting_screen_draw();
+	show_settingwatchface_timer_init(10);
 }
 

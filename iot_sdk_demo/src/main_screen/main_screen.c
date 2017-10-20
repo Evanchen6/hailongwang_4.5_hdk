@@ -836,7 +836,7 @@ void show_main_screen()
 
     if (!is_init) {
         is_init = 1;
-        bsp_lcd_init(0xF800);
+        bsp_lcd_init(0x0000);
         bsp_backlight_init();
 		bsp_backlight_init_display_pwm();
         bsp_lcd_get_parameter(LCM_IOCTRL_QUERY__LCM_HEIGHT, &LCD_CURR_HEIGHT);
@@ -853,7 +853,7 @@ void show_main_screen()
 		gdi_draw_filled_rectangle(0,0,240 * RESIZE_RATE - 1,240 * RESIZE_RATE - 1,0);
 		gdi_image_draw_by_id(0, 0, IMAGE_ID_ZBG_06_BMP); //logo by chen
 		gdi_lcd_update_screen(0, 0, 240 * RESIZE_RATE - 1, 240 * RESIZE_RATE - 1);
-		vTaskDelay(2000);
+		vTaskDelay(1000);
 	}
     GRAPHICLOG("show_main_screen");
 //    main_screen_draw();

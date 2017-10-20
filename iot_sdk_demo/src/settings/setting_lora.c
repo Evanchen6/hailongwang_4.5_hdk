@@ -120,6 +120,53 @@ static uint8_t* setting_lora_convert_string_to_wstring(char* string)
     return wstring;
 }
 
+static void setting_lora_screen_keypad_event_handler(hal_keypad_event_t* keypad_event,void* user_data)
+{
+		int32_t temp_index;
+		int32_t max_item_num;
+		int32_t temp_focus;
+	/*
+		keyvalue
+		13 0xd ---enter
+		14 0xe ---back
+		17 0x11---up
+		18 0x12---down
+	*/
+	
+		GRAPHICLOG("[chenchen lora_screen_keypad_event_handler key state=%d, position=%d\r\n", (int)keypad_event->state, (int)keypad_event->key_data);
+	
+		if (keypad_event->key_data == 0xd && keypad_event->state == 0){
+			temp_index = 1;
+		} else if (keypad_event->key_data == 0xe && keypad_event->state == 0){
+			temp_index = 2;
+		} else if (keypad_event->key_data == 0x11 && keypad_event->state == 0){
+			temp_index = 1;
+		} else if (keypad_event->key_data == 0x12 && keypad_event->state == 0){
+			temp_index = 1;
+		}
+		
+		switch (temp_index){
+			case -1:
+				return;
+			case -2:
+//				main_screen_scroll_to_prevoius_page();
+				break;
+			case -3:
+//				main_screen_scroll_to_next_page();
+				break;
+			case 0:
+				break;
+			case 2:
+				show_settings_screen();
+				return;
+			default:
+				break;
+	
+		}
+
+
+}
+
 void show_setting_lora_screen(void)
 {
     int32_t x,y;
@@ -128,7 +175,8 @@ void show_setting_lora_screen(void)
 	y = 50 * RESIZE_RATE;
 
 	setting_lora_screen_cntx_init();
-	
+	demo_ui_register_keypad_event_callback(setting_lora_screen_keypad_event_handler, NULL);
+
 	gdi_font_engine_display_string_info_t swim_string_info = {0};
     gdi_draw_filled_rectangle(0,0,setting_lora_screen_cntx.width-1,setting_lora_screen_cntx.height-1, setting_lora_screen_cntx.bg_color);
 
@@ -138,12 +186,6 @@ void show_setting_lora_screen(void)
     gdi_font_engine_set_font_size(font);
     gdi_font_engine_set_text_color(text_color);
 
-    swim_string_info.baseline_height = -1;
-    swim_string_info.x = setting_lora_screen_cntx.fota_title_x;
-    swim_string_info.y = setting_lora_screen_cntx.fota_title_y;
-    swim_string_info.string = setting_lora_convert_string_to_wstring("swim..");
-    swim_string_info.length = strlen("swim..");
-    gdi_font_engine_display_string(&swim_string_info);
 
 	uint8_t data_utf8[10]={0x00,0x5F,0xD1,0x53,0x2D,0x4E,0x00};
     swim_string_info.baseline_height = -1;
