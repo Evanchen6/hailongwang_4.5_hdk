@@ -17,7 +17,7 @@ MTK_LWIP_STATISTICS_ENABLE          =
 MTK_OS_CPU_UTILIZATION_ENABLE       =
 MTK_SYSTEM_AT_COMMAND_ENABLE        = 
 MTK_HEAP_GUARD_ENABLE               =
-MTK_LED_ENABLE                      = y
+MTK_LED_ENABLE                      = n
 MTK_PING_OUT_ENABLE                 =
 MTK_IPERF_ENABLE                    =
 MTK_BSPEXT_ENABLE                   =
@@ -31,7 +31,7 @@ MTK_CTP_ENABLE                      = n
 MTK_SMART_BATTERY_ENABLE            = y
 MTK_FATFS_ENABLE                    = n
 MTK_USB_DEMO_ENABLED                =
-MTK_BT_A2DP_AAC_ENABLE              = y
+MTK_BT_A2DP_AAC_ENABLE              = n
 MTK_AUDIO_TUNING_ENABLE             = n
 MTK_XOSC_MODE                       =
 

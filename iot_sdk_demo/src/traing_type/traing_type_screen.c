@@ -133,7 +133,7 @@ void traing_type_event_handler(message_id_enum event_id, int32_t param1, void* p
 
 void vTraingtypeWatchfaceTimerCallback( TimerHandle_t xTimer )
 {
-	show_main_screen();
+	wf_app_task_enable_show();
 
 }
 

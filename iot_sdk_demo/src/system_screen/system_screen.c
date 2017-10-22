@@ -385,7 +385,7 @@ static void system_screen_keypad_event_handler(hal_keypad_event_t* keypad_event,
 
 void vSystemscreenWatchfaceTimerCallback( TimerHandle_t xTimer )
 {
-	show_main_screen();
+	wf_app_task_enable_show();
 
 }
 

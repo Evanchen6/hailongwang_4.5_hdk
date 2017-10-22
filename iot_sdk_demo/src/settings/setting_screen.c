@@ -131,7 +131,7 @@ void settings_screen_event_handler(message_id_enum event_id, int32_t param1, voi
 
 void vSettingWatchfaceTimerCallback( TimerHandle_t xTimer )
 {
-	show_main_screen();
+	wf_app_task_enable_show();
 
 }
 

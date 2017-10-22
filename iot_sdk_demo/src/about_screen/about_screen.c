@@ -47,6 +47,7 @@
 #include "sensor_demo.h"
 #include "mt25x3_hdk_lcd.h"
 //add by chen
+#include "FreeRTOS.h"
 #include "stdint.h"
 #include "stdbool.h"
 #include <string.h>
@@ -57,6 +58,7 @@
 #include "about_screen.h"
 #include "custom_image_data_resource.h"
 #include "custom_resource_def.h"
+#include "timers.h"
 
 
 #include "syslog.h"
@@ -69,6 +71,7 @@
 
 #define RESIZE_RATE LCD_CURR_HEIGHT/240
 #define DEMO_ITEM_NAME_MAX_LEN 50
+TimerHandle_t vAboutWatchfaceTimer = NULL;
 
 static struct {
   int32_t fota_title_x;
@@ -104,6 +107,36 @@ void about_screen_event_handler(message_id_enum event_id, int32_t param1, void* 
 {
 
 }
+
+void vAboutWatchfaceTimerCallback( TimerHandle_t xTimer )
+{
+	wf_app_task_enable_show();
+
+}
+
+void show_aboutwatchface_timer_stop(void)
+{
+    if (vAboutWatchfaceTimer && (xTimerIsTimerActive(vAboutWatchfaceTimer) != pdFALSE)) {
+        xTimerStop(vAboutWatchfaceTimer, 0);
+    }
+
+}
+
+void show_aboutwatchface_timer_init(uint32_t time)
+{
+    if (vAboutWatchfaceTimer && (xTimerIsTimerActive(vAboutWatchfaceTimer) != pdFALSE)) {
+        xTimerStop(vAboutWatchfaceTimer, 0);
+    } else {
+		vAboutWatchfaceTimer = xTimerCreate( "vAboutWatchfaceTimer",           // Just a text name, not used by the kernel.
+                                      ( time*1000 / portTICK_PERIOD_MS), // The timer period in ticks.
+                                      pdFALSE,                    // The timer is a one-shot timer.
+                                      0,                          // The id is not used by the callback so can take any value.
+                                      vAboutWatchfaceTimerCallback     // The callback function that switches the LCD back-light off.
+                                   );
+    }
+	xTimerStart(vAboutWatchfaceTimer, 0);
+}
+
 static void about_screen_cntx_init()
 {
     if ((about_screen_cntx.height == 0) && (about_screen_cntx.width==0)) {
@@ -183,7 +216,10 @@ static void about_screen_keypad_event_handler(hal_keypad_event_t* keypad_event,v
 	*/
 		about_screen_need_lcd_init();
 		GRAPHICLOG("[chenchen about_screen_keypad_event_handler key state=%d, position=%d\r\n", (int)keypad_event->state, (int)keypad_event->key_data);
-	
+		if( xTimerReset( vAboutWatchfaceTimer, 100 ) != pdPASS ) {
+		LOG_I(common, "chenchen show about screen timer fail");
+		}
+		
 		if (keypad_event->key_data == 0xd && keypad_event->state == 0){
 			temp_index = 1;
 		} else if (keypad_event->key_data == 0xe && keypad_event->state == 0){
@@ -206,6 +242,7 @@ static void about_screen_keypad_event_handler(hal_keypad_event_t* keypad_event,v
 			case 0:
 				break;
 			case 2:
+				show_aboutwatchface_timer_stop();
 				show_main_screen();
 				return;
 			default:
@@ -216,7 +253,7 @@ static void about_screen_keypad_event_handler(hal_keypad_event_t* keypad_event,v
 
 }
 
-void show_about_screen(void)
+void  show_about_screen(void)
 {
     int32_t x,y;
 
@@ -225,7 +262,8 @@ void show_about_screen(void)
 
 	about_screen_cntx_init();
 	demo_ui_register_keypad_event_callback(about_screen_keypad_event_handler, NULL);	
-
+ 	show_aboutwatchface_timer_init(10);
+	
 	gdi_font_engine_display_string_info_t about_string_info = {0};
     gdi_draw_filled_rectangle(0,0,about_screen_cntx.width-1,about_screen_cntx.height-1, about_screen_cntx.bg_color);
 

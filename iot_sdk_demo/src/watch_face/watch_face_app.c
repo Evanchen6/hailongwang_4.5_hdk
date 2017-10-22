@@ -1014,7 +1014,7 @@ static void wf_app_update_time(hal_rtc_time_t *curr_time)
 		gdi_image_draw_by_id(45, 170, IMAGE_ID_IDLE_DATE_NUMBER_2_BMP);
 		gdi_image_draw_by_id(55, 170, IMAGE_ID_IDLE_DATE_NUMBER_0_BMP);
 		gdi_image_draw_by_id(65, 170, temp_img);
-		LOG_I(common, "chenchen wf_app_time year %d mon %d day %d\n",curr_time->rtc_year,curr_time->rtc_mon,curr_time->rtc_day);
+//		LOG_I(common, "chenchen wf_app_time year %d mon %d day %d\n",curr_time->rtc_year,curr_time->rtc_mon,curr_time->rtc_day);
 
 		temp_num = curr_time->rtc_year%10;
 		temp_img = wf_get_year_time_img_number(temp_num);
@@ -1094,7 +1094,6 @@ static void wf_app_update_time(hal_rtc_time_t *curr_time)
 
 		gdi_lcd_update_screen(0, 0, LCD_WIDTH, LCD_HEIGHT);
 
-		//gdi_lcd_update_screen(0, 40, LCD_WIDTH, 199);
 
 	}
 
