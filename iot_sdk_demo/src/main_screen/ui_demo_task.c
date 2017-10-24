@@ -59,6 +59,7 @@ static struct {
     touch_event_proc_func touch_event_callback_f;
 	//add by chenchen
 	keypad_event_proc_func keypad_event_callback_f;
+	powerkey_event_proc_func powerkey_event_callback_f;
     void* user_data;
 } ui_task_cntx;
 
@@ -68,6 +69,8 @@ static int32_t ui_send_event_from_isr(message_id_enum event_id, int32_t param1, 
 log_create_module(GRAPHIC_TAG, PRINT_LEVEL_INFO);
 
 //add by chenchen start 
+#ifdef MTK_KEYPAD_ENABLE
+
 void demo_ui_register_keypad_event_callback(keypad_event_proc_func proc_func, void* user_data)
 {
     GRAPHICLOG("demo_ui_register_keypad_event_callback, proc_func:%x", proc_func);
@@ -102,11 +105,47 @@ static void keypad_event_handle()
         if (ui_task_cntx.keypad_event_callback_f) {
         GRAPHICLOG("chenchen keypad event handle, data:%d", keypad_event.key_data);
         ui_task_cntx.keypad_event_callback_f(&keypad_event, ui_task_cntx.user_data);
-    }
+    	}
     }
 
 
 }
+#endif
+
+#if 1
+
+void demo_ui_register_powerkey_event_callback(powerkey_event_proc_func proc_func, void* user_data)
+{
+    GRAPHICLOG("demo_ui_register_powerkey_event_callback, proc_func:%x", proc_func);
+    ui_task_cntx.powerkey_event_callback_f = proc_func;
+    ui_task_cntx.user_data = user_data;
+}
+
+static void demo_ui_powerkey_callback_func(void* param)
+{
+    ui_send_event_from_isr(MESSAGE_ID_POWERKEY_EVENT, 0, NULL);
+
+}
+
+static void powerkey_event_handle()
+{
+    hal_keypad_status_t ret;
+    hal_keypad_powerkey_event_t powerkey_event;
+
+	GRAPHICLOG("powerkey_event_handle");
+
+    ret = hal_keypad_powerkey_get_key(&powerkey_event);
+    GRAPHICLOG("powerkey_get_event_data ret:%d", ret);
+    while (ret == HAL_KEYPAD_STATUS_OK) {
+        ret = hal_keypad_powerkey_get_key(&powerkey_event);
+        if (ui_task_cntx.powerkey_event_callback_f) {
+        GRAPHICLOG("chenchen powerkey event handle, data:%d", powerkey_event.key_data);
+        ui_task_cntx.powerkey_event_callback_f(&powerkey_event, ui_task_cntx.user_data);
+    	}
+    }
+
+}
+#endif
 //chenchen end
 
 /*****************************************************************************
@@ -256,9 +295,16 @@ static void ui_task_msg_handler(ui_task_message_struct_t *message)
             pen_event_handle();
             break;
 #endif
+#ifdef MTK_KEYPAD_ENABLE
 		case MESSAGE_ID_KEYPAD_EVENT:
 			keypad_event_handle();
 			break;
+#endif
+#if 1 //def MTK_POWERKEY_ENABLE
+		case MESSAGE_ID_POWERKEY_EVENT:
+			powerkey_event_handle();
+			break;
+#endif
         default:
             common_event_handler((message_id_enum) message->message_id, (int32_t) message->param1, (void*) message->param2);
             break;
@@ -342,6 +388,14 @@ void ui_task_main(void*arg)
 	st = hal_keypad_register_callback(demo_ui_keypad_callback_func,NULL);
 	GRAPHICLOG("keypad register callback, ret:%d", st);
 	hal_keypad_enable(); 
+#endif
+
+#if 1 //def MTK_POWERKEY_ENABLE
+	hal_keypad_status_t pk;
+	pk = keypad_custom_powerkey_init();
+	GRAPHICLOG("powerkey init, ret:%d", st);
+	pk = hal_keypad_powerkey_register_callback(demo_ui_powerkey_callback_func,NULL);
+	GRAPHICLOG("powerkey register callback, ret:%d", st);
 #endif
 
     arg = arg;

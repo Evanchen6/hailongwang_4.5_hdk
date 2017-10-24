@@ -362,6 +362,8 @@ void wf_app_init(void)
 void vBacklightTimerCallback( TimerHandle_t xTimer )
 {
 //	bsp_backlight_deinit();
+	g_wf_is_lcd_need_init = true;
+
     hal_display_pwm_deinit();
 	hal_display_pwm_init(HAL_DISPLAY_PWM_CLOCK_26MHZ);
 	hal_display_pwm_set_duty(0);
@@ -458,8 +460,38 @@ static void wf_need_lcd_init(void)
 	hal_display_pwm_set_duty(20);
 	bsp_lcd_exit_idle();
 	//bsp_backlight_init();
-	//	g_wf_is_lcd_need_init = false;
-	//}
+
+}
+
+static void wf_need_bl_on(void)
+{
+	hal_display_pwm_deinit();
+	hal_display_pwm_init(HAL_DISPLAY_PWM_CLOCK_26MHZ);
+	hal_display_pwm_set_duty(20);
+}
+
+static void wf_app_powerkey_event_handler(hal_keypad_powerkey_event_t* powerkey_event,void* user_data)
+{
+	LOG_I(common, "chenchen wf_app_powerkey  %d",powerkey_event->key_data);
+
+	if (powerkey_event->state == 0){
+		return;
+	} else if (powerkey_event->state == 1){
+		if (g_wf_is_lcd_need_init){
+			g_wf_is_lcd_need_init = false;
+			wf_need_lcd_init();
+		} else {
+			wf_need_bl_on();
+		}
+		if( xTimerReset( vBacklightTimer, 100 ) != pdPASS ) {
+			LOG_I(common, "chenchen wf powerkey_xTimerReset fail");
+		}
+		LOG_I(common, "chenchen powerkey  %d",powerkey_event->key_data);
+	} else if (powerkey_event->state == 2){
+			hal_rtc_set_time_notification_period(HAL_RTC_TIME_NOTIFICATION_NONE);
+			hal_sleep_manager_enter_power_off_mode();
+
+	}
 }
 
 static void wf_app_keypad_event_handler(hal_keypad_event_t* keypad_event,void* user_data)
@@ -473,9 +505,14 @@ static void wf_app_keypad_event_handler(hal_keypad_event_t* keypad_event,void* u
 	18 0x12---down
 */
 
-//	GRAPHICLOG("[chenchenwf_app_keypad_event_handler key state=%d, position=%d\r\n", (int)keypad_event->state, (int)keypad_event->key_data);
 	LOG_I(common, "chenchen wf_app_keypad handler %d",keypad_event->key_data);
-	wf_need_lcd_init();
+	if (g_wf_is_lcd_need_init){
+		g_wf_is_lcd_need_init = false;
+		wf_need_lcd_init();
+	} else {
+		wf_need_bl_on();
+	}
+
 	if( xTimerReset( vBacklightTimer, 100 ) != pdPASS ) {
 		LOG_I(common, "chenchen wf_xTimerReset fail");
 	}
@@ -887,6 +924,9 @@ void wf_app_task_enable_show(void)
 {
     bsp_lcd_clear_screen(0);
 	demo_ui_register_keypad_event_callback(wf_app_keypad_event_handler, NULL);
+	demo_ui_register_powerkey_event_callback(wf_app_powerkey_event_handler, NULL);
+
+
     g_wf_is_show_screen = true;
     g_wf_is_task_need_delete = true;
 	g_wf_is_lcd_need_init = false;

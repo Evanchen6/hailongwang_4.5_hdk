@@ -78,6 +78,7 @@ typedef struct touch_event_struct {
 #define CONFIG_MESSAGE_ID_ENUM
 typedef enum{
 	MESSAGE_ID_KEYPAD_EVENT,
+	MESSAGE_ID_POWERKEY_EVENT,
 	MESSAGE_ID_PEN_EVENT,
 #include "screen_config.h"
 } message_id_enum;
@@ -91,6 +92,7 @@ typedef void (*touch_event_proc_func)(touch_event_struct_t* touch_event, void* u
 
 //add by chenchen 
 typedef void (*keypad_event_proc_func)(hal_keypad_event_t* keypad_event, void* user_data);
+typedef void (*powerkey_event_proc_func)(hal_keypad_powerkey_event_t* powerkey_event, void* user_data);
 
 // go back to main screen
 void show_main_screen(void);
@@ -103,6 +105,8 @@ void demo_ui_register_touch_event_callback(touch_event_proc_func proc_func, void
 
 //add by chenchen
 void demo_ui_register_keypad_event_callback(keypad_event_proc_func proc_func, void* user_data);
+void demo_ui_register_powerkey_event_callback(powerkey_event_proc_func proc_func, void* user_data);
+
 extern void common_event_handler(message_id_enum event_id, int32_t param1, void* param2);
 
 #endif
