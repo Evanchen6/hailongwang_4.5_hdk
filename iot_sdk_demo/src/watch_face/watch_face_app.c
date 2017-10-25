@@ -452,7 +452,6 @@ static void wf_show_pop_image(void)
 
 static void wf_need_lcd_init(void)
 {
-	//if (g_wf_is_lcd_need_init == true) {
 	hal_sleep_manager_lock_sleep(sdkdemo_sleep_handle);
 
 	hal_display_pwm_deinit();
@@ -460,7 +459,6 @@ static void wf_need_lcd_init(void)
 	hal_display_pwm_set_duty(20);
 	bsp_lcd_exit_idle();
 	//bsp_backlight_init();
-
 }
 
 static void wf_need_bl_on(void)
@@ -516,6 +514,7 @@ static void wf_app_keypad_event_handler(hal_keypad_event_t* keypad_event,void* u
 	if( xTimerReset( vBacklightTimer, 100 ) != pdPASS ) {
 		LOG_I(common, "chenchen wf_xTimerReset fail");
 	}
+	vTaskDelay(100);
 
 	temp_index = 0;
 	if (keypad_event->state == 1){
@@ -536,13 +535,13 @@ static void wf_app_keypad_event_handler(hal_keypad_event_t* keypad_event,void* u
 		case 1:
 			g_wf_is_show_screen = false;
 			pop_timer_stop();
-			//backlight_timer_stop();
+			backlight_timer_stop();
 			show_main_screen();
 			return;
 		case 2:
 			g_wf_is_show_screen = false;
 			pop_timer_stop();
-			//backlight_timer_stop();
+			backlight_timer_stop();
 			show_main_screen();
 
 			return;

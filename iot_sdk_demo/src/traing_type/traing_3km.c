@@ -42,6 +42,7 @@
 
 #define RESIZE_RATE LCD_CURR_HEIGHT/240
 #define DEMO_ITEM_NAME_MAX_LEN 50
+static bool g_tt_is_3km_start;
 
 static struct {
   int32_t fota_title_x;
@@ -233,6 +234,8 @@ void training_3km()
 
 static void running_3km_screen_cntx_init()
 {
+	g_tt_is_3km_start = false;
+
     if ((running_3km_screen_cntx.height == 0) && (running_3km_screen_cntx.width==0)) {
 
         bsp_lcd_get_parameter(LCM_IOCTRL_QUERY__LCM_HEIGHT, &(running_3km_screen_cntx.height));
@@ -288,7 +291,7 @@ static void running_3km_screen_keypad_event_handler(hal_keypad_event_t* keypad_e
 		GRAPHICLOG("[chenchen running_3km_screen_keypad_event_handler key state=%d, position=%d\r\n", (int)keypad_event->state, (int)keypad_event->key_data);
 	
 		if (keypad_event->key_data == 0xd && keypad_event->state == 0){
-			temp_index = 1;
+			temp_index = 3;
 		} else if (keypad_event->key_data == 0xe && keypad_event->state == 0){
 			temp_index = 2;
 		} else if (keypad_event->key_data == 0x11 && keypad_event->state == 0){
@@ -310,6 +313,9 @@ static void running_3km_screen_keypad_event_handler(hal_keypad_event_t* keypad_e
 				gnss_demo_app_stop();
                 gnss_demo_app_destroy(gnss_task_handle);
 				show_traing_type_screen();
+				return;
+			case 3:
+				g_tt_is_3km_start = !g_tt_is_3km_start;
 				return;
 			default:
 				break;
@@ -371,6 +377,24 @@ static void gnss_3km_app_location_handle(gnss_location_handle_type_t type, void*
 	    gdi_font_engine_set_font_size(font);
 	    gdi_font_engine_set_text_color(text_color);
 
+		if (g_tt_is_3km_start) {
+			gdi_image_draw_by_id(190, running_3km_screen_cntx.fota_title_y, IMAGE_ID_IDLE_GPS_BMP);
+
+			running_3km_string_info.baseline_height = -1;
+	    	running_3km_string_info.x = 100;
+	    	running_3km_string_info.y = running_3km_screen_cntx.fota_title_y;
+	    	running_3km_string_info.string = running_3km_convert_string_to_wstring("STOP");
+	    	running_3km_string_info.length = strlen("STOP");
+	    	gdi_font_engine_display_string(&running_3km_string_info);			
+		} else {
+			running_3km_string_info.baseline_height = -1;
+			running_3km_string_info.x = 100;
+			running_3km_string_info.y = running_3km_screen_cntx.fota_title_y;
+			running_3km_string_info.string = running_3km_convert_string_to_wstring("START");
+			running_3km_string_info.length = strlen("START");
+			gdi_font_engine_display_string(&running_3km_string_info);
+		}
+		
 	    running_3km_string_info.baseline_height = -1;
 	    running_3km_string_info.x = running_3km_screen_cntx.fota_title_x;
 	    running_3km_string_info.y = running_3km_screen_cntx.fota_title_y;

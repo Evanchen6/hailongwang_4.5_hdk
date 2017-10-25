@@ -218,6 +218,8 @@ static void main_screen_keypad_event_handler(hal_keypad_event_t* keypad_event,vo
 			main_screen_scroll_to_next_page();
 			break;
 		case -1:
+			show_watchface_timer_stop();
+			curr_event_handler = demo_item[3].event_handle_f;
 			if (demo_item[3].show_screen_f) {
 				demo_item[3].show_screen_f();
 			}
@@ -604,7 +606,8 @@ static void tui_main_screen_draw()
 
 	gdi_font_engine_set_font_size(GDI_FONT_ENGINE_FONT_SMALL);
 	
-	gdi_draw_filled_rectangle(0,0,240 * RESIZE_RATE - 1,240 * RESIZE_RATE - 1,0);
+	gdi_draw_filled_rectangle(0,0,240 * RESIZE_RATE - 1,240 * RESIZE_RATE - 1,gdi_get_color_from_argb(0, 0, 0, 0));
+	vTaskDelay(10);
 
 
 //battary status 
