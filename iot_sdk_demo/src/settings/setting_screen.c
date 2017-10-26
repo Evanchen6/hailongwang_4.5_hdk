@@ -314,12 +314,12 @@ static void setting_screen_draw()
 
 		setting_string_info.x = x;
         setting_string_info.y = y;
-        setting_string_info.string = setting_screen_convert_string_to_wstring((uint8_t*)demo_settings_item[index].name);
-        setting_string_info.length = strlen((char*) demo_settings_item[index].name);
+        setting_string_info.string = (uint8_t*)demo_settings_item[index].name;
+        setting_string_info.length = 4;
         setting_string_info.baseline_height = -1;
         gdi_font_engine_display_string(&setting_string_info);
                                 
-        y += 30 * RESIZE_RATE;
+        y += 40 * RESIZE_RATE;
         index++;
         num--;
     }

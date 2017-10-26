@@ -35,6 +35,7 @@
  #ifndef __TRAING_TYPE_H__
 #define __TRAING_TYPE_H__
 
+
 #include "main_screen.h"
 
 

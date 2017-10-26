@@ -74,7 +74,7 @@ static struct {
 
 void show_running_3km_screen(void);
 
-//void running_3km_event_handler(message_id_enum event_id, int32_t param1, void* param2);
+void running_3km_event_handler(message_id_enum event_id, int32_t param1, void* param2);
 static TaskHandle_t gnss_task_handle;
 
 int8_t lat_temp[15] = "\0";
@@ -189,6 +189,11 @@ static char * my_3km_ftoa(double f, char * buf, int precision)
     }
 
     return buf;
+}
+
+void running_3km_event_handler(message_id_enum event_id, int32_t param1, void* param2)
+{
+	GRAPHICLOG("[chenchen---------  message_id_enum=%d, param1=%d\r\n", event_id, param1);
 }
 
 static double getdistance(int lat1, int lng1, int lat2, int lng2)
@@ -351,6 +356,8 @@ static void gnss_3km_app_location_handle(gnss_location_handle_type_t type, void*
 
 	x = 40 * RESIZE_RATE;
 	y = 50 * RESIZE_RATE;
+
+	ui_send_event(MESSAGE_ID_TRAING_3KM, 35, 0);
 
     if (type == GNSS_LOCATION_HANDLE_TYPE_ERROR) {
         GNSSLOGD("[chenchen] location handle error! type: %d\n", (int)param);

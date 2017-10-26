@@ -27,6 +27,7 @@
 #include <stdint.h>
 #include <string.h>
 #include "traing_running.h"
+#include "traing_3km.h"
 
 #define LEFT_GAP 5
 #define ITEM_HEIGHT 25
@@ -64,7 +65,13 @@ static struct {
 
 void show_running_screen(void);
 
-//void running_event_handler(message_id_enum event_id, int32_t param1, void* param2);
+void running_event_handler(message_id_enum event_id, int32_t param1, void* param2);
+
+void running_event_handler(message_id_enum event_id, int32_t param1, void* param2)
+{
+	GRAPHICLOG("[chenchen---------  message_id_enum=%d, param1=%d\r\n", event_id, param1);
+
+}
 
 static void running_screen_cntx_init()
 {
@@ -121,7 +128,10 @@ static void running_screen_keypad_event_handler(hal_keypad_event_t* keypad_event
 	*/
 	
 		GRAPHICLOG("[chenchen running_screen_keypad_event_handler key state=%d, position=%d\r\n", (int)keypad_event->state, (int)keypad_event->key_data);
-	
+		ui_send_event(MESSAGE_ID_GNSS_POSITION, 30, 0);
+		running_3km_event_handler(MESSAGE_ID_GNSS_POSITION, 66, 0);
+
+		
 		if (keypad_event->key_data == 0xd && keypad_event->state == 0){
 			temp_index = 1;
 		} else if (keypad_event->key_data == 0xe && keypad_event->state == 0){
