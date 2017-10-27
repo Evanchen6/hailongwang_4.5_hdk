@@ -47,7 +47,7 @@ FUSION_PEDOMETER_USE                = none    # M_INHOUSE_PEDOMETER, none
 FUSION_SLEEP_TRACKER_USE            = none    # M_INHOUSE_SLEEP_TRACKER, none
 FUSION_HEART_RATE_MONITOR_USE       = M_INHOUSE_HEART_RATE_MONITOR    # M_INHOUSE_HEART_RATE_MONITOR, none
 FUSION_HEART_RATE_VARIABILITY_USE   = M_INHOUSE_HEART_RATE_VARIABILITY    # M_INHOUSE_HEART_RATE_VARIABILITY, none
-FUSION_BLOOP_PRESSURE_USE           = none    # M_INHOUSE_BLOOD_PRESSURE, none
+FUSION_BLOOP_PRESSURE_USE           = M_INHOUSE_BLOOD_PRESSURE    # M_INHOUSE_BLOOD_PRESSURE, none
 MTK_DEBUG_LEVEL                     = info    # info, warning, error, none
 MTK_MBEDTLS_CONFIG_FILE             =         # 2523 project don't include Lwip, no need pay attention to verify it.
 

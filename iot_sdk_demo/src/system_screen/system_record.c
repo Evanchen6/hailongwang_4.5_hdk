@@ -19,6 +19,8 @@
 #include "memory_attribute.h"
 #include "bsp_lcd.h"
 #include "mt25x3_hdk_backlight.h"
+#include "custom_image_data_resource.h"
+#include "custom_resource_def.h"
 
 #include "syslog.h"
 #include <stdarg.h>
@@ -175,7 +177,7 @@ void show_system_record_screen(void)
     int32_t x,y;
 
 	x = 40 * RESIZE_RATE;
-	y = 50 * RESIZE_RATE;
+	y = 30 * RESIZE_RATE;
 
 	system_record_screen_cntx_init();
 	demo_ui_register_keypad_event_callback(system_record_screen_keypad_event_handler, NULL);
@@ -183,18 +185,28 @@ void show_system_record_screen(void)
 	gdi_font_engine_display_string_info_t system_record_string_info = {0};
     gdi_draw_filled_rectangle(0,0,system_record_screen_cntx.width-1,system_record_screen_cntx.height-1, system_record_screen_cntx.bg_color);
 
-    gdi_font_engine_size_t font = GDI_FONT_ENGINE_FONT_MEDIUM;
+    gdi_font_engine_size_t font = GDI_FONT_ENGINE_FONT_SMALL;
     gdi_font_engine_color_t text_color = {0, 255, 255, 255};//white color
 
     gdi_font_engine_set_font_size(font);
     gdi_font_engine_set_text_color(text_color);
 
 
-	uint8_t data_utf8[10]={0x00,0x5F,0xD1,0x53,0x2D,0x4E,0x00};
+	uint8_t vital_sign[10]={0x1F,0x75,0x7D,0x54,0x53,0x4F,0x81,0x5F,0x00};
     system_record_string_info.baseline_height = -1;
     system_record_string_info.x = x;
     system_record_string_info.y = y;
-    system_record_string_info.string = data_utf8;
+    system_record_string_info.string = vital_sign;
+    system_record_string_info.length = 4;
+    gdi_font_engine_display_string(&system_record_string_info);
+
+	gdi_image_draw_by_id(x, y+40, IMAGE_ID_IDLE_HEART_BMP);
+
+	uint8_t motion_consume[10]={0xD0,0x8F,0xA8,0x52,0x88,0x6D,0x17,0x80,0x00};
+    system_record_string_info.baseline_height = -1;
+    system_record_string_info.x = x;
+    system_record_string_info.y = y + 100;
+    system_record_string_info.string = motion_consume;
     system_record_string_info.length = 4;
     gdi_font_engine_display_string(&system_record_string_info);
 

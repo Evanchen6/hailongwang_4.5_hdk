@@ -507,6 +507,18 @@ void show_sensor_ready_to_connect_screen(void)
 {
     SENSOR_DEMO_LOGI("enable_all_sensors\r\n");
     enable_all_sensors();
+#ifdef FUSION_HEART_RATE_VARIABILITY_USE
+	  s_hrv_measure_status = 2;
+	  SENSOR_DEMO_LOGI("press HRV\r\n");
+	  enable_hrv();
+#endif
+	
+#ifdef FUSION_BLOOD_PRESSURE_USE
+	  s_hr_bpm_val = 0; /* exclusive application of B.P. and heart rate */
+	  s_bp_measure_status = 2;
+	  SENSOR_DEMO_LOGI("press B.P.\r\n");
+	  enable_bp();
+#endif
 
     SENSOR_DEMO_LOGI("show_sensor_ready_to_connect_screen\r\n");
     show_sensor_screen();

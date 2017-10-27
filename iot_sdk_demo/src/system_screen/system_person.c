@@ -175,7 +175,7 @@ void show_system_person_screen(void)
     int32_t x,y;
 
 	x = 40 * RESIZE_RATE;
-	y = 50 * RESIZE_RATE;
+	y = 30 * RESIZE_RATE;
 
 	system_person_screen_cntx_init();
 	demo_ui_register_keypad_event_callback(system_person_screen_keypad_event_handler, NULL);
@@ -183,19 +183,72 @@ void show_system_person_screen(void)
 	gdi_font_engine_display_string_info_t system_person_string_info = {0};
     gdi_draw_filled_rectangle(0,0,system_person_screen_cntx.width-1,system_person_screen_cntx.height-1, system_person_screen_cntx.bg_color);
 
-    gdi_font_engine_size_t font = GDI_FONT_ENGINE_FONT_MEDIUM;
+    gdi_font_engine_size_t font = GDI_FONT_ENGINE_FONT_SMALL;
     gdi_font_engine_color_t text_color = {0, 255, 255, 255};//white color
 
     gdi_font_engine_set_font_size(font);
     gdi_font_engine_set_text_color(text_color);
 
 
-	uint8_t data_utf8[10]={0x00,0x5F,0xD1,0x53,0x2D,0x4E,0x00};
+	uint8_t person_id[10]={0x28,0x75,0x37,0x62,0x16,0x7F,0xF7,0x53,0x00};
     system_person_string_info.baseline_height = -1;
     system_person_string_info.x = x;
     system_person_string_info.y = y;
-    system_person_string_info.string = data_utf8;
+    system_person_string_info.string = person_id;
     system_person_string_info.length = 4;
+    gdi_font_engine_display_string(&system_person_string_info);
+
+    system_person_string_info.baseline_height = -1;
+    system_person_string_info.x = x + 140;
+    system_person_string_info.y = y;
+    system_person_string_info.string = system_person_convert_string_to_wstring("00");
+    system_person_string_info.length = strlen("00");
+    gdi_font_engine_display_string(&system_person_string_info);
+
+	uint8_t gender[10]={0x27,0x60,0x2B,0x52,0x00};
+    system_person_string_info.baseline_height = -1;
+    system_person_string_info.x = x;
+    system_person_string_info.y = y + 40;
+    system_person_string_info.string = gender;
+    system_person_string_info.length = 4;
+    gdi_font_engine_display_string(&system_person_string_info);
+
+	uint8_t gender_txt[10]={0x37,0x75,0x00};
+    system_person_string_info.baseline_height = -1;
+    system_person_string_info.x = x + 140;
+    system_person_string_info.y = y + 40;
+    system_person_string_info.string = gender_txt;
+    system_person_string_info.length = 4;
+    gdi_font_engine_display_string(&system_person_string_info);
+
+	uint8_t age[10]={0x74,0x5E,0x84,0x9F,0x00};
+    system_person_string_info.baseline_height = -1;
+    system_person_string_info.x = x;
+    system_person_string_info.y = y + 80;
+    system_person_string_info.string = age;
+    system_person_string_info.length = 4;
+    gdi_font_engine_display_string(&system_person_string_info);
+
+    system_person_string_info.baseline_height = -1;
+    system_person_string_info.x = x + 140;
+    system_person_string_info.y = y + 80;
+    system_person_string_info.string = system_person_convert_string_to_wstring("20");
+    system_person_string_info.length = strlen("20");
+    gdi_font_engine_display_string(&system_person_string_info);
+
+	uint8_t weight[10]={0x53,0x4F,0xCD,0x91,0x00};
+    system_person_string_info.baseline_height = -1;
+    system_person_string_info.x = x;
+    system_person_string_info.y = y + 120;
+    system_person_string_info.string = weight;
+    system_person_string_info.length = 4;
+    gdi_font_engine_display_string(&system_person_string_info);
+
+    system_person_string_info.baseline_height = -1;
+    system_person_string_info.x = x + 140;
+    system_person_string_info.y = y + 120;
+    system_person_string_info.string = system_person_convert_string_to_wstring("70KG");
+    system_person_string_info.length = strlen("70KG");
     gdi_font_engine_display_string(&system_person_string_info);
 
 	gdi_lcd_update_screen(0,0,system_person_screen_cntx.width-1,system_person_screen_cntx.height-1);

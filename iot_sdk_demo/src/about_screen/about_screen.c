@@ -59,6 +59,8 @@
 #include "custom_image_data_resource.h"
 #include "custom_resource_def.h"
 #include "timers.h"
+#include "nvdm.h"
+#include "bt_system.h"
 
 
 #include "syslog.h"
@@ -256,39 +258,66 @@ static void about_screen_keypad_event_handler(hal_keypad_event_t* keypad_event,v
 void  show_about_screen(void)
 {
     int32_t x,y;
+    uint8_t bt_buffer[18] = {0};
+    uint32_t size = 12;
+    nvdm_status_t status;
 
 	x = 40 * RESIZE_RATE;
-	y = 50 * RESIZE_RATE;
+	y = 30 * RESIZE_RATE;
 
 	about_screen_cntx_init();
 	demo_ui_register_keypad_event_callback(about_screen_keypad_event_handler, NULL);	
  	show_aboutwatchface_timer_init(10);
-	
+
+	status = nvdm_read_data_item("BT", "address", bt_buffer, &size);
+	if (NVDM_STATUS_OK == status) {
+		LOG_I(common, "[about]Read from NVDM:%s\n", bt_buffer);
+
+	}
+
 	gdi_font_engine_display_string_info_t about_string_info = {0};
     gdi_draw_filled_rectangle(0,0,about_screen_cntx.width-1,about_screen_cntx.height-1, about_screen_cntx.bg_color);
 
-    gdi_font_engine_size_t font = GDI_FONT_ENGINE_FONT_MEDIUM;
+    gdi_font_engine_size_t font = GDI_FONT_ENGINE_FONT_SMALL;
     gdi_font_engine_color_t text_color = {0, 255, 255, 255};//white color
 
     gdi_font_engine_set_font_size(font);
     gdi_font_engine_set_text_color(text_color);
 	
 //	gdi_image_draw_by_id(0, 0, IMAGE_ID_ZBG_02_BMP);
-/*
-    about_string_info.baseline_height = -1;
-    about_string_info.x = about_screen_cntx.fota_title_x;
-    about_string_info.y = about_screen_cntx.fota_title_y;
-    about_string_info.string = about_convert_string_to_wstring("information..");
-    about_string_info.length = strlen("information..");
-    gdi_font_engine_display_string(&about_string_info);
-*/	
-	uint8_t data_utf8[10]={0x00,0x5F,0xD1,0x53,0x2D,0x4E,0x00};
+
+	
+	uint8_t version[10]={0x48,0x72,0x2C,0x67,0x00};
 
 	about_string_info.baseline_height = -1;
     about_string_info.x = x;
     about_string_info.y = y;
-    about_string_info.string = data_utf8;
+    about_string_info.string = version;
     about_string_info.length = 4;
+    gdi_font_engine_display_string(&about_string_info);
+
+    about_string_info.baseline_height = -1;
+    about_string_info.x = x;
+    about_string_info.y = y + 40;
+    about_string_info.string = about_convert_string_to_wstring("v1.0");
+    about_string_info.length = strlen("v1.0");
+    gdi_font_engine_display_string(&about_string_info);
+
+
+	uint8_t bt_addr[10]={0xDD,0x84,0x59,0x72,0x30,0x57,0x40,0x57,0x00};
+
+	about_string_info.baseline_height = -1;
+    about_string_info.x = x;
+    about_string_info.y = y + 80;
+    about_string_info.string = bt_addr;
+    about_string_info.length = 4;
+    gdi_font_engine_display_string(&about_string_info);
+
+    about_string_info.baseline_height = -1;
+    about_string_info.x = x;
+    about_string_info.y = y + 120;
+    about_string_info.string = about_convert_string_to_wstring((char*)bt_buffer);
+    about_string_info.length = strlen((char*)bt_buffer);
     gdi_font_engine_display_string(&about_string_info);
 
 	gdi_lcd_update_screen(0,0,about_screen_cntx.width-1,about_screen_cntx.height-1);
